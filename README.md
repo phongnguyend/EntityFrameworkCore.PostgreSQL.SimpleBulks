@@ -87,14 +87,13 @@ dbct.BulkMerge(compositeKeyRows,
 ### Using Builder Approach in case you need to mix both Dynamic & Lambda Expression
 ```c#
 new BulkInsertBuilder<Row>(dbct.GetNpgsqlConnection())
-	.WithData(rows)
 	.WithColumns(row => new { row.Column1, row.Column2, row.Column3 })
 	// or .WithColumns([ "Column1", "Column2", "Column3" ])
 	.WithOutputId(row => row.Id)
 	// or .WithOutputId("Id")
 	.ToTable(dbct.GetTableName(typeof(Row)))
 	// or .ToTable("Rows")
-	.Execute();
+	.Execute(rows);
 ```
 
 ## NpgsqlConnectionExtensions
@@ -169,13 +168,12 @@ connection.BulkDelete(compositeKeyRows, "CompositeKeyRows", [ "Id1", "Id2" ]);
 ### Using Builder Approach in case you need to mix both Dynamic & Lambda Expression
 ```c#
 new BulkInsertBuilder<Row>(connection)
-	.WithData(rows)
 	.WithColumns(row => new { row.Column1, row.Column2, row.Column3 })
 	// or .WithColumns([ "Column1", "Column2", "Column3" ])
 	.WithOutputId(row => row.Id)
 	// or .WithOutputId("Id")
 	.ToTable("Rows")
-	.Execute();
+	.Execute(rows);
 ```
 
 ## Configuration
@@ -222,7 +220,6 @@ _context.BulkMerge(rows,
     {
         options.BatchSize = 0;
         options.Timeout = 30;
-        options.WithHoldLock = false;
         options.ReturnDbGeneratedId = true;
         options.LogTo = Console.WriteLine;
     });

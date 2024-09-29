@@ -146,9 +146,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge
                 return $"s.\"{x}\"{collation} = t.\"{GetDbColumnName(x)}\"{collation}";
             }));
 
-            var hint = _options.WithHoldLock ? " WITH (HOLDLOCK)" : string.Empty;
-
-            mergeStatementBuilder.AppendLine($"MERGE INTO {_tableName}{hint} AS t");
+            mergeStatementBuilder.AppendLine($"MERGE INTO {_tableName} AS t");
             mergeStatementBuilder.AppendLine($"    USING {temptableName} AS s");
             mergeStatementBuilder.AppendLine($"ON ({joinCondition})");
 
