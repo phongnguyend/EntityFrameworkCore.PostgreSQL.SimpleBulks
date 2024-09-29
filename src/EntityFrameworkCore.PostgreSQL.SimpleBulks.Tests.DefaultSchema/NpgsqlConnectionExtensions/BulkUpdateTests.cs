@@ -198,15 +198,15 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                 {
                     _connection.BulkUpdate(rows,
                         "Id",
-                        new[] { "Column3", "Column2" },
+                        ["Column3", "Column2"],
                         options =>
                         {
                             options.LogTo = _output.WriteLine;
                         });
 
                     _connection.BulkUpdate(compositeKeyRows,
-                        new[] { "Id1", "Id2" },
-                        new[] { "Column3", "Column2" },
+                        ["Id1", "Id2"],
+                        ["Column3", "Column2"],
                         options =>
                         {
                             options.LogTo = _output.WriteLine;
@@ -216,15 +216,15 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                 {
                     _connection.BulkUpdate(rows, "\"SingleKeyRows\"",
                         "Id",
-                        new[] { "Column3", "Column2" },
+                        ["Column3", "Column2"],
                         options =>
                         {
                             options.LogTo = _output.WriteLine;
                         });
 
                     _connection.BulkUpdate(compositeKeyRows, "\"CompositeKeyRows\"",
-                        new[] { "Id1", "Id2" },
-                        new[] { "Column3", "Column2" },
+                        ["Id1", "Id2"],
+                        ["Column3", "Column2"],
                         options =>
                         {
                             options.LogTo = _output.WriteLine;
@@ -257,17 +257,17 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                 {
                     _connection.BulkMerge(rows,
                         "Id",
-                        new[] { "Column1", "Column2" },
-                        new[] { "Column1", "Column2", "Column3" },
+                        ["Column1", "Column2"],
+                        ["Column1", "Column2", "Column3"],
                         options =>
                         {
                             options.LogTo = _output.WriteLine;
                         });
 
                     _connection.BulkMerge(compositeKeyRows,
-                        new[] { "Id1", "Id2" },
-                        new[] { "Column1", "Column2", "Column3" },
-                        new[] { "Id1", "Id2", "Column1", "Column2", "Column3" },
+                        ["Id1", "Id2"],
+                        ["Column1", "Column2", "Column3"],
+                        ["Id1", "Id2", "Column1", "Column2", "Column3"],
                         options =>
                         {
                             options.LogTo = _output.WriteLine;
@@ -277,17 +277,17 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                 {
                     _connection.BulkMerge(rows, "\"SingleKeyRows\"",
                         "Id",
-                        new[] { "Column1", "Column2" },
-                        new[] { "Column1", "Column2", "Column3" },
+                        ["Column1", "Column2"],
+                        ["Column1", "Column2", "Column3"],
                         options =>
                         {
                             options.LogTo = _output.WriteLine;
                         });
 
                     _connection.BulkMerge(compositeKeyRows, "\"CompositeKeyRows\"",
-                        new[] { "Id1", "Id2" },
-                        new[] { "Column1", "Column2", "Column3" },
-                        new[] { "Id1", "Id2", "Column1", "Column2", "Column3" },
+                        ["Id1", "Id2"],
+                        ["Column1", "Column2", "Column3"],
+                        ["Id1", "Id2", "Column1", "Column2", "Column3"],
                         options =>
                         {
                             options.LogTo = _output.WriteLine;

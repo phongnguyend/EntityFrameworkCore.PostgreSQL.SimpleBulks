@@ -105,7 +105,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                 if (omitTableName)
                 {
                     _connection.BulkInsert(rows,
-                        new[] { "Column1", "Column2", "Column3" },
+                        ["Column1", "Column2", "Column3"],
                         "Id",
                         options =>
                         {
@@ -113,7 +113,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                         });
 
                     _connection.BulkInsert(compositeKeyRows,
-                        new[] { "Id1", "Id2", "Column1", "Column2", "Column3" },
+                        ["Id1", "Id2", "Column1", "Column2", "Column3"],
                         options =>
                         {
                             options.LogTo = _output.WriteLine;
@@ -122,7 +122,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                 else
                 {
                     _connection.BulkInsert(rows, "\"SingleKeyRows\"",
-                        new[] { "Column1", "Column2", "Column3" },
+                        ["Column1", "Column2", "Column3"],
                         "Id",
                         options =>
                         {
@@ -130,7 +130,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                         });
 
                     _connection.BulkInsert(compositeKeyRows, "\"CompositeKeyRows\"",
-                        new[] { "Id1", "Id2", "Column1", "Column2", "Column3" },
+                        ["Id1", "Id2", "Column1", "Column2", "Column3"],
                         options =>
                         {
                             options.LogTo = _output.WriteLine;
