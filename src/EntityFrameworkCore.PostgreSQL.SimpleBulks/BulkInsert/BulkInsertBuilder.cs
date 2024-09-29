@@ -11,7 +11,6 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert
 {
     public class BulkInsertBuilder<T>
     {
-        private IEnumerable<T> _data;
         private string _tableName;
         private string _outputIdColumn;
         private IEnumerable<string> _columnNames;
@@ -31,34 +30,16 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert
             _transaction = transaction;
         }
 
-        public BulkInsertBuilder<T> WithData(IEnumerable<T> data)
-        {
-            _data = data;
-            return this;
-        }
-
         public BulkInsertBuilder<T> ToTable(string tableName)
         {
             _tableName = tableName;
             return this;
         }
 
-        [Obsolete("Typo Issue, Shoud use WithOutputId")]
-        public BulkInsertBuilder<T> WithOuputId(string idColumn)
-        {
-            return WithOutputId(idColumn);
-        }
-
         public BulkInsertBuilder<T> WithOutputId(string idColumn)
         {
             _outputIdColumn = idColumn;
             return this;
-        }
-
-        [Obsolete("Typo Issue, Shoud use WithOutputId")]
-        public BulkInsertBuilder<T> WithOuputId(Expression<Func<T, object>> idSelector)
-        {
-            return WithOutputId(idSelector);
         }
 
         public BulkInsertBuilder<T> WithOutputId(Expression<Func<T, object>> idSelector)
@@ -105,11 +86,11 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert
             return _dbColumnMappings.ContainsKey(columnName) ? _dbColumnMappings[columnName] : columnName;
         }
 
-        public void Execute()
+        public void Execute(IEnumerable<T> data)
         {
-            if (_data.Count() == 1)
+            if (data.Count() == 1)
             {
-                SingleInsert(_data.First());
+                SingleInsert(data.First());
                 return;
             }
 
@@ -118,7 +99,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert
                 _connection.EnsureOpen();
 
                 Log($"Begin executing SqlBulkCopy. TableName: {_tableName}");
-                _data.SqlBulkCopy(_tableName, _columnNames, _dbColumnMappings, false, _connection, _transaction, _options);
+                data.SqlBulkCopy(_tableName, _columnNames, _dbColumnMappings, false, _connection, _transaction, _options);
                 Log("End executing SqlBulkCopy.");
                 return;
             }
@@ -134,7 +115,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert
                 _connection.EnsureOpen();
 
                 Log($"Begin executing SqlBulkCopy. TableName: {_tableName}");
-                _data.SqlBulkCopy(_tableName, columns, _dbColumnMappings, false, _connection, _transaction, _options);
+                data.SqlBulkCopy(_tableName, columns, _dbColumnMappings, false, _connection, _transaction, _options);
                 Log("End executing SqlBulkCopy.");
                 return;
             }
@@ -165,7 +146,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert
             Log("End creating temp table.");
 
             Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
-            _data.SqlBulkCopy(temptableName, _columnNames, null, true, _connection, _transaction, _options);
+            data.SqlBulkCopy(temptableName, _columnNames, null, true, _connection, _transaction, _options);
             Log("End executing SqlBulkCopy.");
 
             var returnedIds = new Dictionary<long, object>();
@@ -187,7 +168,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert
             var idProperty = typeof(T).GetProperty(_outputIdColumn);
 
             long idx = 0;
-            foreach (var row in _data)
+            foreach (var row in data)
             {
                 idProperty.SetValue(row, returnedIds[idx]);
                 idx++;

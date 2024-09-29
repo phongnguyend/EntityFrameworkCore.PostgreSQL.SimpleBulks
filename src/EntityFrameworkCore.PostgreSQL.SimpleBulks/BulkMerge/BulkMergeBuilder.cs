@@ -10,7 +10,6 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge
 {
     public class BulkMergeBuilder<T>
     {
-        private IEnumerable<T> _data;
         private string _tableName;
         private IEnumerable<string> _idColumns;
         private IEnumerable<string> _updateColumnNames;
@@ -30,12 +29,6 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge
         {
             _connection = connection;
             _transaction = transaction;
-        }
-
-        public BulkMergeBuilder<T> WithData(IEnumerable<T> data)
-        {
-            _data = data;
-            return this;
         }
 
         public BulkMergeBuilder<T> ToTable(string tableName)
@@ -125,7 +118,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge
             return _dbColumnMappings.ContainsKey(columnName) ? _dbColumnMappings[columnName] : columnName;
         }
 
-        public BulkMergeResult Execute()
+        public BulkMergeResult Execute(IEnumerable<T> data)
         {
             if (!_updateColumnNames.Any() && !_insertColumnNames.Any())
             {
@@ -194,7 +187,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge
             Log("End creating temp table.");
 
             Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
-            _data.SqlBulkCopy(temptableName, propertyNames, null, returnDbGeneratedId, _connection, _transaction, _options);
+            data.SqlBulkCopy(temptableName, propertyNames, null, returnDbGeneratedId, _connection, _transaction, _options);
             Log("End executing SqlBulkCopy.");
 
             var sqlMergeStatement = mergeStatementBuilder.ToString();
@@ -244,7 +237,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge
                 var idProperty = typeof(T).GetProperty(_outputIdColumn);
 
                 long idx = 0;
-                foreach (var row in _data)
+                foreach (var row in data)
                 {
                     if (returnedIds.TryGetValue(idx, out object id))
                     {
