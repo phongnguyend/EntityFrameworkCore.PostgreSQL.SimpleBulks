@@ -26,8 +26,8 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
 
             _connection = new NpgsqlConnection(connectionString);
 
-            TableMapper.Register(typeof(SingleKeyRow<int>), string.Empty, "SingleKeyRows");
-            TableMapper.Register(typeof(CompositeKeyRow<int, int>), string.Empty, "CompositeKeyRows");
+            TableMapper.Register(typeof(SingleKeyRow<int>), "SingleKeyRows");
+            TableMapper.Register(typeof(CompositeKeyRow<int, int>), "CompositeKeyRows");
 
             var tran = _context.Database.BeginTransaction();
 
