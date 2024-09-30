@@ -12,7 +12,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge
     {
         public static BulkMergeResult BulkMerge<T>(this DbContext dbContext, IEnumerable<T> data, Expression<Func<T, object>> idSelector, Expression<Func<T, object>> updateColumnNamesSelector, Expression<Func<T, object>> insertColumnNamesSelector, Action<BulkMergeOptions> configureOptions = null)
         {
-            string tableName = dbContext.GetTableName(typeof(T));
+            var table = dbContext.GetTableInfor(typeof(T));
             var connection = dbContext.GetNpgsqlConnection();
             var transaction = dbContext.GetCurrentNpgsqlTransaction();
             var properties = dbContext.GetProperties(typeof(T));
@@ -28,14 +28,14 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge
                  .WithInsertColumns(insertColumnNamesSelector)
                  .WithDbColumnMappings(dbColumnMappings)
                  .WithOutputId(outputIdColumn)
-                 .ToTable(tableName)
+                 .ToTable(table)
                  .ConfigureBulkOptions(configureOptions)
                  .Execute(data);
         }
 
         public static BulkMergeResult BulkMerge<T>(this DbContext dbContext, IEnumerable<T> data, string idColumn, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, Action<BulkMergeOptions> configureOptions = null)
         {
-            string tableName = dbContext.GetTableName(typeof(T));
+            var table = dbContext.GetTableInfor(typeof(T));
             var connection = dbContext.GetNpgsqlConnection();
             var transaction = dbContext.GetCurrentNpgsqlTransaction();
             var properties = dbContext.GetProperties(typeof(T));
@@ -51,14 +51,14 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge
                 .WithInsertColumns(insertColumnNames)
                 .WithDbColumnMappings(dbColumnMappings)
                 .WithOutputId(outputIdColumn)
-                .ToTable(tableName)
+                .ToTable(table)
                 .ConfigureBulkOptions(configureOptions)
                 .Execute(data);
         }
 
         public static BulkMergeResult BulkMerge<T>(this DbContext dbContext, IEnumerable<T> data, IEnumerable<string> idColumns, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, Action<BulkMergeOptions> configureOptions = null)
         {
-            string tableName = dbContext.GetTableName(typeof(T));
+            var table = dbContext.GetTableInfor(typeof(T));
             var connection = dbContext.GetNpgsqlConnection();
             var transaction = dbContext.GetCurrentNpgsqlTransaction();
             var properties = dbContext.GetProperties(typeof(T));
@@ -74,7 +74,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge
                 .WithInsertColumns(insertColumnNames)
                 .WithDbColumnMappings(dbColumnMappings)
                 .WithOutputId(outputIdColumn)
-                .ToTable(tableName)
+                .ToTable(table)
                 .ConfigureBulkOptions(configureOptions)
                 .Execute(data);
         }

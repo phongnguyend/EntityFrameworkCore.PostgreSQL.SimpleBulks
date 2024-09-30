@@ -11,7 +11,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate
 {
     public class BulkUpdateBuilder<T>
     {
-        private string _tableName;
+        private TableInfor _table;
         private IEnumerable<string> _idColumns;
         private IEnumerable<string> _columnNames;
         private IDictionary<string, string> _dbColumnMappings;
@@ -30,15 +30,15 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate
             _transaction = transaction;
         }
 
-        public BulkUpdateBuilder<T> ToTable(string tableName)
+        public BulkUpdateBuilder<T> ToTable(TableInfor table)
         {
-            _tableName = tableName;
+            _table = table;
             return this;
         }
 
         public BulkUpdateBuilder<T> WithId(string idColumn)
         {
-            _idColumns = new[] { idColumn };
+            _idColumns = [idColumn];
             return this;
         }
 
@@ -51,7 +51,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate
         public BulkUpdateBuilder<T> WithId(Expression<Func<T, object>> idSelector)
         {
             var idColumn = idSelector.Body.GetMemberName();
-            _idColumns = string.IsNullOrEmpty(idColumn) ? idSelector.Body.GetMemberNames() : new List<string> { idColumn };
+            _idColumns = string.IsNullOrEmpty(idColumn) ? idSelector.Body.GetMemberNames() : [idColumn];
             return this;
         }
 
@@ -116,7 +116,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate
             }));
 
             var updateStatementBuilder = new StringBuilder();
-            updateStatementBuilder.AppendLine($"UPDATE {_tableName} AS a SET");
+            updateStatementBuilder.AppendLine($"UPDATE {_table.SchemaQualifiedTableName} AS a SET");
             updateStatementBuilder.AppendLine(string.Join("," + Environment.NewLine, _columnNames.Select(x => CreateSetStatement(x, "b"))));
             updateStatementBuilder.AppendLine($"FROM {temptableName} AS b WHERE " + joinCondition);
 
@@ -154,7 +154,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate
             }));
 
             var updateStatementBuilder = new StringBuilder();
-            updateStatementBuilder.AppendLine($"UPDATE {_tableName} SET");
+            updateStatementBuilder.AppendLine($"UPDATE {_table.SchemaQualifiedTableName} SET");
             updateStatementBuilder.AppendLine(string.Join("," + Environment.NewLine, _columnNames.Select(x => CreateSetStatement(x))));
             updateStatementBuilder.AppendLine($"WHERE {whereCondition}");
 

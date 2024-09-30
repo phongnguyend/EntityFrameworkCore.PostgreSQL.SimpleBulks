@@ -9,7 +9,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkDelete
 {
     public class BulkDeleteBuilder<T>
     {
-        private string _tableName;
+        private TableInfor _table;
         private IEnumerable<string> _idColumns;
         private IDictionary<string, string> _dbColumnMappings;
         private BulkDeleteOptions _options;
@@ -27,15 +27,15 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkDelete
             _transaction = transaction;
         }
 
-        public BulkDeleteBuilder<T> ToTable(string tableName)
+        public BulkDeleteBuilder<T> ToTable(TableInfor table)
         {
-            _tableName = tableName;
+            _table = table;
             return this;
         }
 
         public BulkDeleteBuilder<T> WithId(string idColumn)
         {
-            _idColumns = new[] { idColumn };
+            _idColumns = [idColumn];
             return this;
         }
 
@@ -96,7 +96,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkDelete
                 return $"a.\"{GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
             }));
 
-            var deleteStatement = $"DELETE FROM {_tableName} AS a USING {temptableName} AS b WHERE " + joinCondition;
+            var deleteStatement = $"DELETE FROM {_table.SchemaQualifiedTableName} AS a USING {temptableName} AS b WHERE " + joinCondition;
 
             _connection.EnsureOpen();
 
@@ -137,7 +137,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkDelete
                 return $"\"{GetDbColumnName(x)}\" = @{x}";
             }));
 
-            var deleteStatement = $"DELETE FROM {_tableName} WHERE " + whereCondition;
+            var deleteStatement = $"DELETE FROM {_table.SchemaQualifiedTableName} WHERE " + whereCondition;
 
             Log($"Begin deleting:{Environment.NewLine}{deleteStatement}");
 

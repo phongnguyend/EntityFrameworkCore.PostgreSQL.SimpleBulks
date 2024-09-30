@@ -88,12 +88,12 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                 }
                 else
                 {
-                    _connection.BulkDelete(rows, "\"SingleKeyRows\"", row => row.Id,
+                    _connection.BulkDelete(rows, new TableInfor("SingleKeyRows"), row => row.Id,
                     options =>
                     {
                         options.LogTo = _output.WriteLine;
                     });
-                    _connection.BulkDelete(compositeKeyRows, "\"CompositeKeyRows\"", row => new { row.Id1, row.Id2 },
+                    _connection.BulkDelete(compositeKeyRows, new TableInfor("CompositeKeyRows"), row => new { row.Id1, row.Id2 },
                     options =>
                     {
                         options.LogTo = _output.WriteLine;
@@ -117,12 +117,12 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                 }
                 else
                 {
-                    _connection.BulkDelete(rows, "\"SingleKeyRows\"", "Id",
+                    _connection.BulkDelete(rows, new TableInfor("SingleKeyRows"), "Id",
                     options =>
                     {
                         options.LogTo = _output.WriteLine;
                     });
-                    _connection.BulkDelete(compositeKeyRows, "\"CompositeKeyRows\"", ["Id1", "Id2"],
+                    _connection.BulkDelete(compositeKeyRows, new TableInfor("CompositeKeyRows"), ["Id1", "Id2"],
                     options =>
                     {
                         options.LogTo = _output.WriteLine;

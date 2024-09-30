@@ -11,7 +11,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMatch
 {
     public class BulkMatchBuilder<T>
     {
-        private string _tableName;
+        private TableInfor _table;
         private IEnumerable<string> _matchedColumns;
         private IEnumerable<string> _returnedColumns;
         private IDictionary<string, string> _dbColumnMappings;
@@ -30,15 +30,15 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMatch
             _transaction = transaction;
         }
 
-        public BulkMatchBuilder<T> WithTable(string tableName)
+        public BulkMatchBuilder<T> WithTable(TableInfor table)
         {
-            _tableName = tableName;
+            _table = table;
             return this;
         }
 
         public BulkMatchBuilder<T> WithMatchedColumn(string matchedColumn)
         {
-            _matchedColumns = new List<string> { matchedColumn };
+            _matchedColumns = [matchedColumn];
             return this;
         }
 
@@ -109,7 +109,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMatch
 
             var selectQueryBuilder = new StringBuilder();
             selectQueryBuilder.AppendLine($"SELECT {string.Join(", ", _returnedColumns.Select(x => CreateSelectStatement(x)))} ");
-            selectQueryBuilder.AppendLine($"FROM {_tableName} a JOIN {temptableName} b ON " + joinCondition);
+            selectQueryBuilder.AppendLine($"FROM {_table.SchemaQualifiedTableName} a JOIN {temptableName} b ON " + joinCondition);
 
             _connection.EnsureOpen();
 

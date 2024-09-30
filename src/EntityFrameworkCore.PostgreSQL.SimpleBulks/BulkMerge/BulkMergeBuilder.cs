@@ -10,7 +10,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge
 {
     public class BulkMergeBuilder<T>
     {
-        private string _tableName;
+        private TableInfor _table;
         private IEnumerable<string> _idColumns;
         private IEnumerable<string> _updateColumnNames;
         private IEnumerable<string> _insertColumnNames;
@@ -31,15 +31,15 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge
             _transaction = transaction;
         }
 
-        public BulkMergeBuilder<T> ToTable(string tableName)
+        public BulkMergeBuilder<T> ToTable(TableInfor table)
         {
-            _tableName = tableName;
+            _table = table;
             return this;
         }
 
         public BulkMergeBuilder<T> WithId(string idColumn)
         {
-            _idColumns = new[] { idColumn };
+            _idColumns = [idColumn];
             return this;
         }
 
@@ -52,7 +52,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge
         public BulkMergeBuilder<T> WithId(Expression<Func<T, object>> idSelector)
         {
             var idColumn = idSelector.Body.GetMemberName();
-            _idColumns = string.IsNullOrEmpty(idColumn) ? idSelector.Body.GetMemberNames() : new List<string> { idColumn };
+            _idColumns = string.IsNullOrEmpty(idColumn) ? idSelector.Body.GetMemberNames() : [idColumn];
             return this;
         }
 
@@ -146,7 +146,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge
                 return $"s.\"{x}\"{collation} = t.\"{GetDbColumnName(x)}\"{collation}";
             }));
 
-            mergeStatementBuilder.AppendLine($"MERGE INTO {_tableName} AS t");
+            mergeStatementBuilder.AppendLine($"MERGE INTO {_table.SchemaQualifiedTableName} AS t");
             mergeStatementBuilder.AppendLine($"    USING {temptableName} AS s");
             mergeStatementBuilder.AppendLine($"ON ({joinCondition})");
 
