@@ -2,6 +2,7 @@ using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.CustomSchema;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -26,8 +27,8 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
 
             _connection = new NpgsqlConnection(connectionString);
 
-            TableMapper.Register(typeof(SingleKeyRow<int>), string.Empty, "SingleKeyRows");
-            TableMapper.Register(typeof(CompositeKeyRow<int, int>), string.Empty, "CompositeKeyRows");
+            TableMapper.Register(typeof(SingleKeyRow<int>), TestConstants.Schema, "SingleKeyRows");
+            TableMapper.Register(typeof(CompositeKeyRow<int, int>), TestConstants.Schema, "CompositeKeyRows");
 
             var tran = _context.Database.BeginTransaction();
 
@@ -111,7 +112,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                 }
                 else
                 {
-                    _connection.BulkUpdate(rows, new TableInfor("SingleKeyRows"),
+                    _connection.BulkUpdate(rows, new TableInfor(TestConstants.Schema, "SingleKeyRows"),
                         row => row.Id,
                         row => new { row.Column3, row.Column2 },
                         options =>
@@ -119,7 +120,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                             options.LogTo = _output.WriteLine;
                         });
 
-                    _connection.BulkUpdate(compositeKeyRows, new TableInfor("CompositeKeyRows"),
+                    _connection.BulkUpdate(compositeKeyRows, new TableInfor(TestConstants.Schema, "CompositeKeyRows"),
                         row => new { row.Id1, row.Id2 },
                         row => new { row.Column3, row.Column2 },
                         options =>
@@ -172,7 +173,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                 }
                 else
                 {
-                    _connection.BulkMerge(rows, new TableInfor("SingleKeyRows"),
+                    _connection.BulkMerge(rows, new TableInfor(TestConstants.Schema, "SingleKeyRows"),
                         row => row.Id,
                         row => new { row.Column1, row.Column2 },
                         row => new { row.Column1, row.Column2, row.Column3 },
@@ -181,7 +182,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                             options.LogTo = _output.WriteLine;
                         });
 
-                    _connection.BulkMerge(compositeKeyRows, new TableInfor("CompositeKeyRows"),
+                    _connection.BulkMerge(compositeKeyRows, new TableInfor(TestConstants.Schema, "CompositeKeyRows"),
                         row => new { row.Id1, row.Id2 },
                         row => new { row.Column1, row.Column2, row.Column3 },
                         row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 },
@@ -214,7 +215,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                 }
                 else
                 {
-                    _connection.BulkUpdate(rows, new TableInfor("SingleKeyRows"),
+                    _connection.BulkUpdate(rows, new TableInfor(TestConstants.Schema, "SingleKeyRows"),
                         "Id",
                         ["Column3", "Column2"],
                         options =>
@@ -222,7 +223,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                             options.LogTo = _output.WriteLine;
                         });
 
-                    _connection.BulkUpdate(compositeKeyRows, new TableInfor("CompositeKeyRows"),
+                    _connection.BulkUpdate(compositeKeyRows, new TableInfor(TestConstants.Schema, "CompositeKeyRows"),
                         ["Id1", "Id2"],
                         ["Column3", "Column2"],
                         options =>
@@ -275,7 +276,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                 }
                 else
                 {
-                    _connection.BulkMerge(rows, new TableInfor("SingleKeyRows"),
+                    _connection.BulkMerge(rows, new TableInfor(TestConstants.Schema, "SingleKeyRows"),
                         "Id",
                         ["Column1", "Column2"],
                         ["Column1", "Column2", "Column3"],
@@ -284,7 +285,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                             options.LogTo = _output.WriteLine;
                         });
 
-                    _connection.BulkMerge(compositeKeyRows, new TableInfor("CompositeKeyRows"),
+                    _connection.BulkMerge(compositeKeyRows, new TableInfor(TestConstants.Schema, "CompositeKeyRows"),
                         ["Id1", "Id2"],
                         ["Column1", "Column2", "Column3"],
                         ["Id1", "Id2", "Column1", "Column2", "Column3"],

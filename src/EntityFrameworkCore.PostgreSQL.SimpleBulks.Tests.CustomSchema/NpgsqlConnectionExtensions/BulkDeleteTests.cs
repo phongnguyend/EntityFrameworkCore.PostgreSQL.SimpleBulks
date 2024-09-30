@@ -1,5 +1,6 @@
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkDelete;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.CustomSchema;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -24,8 +25,8 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
 
             _connection = new NpgsqlConnection(connectionString);
 
-            TableMapper.Register(typeof(SingleKeyRow<int>), string.Empty, "SingleKeyRows");
-            TableMapper.Register(typeof(CompositeKeyRow<int, int>), string.Empty, "CompositeKeyRows");
+            TableMapper.Register(typeof(SingleKeyRow<int>), TestConstants.Schema, "SingleKeyRows");
+            TableMapper.Register(typeof(CompositeKeyRow<int, int>), TestConstants.Schema, "CompositeKeyRows");
 
             var rows = new List<SingleKeyRow<int>>();
             var compositeKeyRows = new List<CompositeKeyRow<int, int>>();
@@ -88,12 +89,12 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                 }
                 else
                 {
-                    _connection.BulkDelete(rows, new TableInfor("SingleKeyRows"), row => row.Id,
+                    _connection.BulkDelete(rows, new TableInfor(TestConstants.Schema, "SingleKeyRows"), row => row.Id,
                     options =>
                     {
                         options.LogTo = _output.WriteLine;
                     });
-                    _connection.BulkDelete(compositeKeyRows, new TableInfor("CompositeKeyRows"), row => new { row.Id1, row.Id2 },
+                    _connection.BulkDelete(compositeKeyRows, new TableInfor(TestConstants.Schema, "CompositeKeyRows"), row => new { row.Id1, row.Id2 },
                     options =>
                     {
                         options.LogTo = _output.WriteLine;
@@ -117,12 +118,12 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
                 }
                 else
                 {
-                    _connection.BulkDelete(rows, new TableInfor("SingleKeyRows"), "Id",
+                    _connection.BulkDelete(rows, new TableInfor(TestConstants.Schema, "SingleKeyRows"), "Id",
                     options =>
                     {
                         options.LogTo = _output.WriteLine;
                     });
-                    _connection.BulkDelete(compositeKeyRows, new TableInfor("CompositeKeyRows"), ["Id1", "Id2"],
+                    _connection.BulkDelete(compositeKeyRows, new TableInfor(TestConstants.Schema, "CompositeKeyRows"), ["Id1", "Id2"],
                     options =>
                     {
                         options.LogTo = _output.WriteLine;
