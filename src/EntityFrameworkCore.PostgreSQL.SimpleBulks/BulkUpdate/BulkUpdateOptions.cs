@@ -1,7 +1,6 @@
-﻿namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate
+﻿namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
+
+public class BulkUpdateOptions : BulkOptions
 {
-    public class BulkUpdateOptions : BulkOptions
-    {
-        public string Collation { get; set; } = Constants.DefaultCollation;
-    }
+    public string Collation { get; set; } = Constants.DefaultCollation;
 }

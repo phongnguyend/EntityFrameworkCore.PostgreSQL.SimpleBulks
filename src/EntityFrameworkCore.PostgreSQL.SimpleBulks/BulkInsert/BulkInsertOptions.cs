@@ -1,7 +1,6 @@
-﻿namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert
+﻿namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
+
+public class BulkInsertOptions : BulkOptions
 {
-    public class BulkInsertOptions : BulkOptions
-    {
-        public bool KeepIdentity { get; set; }
-    }
+    public bool KeepIdentity { get; set; }
 }

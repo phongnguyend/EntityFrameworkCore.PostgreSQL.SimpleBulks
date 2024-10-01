@@ -1,11 +1,10 @@
-﻿namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge
+﻿namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
+
+public class BulkMergeResult
 {
-    public class BulkMergeResult
-    {
-        public int AffectedRows { get; set; }
+    public int AffectedRows { get; set; }
 
-        public int InsertedRows { get; set; }
+    public int InsertedRows { get; set; }
 
-        public int UpdatedRows { get; set; }
-    }
+    public int UpdatedRows { get; set; }
 }

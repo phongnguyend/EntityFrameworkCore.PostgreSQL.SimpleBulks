@@ -5,126 +5,125 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions
+namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
+
+public static class TypeExtensions
 {
-    public static class TypeExtensions
+    private static Dictionary<Type, string> _mappings = new Dictionary<Type, string>
+        {
+            {typeof(bool), "bool"},
+            {typeof(DateTime), "timestamp"},
+            {typeof(DateTimeOffset), "timestamptz"},
+            {typeof(decimal), "numeric(38, 20)"},
+            {typeof(double), "float8"},
+            {typeof(Guid), "uuid"},
+            {typeof(short), "int2"},
+            {typeof(int), "int4"},
+            {typeof(long), "int8"},
+            {typeof(float), "float4"},
+            {typeof(string), "text"},
+        };
+
+    public static string ToPostgreSQLType(this Type type)
     {
-        private static Dictionary<Type, string> _mappings = new Dictionary<Type, string>
+        var sqlType = _mappings.TryGetValue(type, out string value) ? value : "text";
+        return sqlType;
+    }
+
+    public static string[] GetDbColumnNames(this Type type, params string[] ignoredColumns)
+    {
+        var names = type.GetProperties()
+            .Where(x => IsSupportedType(x))
+            .Where(x => ignoredColumns == null || !ignoredColumns.Contains(x.Name))
+            .Select(x => x.Name);
+        return names.ToArray();
+    }
+
+    public static string[] GetUnSupportedPropertyNames(this Type type)
+    {
+        var names = type.GetProperties()
+            .Where(x => !IsSupportedType(x))
+            .Select(x => x.Name);
+        return names.ToArray();
+    }
+
+    private static bool IsSupportedType(PropertyInfo property)
+    {
+        return _mappings.ContainsKey(Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType) || property.PropertyType.IsValueType;
+    }
+
+    public static Dictionary<string, Type> GetClrTypes(this Type type, IEnumerable<string> propertyNames)
+    {
+        var properties = TypeDescriptor.GetProperties(type);
+
+        var updatablePros = new List<PropertyDescriptor>();
+        foreach (PropertyDescriptor prop in properties)
+        {
+            if (propertyNames.Contains(prop.Name))
             {
-                {typeof(bool), "bool"},
-                {typeof(DateTime), "timestamp"},
-                {typeof(DateTimeOffset), "timestamptz"},
-                {typeof(decimal), "numeric(38, 20)"},
-                {typeof(double), "float8"},
-                {typeof(Guid), "uuid"},
-                {typeof(short), "int2"},
-                {typeof(int), "int4"},
-                {typeof(long), "int8"},
-                {typeof(float), "float4"},
-                {typeof(string), "text"},
-            };
-
-        public static string ToPostgreSQLType(this Type type)
-        {
-            var sqlType = _mappings.TryGetValue(type, out string value) ? value : "text";
-            return sqlType;
+                updatablePros.Add(prop);
+            }
         }
 
-        public static string[] GetDbColumnNames(this Type type, params string[] ignoredColumns)
-        {
-            var names = type.GetProperties()
-                .Where(x => IsSupportedType(x))
-                .Where(x => ignoredColumns == null || !ignoredColumns.Contains(x.Name))
-                .Select(x => x.Name);
-            return names.ToArray();
-        }
+        return updatablePros.ToDictionary(x => x.Name, x => Nullable.GetUnderlyingType(x.PropertyType) ?? x.PropertyType);
+    }
 
-        public static string[] GetUnSupportedPropertyNames(this Type type)
-        {
-            var names = type.GetProperties()
-                .Where(x => !IsSupportedType(x))
-                .Select(x => x.Name);
-            return names.ToArray();
-        }
+    public static string GenerateTempTableDefinition(this Type type, string tableName, IEnumerable<string> propertyNames, IDictionary<string, string> dbColumnMappings = null, bool addIndexNumberColumn = false)
+    {
+        var properties = TypeDescriptor.GetProperties(type);
 
-        private static bool IsSupportedType(PropertyInfo property)
+        var updatablePros = new List<PropertyDescriptor>();
+        foreach (PropertyDescriptor prop in properties)
         {
-            return _mappings.ContainsKey(Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType) || property.PropertyType.IsValueType;
-        }
-
-        public static Dictionary<string, Type> GetClrTypes(this Type type, IEnumerable<string> propertyNames)
-        {
-            var properties = TypeDescriptor.GetProperties(type);
-
-            var updatablePros = new List<PropertyDescriptor>();
-            foreach (PropertyDescriptor prop in properties)
+            if (propertyNames.Contains(prop.Name))
             {
-                if (propertyNames.Contains(prop.Name))
-                {
-                    updatablePros.Add(prop);
-                }
+                updatablePros.Add(prop);
+            }
+        }
+
+        var table = new Dictionary<string, Type>();
+        foreach (PropertyDescriptor prop in updatablePros)
+        {
+            table.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+        }
+
+        if (addIndexNumberColumn)
+        {
+            table.Add(Constants.AutoGeneratedIndexNumberColumn, typeof(long));
+        }
+
+        var sql = new StringBuilder();
+
+        sql.AppendFormat("CREATE TEMPORARY TABLE {0} (", tableName);
+
+        int i = 0;
+        foreach (var name in table)
+        {
+            if (i > 0)
+            {
+                sql.Append(",");
             }
 
-            return updatablePros.ToDictionary(x => x.Name, x => Nullable.GetUnderlyingType(x.PropertyType) ?? x.PropertyType);
+            sql.Append($"\n\t\"{GetDbColumnName(name.Key, dbColumnMappings)}\"");
+            var sqlType = name.Value.ToPostgreSQLType();
+            sql.Append($" {sqlType} NULL");
+
+            i++;
+
         }
 
-        public static string GenerateTempTableDefinition(this Type type, string tableName, IEnumerable<string> propertyNames, IDictionary<string, string> dbColumnMappings = null, bool addIndexNumberColumn = false)
+        sql.Append("\n);");
+
+        return sql.ToString();
+    }
+
+    private static string GetDbColumnName(string columName, IDictionary<string, string> dbColumnMappings)
+    {
+        if (dbColumnMappings == null)
         {
-            var properties = TypeDescriptor.GetProperties(type);
-
-            var updatablePros = new List<PropertyDescriptor>();
-            foreach (PropertyDescriptor prop in properties)
-            {
-                if (propertyNames.Contains(prop.Name))
-                {
-                    updatablePros.Add(prop);
-                }
-            }
-
-            var table = new Dictionary<string, Type>();
-            foreach (PropertyDescriptor prop in updatablePros)
-            {
-                table.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
-            }
-
-            if (addIndexNumberColumn)
-            {
-                table.Add(Constants.AutoGeneratedIndexNumberColumn, typeof(long));
-            }
-
-            var sql = new StringBuilder();
-
-            sql.AppendFormat("CREATE TEMPORARY TABLE {0} (", tableName);
-
-            int i = 0;
-            foreach (var name in table)
-            {
-                if (i > 0)
-                {
-                    sql.Append(",");
-                }
-
-                sql.Append($"\n\t\"{GetDbColumnName(name.Key, dbColumnMappings)}\"");
-                var sqlType = name.Value.ToPostgreSQLType();
-                sql.Append($" {sqlType} NULL");
-
-                i++;
-
-            }
-
-            sql.Append("\n);");
-
-            return sql.ToString();
+            return columName;
         }
 
-        private static string GetDbColumnName(string columName, IDictionary<string, string> dbColumnMappings)
-        {
-            if (dbColumnMappings == null)
-            {
-                return columName;
-            }
-
-            return dbColumnMappings.TryGetValue(columName, out string value) ? value : columName;
-        }
+        return dbColumnMappings.TryGetValue(columName, out string value) ? value : columName;
     }
 }

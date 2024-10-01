@@ -1,7 +1,6 @@
-﻿namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMatch
+﻿namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMatch;
+
+public class BulkMatchOptions : BulkOptions
 {
-    public class BulkMatchOptions : BulkOptions
-    {
-        public string Collation { get; set; } = Constants.DefaultCollation;
-    }
+    public string Collation { get; set; } = Constants.DefaultCollation;
 }

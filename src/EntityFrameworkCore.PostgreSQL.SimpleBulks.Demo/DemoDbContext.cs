@@ -1,35 +1,34 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo
+namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo;
+
+public class DemoDbContext : DbContext
 {
-    public class DemoDbContext : DbContext
+    private const string _connectionString = "Host=127.0.0.1;Database=EFCoreSimpleBulks;Username=postgres;Password=postgres";
+
+    public DbSet<Row> Rows { get; set; }
+
+    public DbSet<CompositeKeyRow> CompositeKeyRows { get; set; }
+
+    public DbSet<ConfigurationEntry> ConfigurationEntries { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        private const string _connectionString = "Host=127.0.0.1;Database=EFCoreSimpleBulks;Username=postgres;Password=postgres";
+        optionsBuilder.UseNpgsql(_connectionString);
 
-        public DbSet<Row> Rows { get; set; }
+        base.OnConfiguring(optionsBuilder);
+    }
 
-        public DbSet<CompositeKeyRow> CompositeKeyRows { get; set; }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.HasPostgresExtension("uuid-ossp");
 
-        public DbSet<ConfigurationEntry> ConfigurationEntries { get; set; }
+        modelBuilder.Entity<CompositeKeyRow>().HasKey(x => new { x.Id1, x.Id2 });
+        modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Id).HasDefaultValueSql("uuid_generate_v4()");
+        modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Key).HasColumnName("Key1");
+        modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Id).HasColumnName("Id1");
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseNpgsql(_connectionString);
-
-            base.OnConfiguring(optionsBuilder);
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.HasPostgresExtension("uuid-ossp");
-
-            modelBuilder.Entity<CompositeKeyRow>().HasKey(x => new { x.Id1, x.Id2 });
-            modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Id).HasDefaultValueSql("uuid_generate_v4()");
-            modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Key).HasColumnName("Key1");
-            modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Id).HasColumnName("Id1");
-
-            base.OnModelCreating(modelBuilder);
-        }
+        base.OnModelCreating(modelBuilder);
     }
 }
