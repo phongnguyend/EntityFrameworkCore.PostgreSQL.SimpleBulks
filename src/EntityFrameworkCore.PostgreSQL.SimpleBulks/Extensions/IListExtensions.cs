@@ -76,7 +76,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions
                 return columName;
             }
 
-            return dbColumnMappings.ContainsKey(columName) ? dbColumnMappings[columName] : columName;
+            return dbColumnMappings.TryGetValue(columName, out string value) ? value : columName;
         }
     }
 }

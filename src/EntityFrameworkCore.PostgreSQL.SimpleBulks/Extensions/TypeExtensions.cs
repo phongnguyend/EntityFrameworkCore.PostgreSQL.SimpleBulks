@@ -26,7 +26,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions
 
         public static string ToPostgreSQLType(this Type type)
         {
-            var sqlType = _mappings.ContainsKey(type) ? _mappings[type] : "text";
+            var sqlType = _mappings.TryGetValue(type, out string value) ? value : "text";
             return sqlType;
         }
 
@@ -49,7 +49,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions
 
         private static bool IsSupportedType(PropertyInfo property)
         {
-            return _mappings.Keys.Contains(Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType) || property.PropertyType.IsValueType;
+            return _mappings.ContainsKey(Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType) || property.PropertyType.IsValueType;
         }
 
         public static Dictionary<string, Type> GetClrTypes(this Type type, IEnumerable<string> propertyNames)
@@ -124,7 +124,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions
                 return columName;
             }
 
-            return dbColumnMappings.ContainsKey(columName) ? dbColumnMappings[columName] : columName;
+            return dbColumnMappings.TryGetValue(columName, out string value) ? value : columName;
         }
     }
 }
