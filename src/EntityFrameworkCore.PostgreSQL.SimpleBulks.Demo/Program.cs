@@ -20,8 +20,6 @@ class Program
         {
             dbct.Database.Migrate();
 
-            var test = dbct.Set<ConfigurationEntry>().ToQueryString();
-
             var deleteResult = dbct.BulkDelete(dbct.Set<ConfigurationEntry>().AsNoTracking().ToList(),
                   opt =>
                   {
