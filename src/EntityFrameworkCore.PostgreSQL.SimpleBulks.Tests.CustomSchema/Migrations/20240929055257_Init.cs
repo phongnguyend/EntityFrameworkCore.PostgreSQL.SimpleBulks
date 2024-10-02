@@ -37,7 +37,7 @@ public partial class Init : Migration
             schema: "test",
             columns: table => new
             {
-                Id1 = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v4()"),
+                Id1 = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v1mc()"),
                 CreatedDateTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                 UpdatedDateTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                 Key1 = table.Column<string>(type: "text", nullable: false),
@@ -55,7 +55,7 @@ public partial class Init : Migration
             schema: "test",
             columns: table => new
             {
-                Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v4()"),
+                Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v1mc()"),
                 FirstName = table.Column<string>(type: "text", nullable: false),
                 LastName = table.Column<string>(type: "text", nullable: false),
                 CurrentCountryIsoCode = table.Column<string>(type: "text", nullable: false),
@@ -87,7 +87,7 @@ public partial class Init : Migration
             schema: "test",
             columns: table => new
             {
-                Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v4()"),
+                Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v1mc()"),
                 EmailAddress = table.Column<string>(type: "text", nullable: false),
                 PhoneNumber = table.Column<string>(type: "text", nullable: false),
                 CountryIsoCode = table.Column<string>(type: "text", nullable: false),

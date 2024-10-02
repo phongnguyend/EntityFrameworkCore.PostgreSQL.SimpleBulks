@@ -32,13 +32,13 @@ internal class TestDbContext : DbContext
 
         modelBuilder.Entity<CompositeKeyRow<int, int>>().HasKey(x => new { x.Id1, x.Id2 });
 
-        modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Id).HasDefaultValueSql("uuid_generate_v4()");
+        modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Id).HasDefaultValueSql("uuid_generate_v1mc()");
         modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Id).HasColumnName("Id1");
         modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Key).HasColumnName("Key1");
 
-        modelBuilder.Entity<Customer>().Property(x => x.Id).HasDefaultValueSql("uuid_generate_v4()");
+        modelBuilder.Entity<Customer>().Property(x => x.Id).HasDefaultValueSql("uuid_generate_v1mc()");
 
-        modelBuilder.Entity<Contact>().Property(x => x.Id).HasDefaultValueSql("uuid_generate_v4()");
+        modelBuilder.Entity<Contact>().Property(x => x.Id).HasDefaultValueSql("uuid_generate_v1mc()");
 
         base.OnModelCreating(modelBuilder);
     }

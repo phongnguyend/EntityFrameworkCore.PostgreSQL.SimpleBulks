@@ -52,7 +52,7 @@ partial class TestDbContextModelSnapshot : ModelSnapshot
                     .ValueGeneratedOnAdd()
                     .HasColumnType("uuid")
                     .HasColumnName("Id1")
-                    .HasDefaultValueSql("uuid_generate_v4()");
+                    .HasDefaultValueSql("uuid_generate_v1mc()");
 
                 b.Property<DateTimeOffset>("CreatedDateTime")
                     .HasColumnType("timestamp with time zone");
@@ -86,7 +86,7 @@ partial class TestDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("uuid")
-                    .HasDefaultValueSql("uuid_generate_v4()");
+                    .HasDefaultValueSql("uuid_generate_v1mc()");
 
                 b.Property<string>("CountryIsoCode")
                     .IsRequired()
@@ -118,7 +118,7 @@ partial class TestDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("uuid")
-                    .HasDefaultValueSql("uuid_generate_v4()");
+                    .HasDefaultValueSql("uuid_generate_v1mc()");
 
                 b.Property<string>("CurrentCountryIsoCode")
                     .IsRequired()
