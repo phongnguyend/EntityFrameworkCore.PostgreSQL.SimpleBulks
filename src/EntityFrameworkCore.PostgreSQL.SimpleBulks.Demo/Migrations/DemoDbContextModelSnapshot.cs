@@ -51,7 +51,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("Id1")
-                        .HasDefaultValueSql("uuid_generate_v4()");
+                        .HasDefaultValueSql("uuid_generate_v1mc()");
 
                     b.Property<DateTimeOffset>("CreatedDateTime")
                         .HasColumnType("timestamp with time zone");

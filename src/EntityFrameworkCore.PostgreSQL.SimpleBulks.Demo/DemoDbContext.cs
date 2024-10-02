@@ -25,7 +25,7 @@ public class DemoDbContext : DbContext
         modelBuilder.HasPostgresExtension("uuid-ossp");
 
         modelBuilder.Entity<CompositeKeyRow>().HasKey(x => new { x.Id1, x.Id2 });
-        modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Id).HasDefaultValueSql("uuid_generate_v4()");
+        modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Id).HasDefaultValueSql("uuid_generate_v1mc()");
         modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Key).HasColumnName("Key1");
         modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Id).HasColumnName("Id1");
 

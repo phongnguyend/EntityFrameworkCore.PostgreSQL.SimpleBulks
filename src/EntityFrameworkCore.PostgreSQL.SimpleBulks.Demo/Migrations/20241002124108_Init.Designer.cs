@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo.Migrations
 {
     [DbContext(typeof(DemoDbContext))]
-    [Migration("20241002042143_Init")]
+    [Migration("20241002124108_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -54,7 +54,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("Id1")
-                        .HasDefaultValueSql("uuid_generate_v4()");
+                        .HasDefaultValueSql("uuid_generate_v1mc()");
 
                     b.Property<DateTimeOffset>("CreatedDateTime")
                         .HasColumnType("timestamp with time zone");

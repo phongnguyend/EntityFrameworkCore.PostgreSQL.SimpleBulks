@@ -34,7 +34,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo.Migrations
                 name: "ConfigurationEntries",
                 columns: table => new
                 {
-                    Id1 = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v4()"),
+                    Id1 = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v1mc()"),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
                     CreatedDateTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedDateTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
