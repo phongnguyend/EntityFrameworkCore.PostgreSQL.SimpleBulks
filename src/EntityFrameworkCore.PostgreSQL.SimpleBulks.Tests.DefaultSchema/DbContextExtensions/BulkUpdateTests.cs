@@ -187,14 +187,14 @@ public class BulkUpdateTests : IDisposable
         }
 
         var updateResult1 = _context.BulkUpdate(rows,
-              new[] { "Column3", "Column2" },
+              ["Column3", "Column2"],
               options =>
               {
                   options.LogTo = _output.WriteLine;
               });
 
         var updateResult2 = _context.BulkUpdate(compositeKeyRows,
-            new[] { "Column3", "Column2" },
+            ["Column3", "Column2"],
             options =>
             {
                 options.LogTo = _output.WriteLine;
@@ -221,16 +221,16 @@ public class BulkUpdateTests : IDisposable
 
         _context.BulkMerge(rows,
             "Id",
-            new[] { "Column1", "Column2" },
-            new[] { "Column1", "Column2", "Column3" },
+            ["Column1", "Column2"],
+            ["Column1", "Column2", "Column3"],
             options =>
             {
                 options.LogTo = _output.WriteLine;
             });
         _context.BulkMerge(compositeKeyRows,
-            new[] { "Id1", "Id2" },
-            new[] { "Column1", "Column2", "Column3" },
-            new[] { "Id1", "Id2", "Column1", "Column2", "Column3" },
+            ["Id1", "Id2"],
+            ["Column1", "Column2", "Column3"],
+            ["Id1", "Id2", "Column1", "Column2", "Column3"],
             options =>
             {
                 options.LogTo = _output.WriteLine;
