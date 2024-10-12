@@ -23,7 +23,7 @@ public class BulkMergeBenchmarks
     [IterationSetup]
     public void IterationSetup()
     {
-        _context = new TestDbContext($"Host=127.0.0.1;Database=EntityFrameworkCore.PostgreSQL.SimpleBulks.Benchmarks.{Guid.NewGuid()};Username=postgres;Password=postgres");
+        _context = new TestDbContext($"Host=127.0.0.1;Database=SimpleBulks.Benchmarks.{Guid.NewGuid()};Username=postgres;Password=postgres");
         _context.Database.EnsureCreated();
         _context.Database.SetCommandTimeout(TimeSpan.FromMinutes(2));
 

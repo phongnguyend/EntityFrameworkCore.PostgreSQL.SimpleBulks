@@ -6,6 +6,6 @@ internal class TestDbContextFactory : IDesignTimeDbContextFactory<TestDbContext>
 {
     public TestDbContext CreateDbContext(string[] args)
     {
-        return new TestDbContext("Server=.;Database=EntityFrameworkCore.PostgreSQL.SimpleBulks.Benchmarks;Username=postgres;Password=postgres");
+        return new TestDbContext("Server=.;Database=SimpleBulks.Benchmarks;Username=postgres;Password=postgres");
     }
 }
