@@ -68,7 +68,7 @@ public static class TypeExtensions
         return updatablePros.ToDictionary(x => x.Name, x => Nullable.GetUnderlyingType(x.PropertyType) ?? x.PropertyType);
     }
 
-    public static string GenerateTempTableDefinition(this Type type, string tableName, IEnumerable<string> propertyNames, IDictionary<string, string> dbColumnMappings = null, bool addIndexNumberColumn = false)
+    public static string GenerateTempTableDefinition(this Type type, string tableName, IEnumerable<string> propertyNames, IReadOnlyDictionary<string, string> columnNameMappings = null, bool addIndexNumberColumn = false)
     {
         var properties = TypeDescriptor.GetProperties(type);
 
@@ -104,7 +104,7 @@ public static class TypeExtensions
                 sql.Append(",");
             }
 
-            sql.Append($"\n\t\"{GetDbColumnName(name.Key, dbColumnMappings)}\"");
+            sql.Append($"\n\t\"{GetDbColumnName(name.Key, columnNameMappings)}\"");
             var sqlType = name.Value.ToPostgreSQLType();
             sql.Append($" {sqlType} NULL");
 
@@ -117,13 +117,13 @@ public static class TypeExtensions
         return sql.ToString();
     }
 
-    private static string GetDbColumnName(string columName, IDictionary<string, string> dbColumnMappings)
+    private static string GetDbColumnName(string columName, IReadOnlyDictionary<string, string> columnNameMappings)
     {
-        if (dbColumnMappings == null)
+        if (columnNameMappings == null)
         {
             return columName;
         }
 
-        return dbColumnMappings.TryGetValue(columName, out string value) ? value : columName;
+        return columnNameMappings.TryGetValue(columName, out string value) ? value : columName;
     }
 }

@@ -10,7 +10,7 @@ public class TempTableBuilder<T>
 {
     private IEnumerable<T> _data;
     private IEnumerable<string> _columnNames;
-    private IDictionary<string, string> _dbColumnMappings;
+    private IReadOnlyDictionary<string, string> _columnNameMappings;
     private TempTableOptions _options;
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction _transaction;
@@ -44,9 +44,9 @@ public class TempTableBuilder<T>
         return this;
     }
 
-    public TempTableBuilder<T> WithDbColumnMappings(IDictionary<string, string> dbColumnMappings)
+    public TempTableBuilder<T> WithDbColumnMappings(IReadOnlyDictionary<string, string> columnNameMappings)
     {
-        _dbColumnMappings = dbColumnMappings;
+        _columnNameMappings = columnNameMappings;
         return this;
     }
 
@@ -78,7 +78,7 @@ public class TempTableBuilder<T>
     public string Execute()
     {
         var tempTableName = $"\"{GetTableName()}\"";
-        var sqlCreateTempTable = typeof(T).GenerateTempTableDefinition(tempTableName, _columnNames, _dbColumnMappings);
+        var sqlCreateTempTable = typeof(T).GenerateTempTableDefinition(tempTableName, _columnNames, _columnNameMappings);
 
         Log($"Begin creating temp table:{Environment.NewLine}{sqlCreateTempTable}");
 
@@ -92,7 +92,7 @@ public class TempTableBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {tempTableName}");
 
-        _data.SqlBulkCopy(tempTableName, _columnNames, _dbColumnMappings, false, _connection, _transaction);
+        _data.SqlBulkCopy(tempTableName, _columnNames, _columnNameMappings, false, _connection, _transaction);
 
         Log("End executing SqlBulkCopy.");
 
