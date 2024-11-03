@@ -59,17 +59,6 @@ public static class DbContextExtensions
         return data.ToList();
     }
 
-    public static Dictionary<string, string> GetMappedColumns(this DbContext dbContext, Type type)
-    {
-        var typeProperties = type.GetProperties().Select(x => new { x.Name, x.PropertyType });
-        var entityProperties = dbContext.Model.FindEntityType(type)
-                       .GetProperties().Select(x => new { x.Name, ColumnName = x.GetColumnName(), ColumnType = x.GetColumnType() });
-
-        var data = typeProperties.Join(entityProperties, prop => prop.Name, entityProp => entityProp.Name, (prop, entityProp) => new { prop.Name, prop.PropertyType, entityProp.ColumnName, entityProp.ColumnType });
-
-        return data.ToDictionary(x => x.Name, x => x.ColumnName);
-    }
-
     public static IDbCommand CreateTextCommand(this DbContext dbContext, string commandText, BulkOptions options = null)
     {
         return dbContext.GetNpgsqlConnection().CreateTextCommand(dbContext.GetCurrentNpgsqlTransaction(), commandText, options);
@@ -83,6 +72,21 @@ public static class DbContextExtensions
         while (reader.Read())
         {
             action(reader);
+        }
+    }
+
+    public static List<Guid> GenerateDbSequentialIds(this DbContext dbContext, int count)
+    {
+        var query = string.Join($"UNION ALL{Environment.NewLine}", Enumerable.Range(0, count).Select(x => $"select uuid_generate_v1mc(){Environment.NewLine}"));
+
+        return dbContext.Database.SqlQueryRaw<Guid>(query).ToList();
+    }
+
+    public static void GenerateDbSequentialIds(this DbContext dbContext, Queue<Guid> guids, int count)
+    {
+        foreach (var item in GenerateDbSequentialIds(dbContext, count))
+        {
+            guids.Enqueue(item);
         }
     }
 }
