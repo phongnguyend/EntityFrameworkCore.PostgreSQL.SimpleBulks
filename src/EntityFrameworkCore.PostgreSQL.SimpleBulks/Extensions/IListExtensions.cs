@@ -54,7 +54,10 @@ public static class IListExtensions
                     continue;
                 }
 
-                var value = prop.GetValue(item);
+                var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+                var tempValue = prop.GetValue(item);
+                var value = type.IsEnum && tempValue != null ? (int)tempValue : tempValue;
+
                 writer.Write(value);
             }
 

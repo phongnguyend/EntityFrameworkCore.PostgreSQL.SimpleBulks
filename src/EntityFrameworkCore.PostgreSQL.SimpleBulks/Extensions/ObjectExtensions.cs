@@ -26,8 +26,10 @@ public static class ObjectExtensions
         foreach (PropertyDescriptor prop in updatablePros)
         {
             var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+            var tempValue = prop.GetValue(data);
+            var value = type.IsEnum && tempValue != null ? (int)tempValue : tempValue;
 
-            var para = new NpgsqlParameter($"@{prop.Name}", prop.GetValue(data) ?? DBNull.Value);
+            var para = new NpgsqlParameter($"@{prop.Name}", value ?? DBNull.Value);
 
             if (type == typeof(DateTime))
             {

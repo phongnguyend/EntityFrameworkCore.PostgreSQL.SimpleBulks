@@ -26,6 +26,11 @@ public static class TypeExtensions
 
     public static string ToPostgreSQLType(this Type type)
     {
+        if(type.IsEnum)
+        {
+            return "int4";
+        }
+
         var sqlType = _mappings.TryGetValue(type, out string value) ? value : "text";
         return sqlType;
     }

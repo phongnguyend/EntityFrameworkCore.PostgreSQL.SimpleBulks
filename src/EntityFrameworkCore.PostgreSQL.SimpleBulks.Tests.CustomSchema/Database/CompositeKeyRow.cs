@@ -1,5 +1,6 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.CustomSchema;
 using System.ComponentModel.DataAnnotations.Schema;
+using static EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database.Enums;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
 
@@ -15,4 +16,6 @@ public class CompositeKeyRow<TId1, TId2>
     public string Column2 { get; set; }
 
     public DateTime Column3 { get; set; }
+
+    public Season? Season { get; set; }
 }
