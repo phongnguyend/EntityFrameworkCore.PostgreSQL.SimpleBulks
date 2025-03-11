@@ -1,30 +1,16 @@
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.DirectInsert;
+﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.DirectInsert;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DefaultSchema;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DbContextExtensions;
 
-public class DirectInsertTests : IDisposable
+public class DirectInsertTests : BaseTest
 {
-
-    private TestDbContext _context;
-    private readonly ITestOutputHelper _output;
-
-    public DirectInsertTests(ITestOutputHelper output)
+    public DirectInsertTests(ITestOutputHelper output) : base(output, "DirectInsertTest")
     {
-        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
-        _output = output;
-        _context = new TestDbContext($"Host=127.0.0.1;Database=DirectInsertTest.{Guid.NewGuid()};Username=postgres;Password=postgres");
-        _context.Database.EnsureDeleted();
-        _context.Database.EnsureCreated();
-    }
-
-    public void Dispose()
-    {
-        _context.Database.EnsureDeleted();
     }
 
     [Fact]

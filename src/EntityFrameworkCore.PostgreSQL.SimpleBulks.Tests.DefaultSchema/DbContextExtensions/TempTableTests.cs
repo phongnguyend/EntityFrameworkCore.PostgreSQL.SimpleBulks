@@ -1,17 +1,14 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.TempTable;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DefaultSchema;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DbContextExtensions;
 
-public class TempTableTests : IDisposable
+public class TempTableTests : BaseTest
 {
-    private readonly ITestOutputHelper _output;
-
-    private TestDbContext _context;
-
     private readonly static List<CustomerDto> _customers = new List<CustomerDto>
     {
         new CustomerDto
@@ -62,20 +59,8 @@ public class TempTableTests : IDisposable
         }
     };
 
-    public TempTableTests(ITestOutputHelper output)
+    public TempTableTests(ITestOutputHelper output) : base(output, "TempTableTest")
     {
-        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
-        _output = output;
-
-        _context = new TestDbContext($"Host=127.0.0.1;Database=TempTableTest.{Guid.NewGuid()};Username=postgres;Password=postgres");
-        _context.Database.EnsureDeleted();
-        _context.Database.EnsureCreated();
-    }
-
-    public void Dispose()
-    {
-        _context.Database.EnsureDeleted();
     }
 
     [Fact]

@@ -1,25 +1,17 @@
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
+﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.DirectUpdate;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DefaultSchema;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DbContextExtensions;
 
-public class DirectUpdateTests : IDisposable
+public class DirectUpdateTests : BaseTest
 {
-    private readonly ITestOutputHelper _output;
-
-    private TestDbContext _context;
-
-    public DirectUpdateTests(ITestOutputHelper output)
+    public DirectUpdateTests(ITestOutputHelper output) : base(output, "DirectUpdateTest")
     {
-        _output = output;
-
-        _context = new TestDbContext($"Host=127.0.0.1;Database=DirectUpdateTest.{Guid.NewGuid()};Username=postgres;Password=postgres");
-        _context.Database.EnsureDeleted();
-        _context.Database.EnsureCreated();
     }
 
     private void SeedData(int length)
@@ -55,11 +47,6 @@ public class DirectUpdateTests : IDisposable
                 row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 });
 
         tran.Commit();
-    }
-
-    public void Dispose()
-    {
-        _context.Database.EnsureDeleted();
     }
 
     [Theory]

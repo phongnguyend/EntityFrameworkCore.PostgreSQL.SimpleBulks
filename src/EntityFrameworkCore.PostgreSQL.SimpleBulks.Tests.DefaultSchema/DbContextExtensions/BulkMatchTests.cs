@@ -1,27 +1,18 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMatch;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DefaultSchema;
 using Xunit.Abstractions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DbContextExtensions;
 
-public class BulkMatchTests : IDisposable
+public class BulkMatchTests : BaseTest
 {
-    private readonly ITestOutputHelper _output;
-
-    private TestDbContext _context;
-
     private readonly List<Customer> _customers;
     private readonly List<Contact> _contacts;
 
-    public BulkMatchTests(ITestOutputHelper output)
+    public BulkMatchTests(ITestOutputHelper output) : base(output, "BulkMatchTest")
     {
-        _output = output;
-
-        _context = new TestDbContext($"Host=127.0.0.1;Database=BulkMatchTest.{Guid.NewGuid()};Username=postgres;Password=postgres");
-        _context.Database.EnsureDeleted();
-        _context.Database.EnsureCreated();
-
         var tran = _context.Database.BeginTransaction();
 
         var isoCodes = new string[] { "VN", "US", "GB" };
@@ -252,10 +243,5 @@ public class BulkMatchTests : IDisposable
             Assert.Equal(0, contactsFromDb[i].Index);
             Assert.Equal(Guid.Empty, contactsFromDb[i].CustomerId);
         }
-    }
-
-    public void Dispose()
-    {
-        _context.Database.EnsureDeleted();
     }
 }
