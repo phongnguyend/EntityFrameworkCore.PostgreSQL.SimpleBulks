@@ -3,7 +3,6 @@ using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
-using static EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database.Enums;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DbContextExtensions;
 

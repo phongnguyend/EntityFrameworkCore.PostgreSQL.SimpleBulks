@@ -9,7 +9,7 @@ or you can use **NpgsqlConnectionExtensions.cs** to work directly with a **Npgsq
 https://www.nuget.org/packages/EntityFrameworkCore.PostgreSQL.SimpleBulks
 
 ## Features
-- Bulk Insert (requires PostgreSQL >= 15)
+- Bulk Insert (requires PostgreSQL >= 17)
 - Bulk Update
 - Bulk Delete
 - Bulk Merge (requires PostgreSQL >= 17)

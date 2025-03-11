@@ -1,6 +1,4 @@
-﻿using static EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database.Enums;
-
-namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
+﻿namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
 
 public class CompositeKeyRow<TId1, TId2>
 {

@@ -1,6 +1,5 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.CustomSchema;
 using System.ComponentModel.DataAnnotations.Schema;
-using static EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database.Enums;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
 
