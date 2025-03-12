@@ -93,6 +93,8 @@ public class BulkInsertBuilder<T>
         return _columnNameMappings.TryGetValue(columnName, out string value) ? value : columnName;
     }
 
+    private bool HasOutputIdColumn => !string.IsNullOrWhiteSpace(_outputIdColumn);
+
     public void Execute(IEnumerable<T> data)
     {
         if (data.Count() == 1)
@@ -101,7 +103,7 @@ public class BulkInsertBuilder<T>
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(_outputIdColumn))
+        if (!HasOutputIdColumn)
         {
             _connection.EnsureOpen();
 
@@ -113,16 +115,41 @@ public class BulkInsertBuilder<T>
 
         if (_options.KeepIdentity)
         {
-            var columns = _columnNames.Select(x => x).ToList();
-            if (!columns.Contains(_outputIdColumn))
+            var columnsToInsert = _columnNames.Select(x => x).ToList();
+            if (!columnsToInsert.Contains(_outputIdColumn))
             {
-                columns.Add(_outputIdColumn);
+                columnsToInsert.Add(_outputIdColumn);
             }
 
             _connection.EnsureOpen();
 
             Log($"Begin executing SqlBulkCopy. TableName: {_table.SchemaQualifiedTableName}");
-            data.SqlBulkCopy(_table.SchemaQualifiedTableName, columns, _columnNameMappings, false, _connection, _transaction, _options);
+            data.SqlBulkCopy(_table.SchemaQualifiedTableName, columnsToInsert, _columnNameMappings, false, _connection, _transaction, _options);
+            Log("End executing SqlBulkCopy.");
+            return;
+        }
+
+        var idProperty = typeof(T).GetProperty(_outputIdColumn);
+
+        if (_outputIdMode == OutputIdMode.ClientGenerated)
+        {
+            var columnsToInsert = _columnNames.Select(x => x).ToList();
+            if (!columnsToInsert.Contains(_outputIdColumn))
+            {
+                columnsToInsert.Add(_outputIdColumn);
+            }
+
+            var setIdDelegate = (Action<T, Guid>)Delegate.CreateDelegate(typeof(Action<T, Guid>), idProperty.GetSetMethod());
+
+            foreach (var row in data)
+            {
+                setIdDelegate(row, SequentialGuidGenerator.Next());
+            }
+
+            _connection.EnsureOpen();
+
+            Log($"Begin executing SqlBulkCopy. TableName: {_table.SchemaQualifiedTableName}");
+            data.SqlBulkCopy(_table.SchemaQualifiedTableName, columnsToInsert, _columnNameMappings, false, _connection, _transaction, _options);
             Log("End executing SqlBulkCopy.");
             return;
         }
@@ -172,8 +199,6 @@ public class BulkInsertBuilder<T>
         }
         Log("End merging temp table.");
 
-        var idProperty = typeof(T).GetProperty(_outputIdColumn);
-
         long idx = 0;
         foreach (var row in data)
         {
@@ -198,12 +223,26 @@ public class BulkInsertBuilder<T>
             insertStatementBuilder.AppendLine($"INSERT INTO {_table.SchemaQualifiedTableName} ({string.Join(", ", columnsToInsert.Select(x => $"\"{GetDbColumnName(x)}\""))})");
             insertStatementBuilder.AppendLine($"VALUES ({string.Join(", ", columnsToInsert.Select(x => $"@{x}"))})");
         }
+        else if (HasOutputIdColumn && _outputIdMode == OutputIdMode.ClientGenerated)
+        {
+            if (!columnsToInsert.Contains(_outputIdColumn))
+            {
+                columnsToInsert.Add(_outputIdColumn);
+            }
+
+            var idProperty = typeof(T).GetProperty(_outputIdColumn);
+            var setIdDelegate = (Action<T, Guid>)Delegate.CreateDelegate(typeof(Action<T, Guid>), idProperty.GetSetMethod());
+            setIdDelegate(dataToInsert, SequentialGuidGenerator.Next());
+
+            insertStatementBuilder.AppendLine($"INSERT INTO {_table.SchemaQualifiedTableName} ({string.Join(", ", columnsToInsert.Select(x => $"\"{GetDbColumnName(x)}\""))})");
+            insertStatementBuilder.AppendLine($"VALUES ({string.Join(", ", columnsToInsert.Select(x => $"@{x}"))})");
+        }
         else
         {
             insertStatementBuilder.AppendLine($"INSERT INTO {_table.SchemaQualifiedTableName} ({string.Join(", ", columnsToInsert.Select(x => $"\"{GetDbColumnName(x)}\""))})");
             insertStatementBuilder.AppendLine($"VALUES ({string.Join(", ", columnsToInsert.Select(x => $"@{x}"))})");
 
-            if (!string.IsNullOrEmpty(_outputIdColumn))
+            if (HasOutputIdColumn)
             {
                 insertStatementBuilder.AppendLine($"RETURNING \"{GetDbColumnName(_outputIdColumn)}\"");
             }
@@ -219,7 +258,7 @@ public class BulkInsertBuilder<T>
 
         _connection.EnsureOpen();
 
-        if (_options.KeepIdentity || string.IsNullOrEmpty(_outputIdColumn))
+        if (_options.KeepIdentity || !HasOutputIdColumn)
         {
             var affectedRow = insertCommand.ExecuteNonQuery();
         }
