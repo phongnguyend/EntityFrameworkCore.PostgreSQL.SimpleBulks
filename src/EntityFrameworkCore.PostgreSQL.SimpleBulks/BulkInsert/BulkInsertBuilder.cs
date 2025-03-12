@@ -93,7 +93,7 @@ public class BulkInsertBuilder<T>
         return _columnNameMappings.TryGetValue(columnName, out string value) ? value : columnName;
     }
 
-    private bool HasOutputIdColumn => !string.IsNullOrWhiteSpace(_outputIdColumn);
+    private bool ReturnGeneratedId => !string.IsNullOrWhiteSpace(_outputIdColumn);
 
     public void Execute(IEnumerable<T> data)
     {
@@ -103,7 +103,7 @@ public class BulkInsertBuilder<T>
             return;
         }
 
-        if (!HasOutputIdColumn)
+        if (!ReturnGeneratedId)
         {
             _connection.EnsureOpen();
 
@@ -223,7 +223,7 @@ public class BulkInsertBuilder<T>
             insertStatementBuilder.AppendLine($"INSERT INTO {_table.SchemaQualifiedTableName} ({string.Join(", ", columnsToInsert.Select(x => $"\"{GetDbColumnName(x)}\""))})");
             insertStatementBuilder.AppendLine($"VALUES ({string.Join(", ", columnsToInsert.Select(x => $"@{x}"))})");
         }
-        else if (HasOutputIdColumn && _outputIdMode == OutputIdMode.ClientGenerated)
+        else if (ReturnGeneratedId && _outputIdMode == OutputIdMode.ClientGenerated)
         {
             if (!columnsToInsert.Contains(_outputIdColumn))
             {
@@ -242,7 +242,7 @@ public class BulkInsertBuilder<T>
             insertStatementBuilder.AppendLine($"INSERT INTO {_table.SchemaQualifiedTableName} ({string.Join(", ", columnsToInsert.Select(x => $"\"{GetDbColumnName(x)}\""))})");
             insertStatementBuilder.AppendLine($"VALUES ({string.Join(", ", columnsToInsert.Select(x => $"@{x}"))})");
 
-            if (HasOutputIdColumn)
+            if (ReturnGeneratedId)
             {
                 insertStatementBuilder.AppendLine($"RETURNING \"{GetDbColumnName(_outputIdColumn)}\"");
             }
@@ -258,7 +258,7 @@ public class BulkInsertBuilder<T>
 
         _connection.EnsureOpen();
 
-        if (_options.KeepIdentity || !HasOutputIdColumn)
+        if (_options.KeepIdentity || !ReturnGeneratedId)
         {
             var affectedRow = insertCommand.ExecuteNonQuery();
         }
