@@ -1,29 +1,15 @@
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkDelete;
+﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkDelete;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using Xunit.Abstractions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExtensions;
 
-public class BulkDeleteTests : IDisposable
+public class BulkDeleteTests : BaseTest
 {
-    private readonly ITestOutputHelper _output;
-
-    private TestDbContext _context;
-    private NpgsqlConnection _connection;
-
-    public BulkDeleteTests(ITestOutputHelper output)
+    public BulkDeleteTests(ITestOutputHelper output) : base(output, "BulkDeleteTest")
     {
-        _output = output;
-
-        var connectionString = $"Host=127.0.0.1;Database=BulkInsertTest.{Guid.NewGuid()};Username=postgres;Password=postgres";
-        _context = new TestDbContext(connectionString);
-        _context.Database.EnsureCreated();
-
-        _connection = new NpgsqlConnection(connectionString);
-
         TableMapper.Register(typeof(SingleKeyRow<int>), "SingleKeyRows");
         TableMapper.Register(typeof(CompositeKeyRow<int, int>), "CompositeKeyRows");
 
@@ -54,11 +40,6 @@ public class BulkDeleteTests : IDisposable
 
         _context.BulkInsert(compositeKeyRows,
                 row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 });
-    }
-
-    public void Dispose()
-    {
-        _context.Database.EnsureDeleted();
     }
 
     [Theory]

@@ -1,36 +1,17 @@
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
+﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using Xunit.Abstractions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExtensions;
 
-public class BulkInsertTests : IDisposable
+public class BulkInsertTests : BaseTest
 {
-
-    private TestDbContext _context;
-    private NpgsqlConnection _connection;
-    private readonly ITestOutputHelper _output;
-
-    public BulkInsertTests(ITestOutputHelper output)
+    public BulkInsertTests(ITestOutputHelper output) : base(output, "BulkInsertTest")
     {
-        _output = output;
-
-        var connectionString = $"Host=127.0.0.1;Database=BulkInsertTest.{Guid.NewGuid()};Username=postgres;Password=postgres";
-        _context = new TestDbContext(connectionString);
-        _context.Database.EnsureCreated();
-
-        _connection = new NpgsqlConnection(connectionString);
-
         TableMapper.Register(typeof(SingleKeyRow<int>), "SingleKeyRows");
         TableMapper.Register(typeof(CompositeKeyRow<int, int>), "CompositeKeyRows");
-    }
-
-    public void Dispose()
-    {
-        _context.Database.EnsureDeleted();
     }
 
     [Theory]

@@ -1,21 +1,25 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
+using Npgsql;
 using Xunit.Abstractions;
 
-namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DefaultSchema;
+namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExtensions;
 
 public abstract class BaseTest : IDisposable
 {
     protected readonly ITestOutputHelper _output;
 
     protected readonly TestDbContext _context;
+    protected readonly NpgsqlConnection _connection;
 
     protected BaseTest(ITestOutputHelper output, string dbPrefixName)
     {
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
         _output = output;
-        _context = GetDbContext(dbPrefixName);
+        var connectionString = GetConnectionString(dbPrefixName);
+        _context = GetDbContext(connectionString);
         _context.Database.EnsureCreated();
+        _connection = new NpgsqlConnection(connectionString);
     }
 
     public void Dispose()
@@ -28,8 +32,8 @@ public abstract class BaseTest : IDisposable
         return $"Host=127.0.0.1;Database={dbPrefixName}.{Guid.NewGuid()};Username=postgres;Password=postgres";
     }
 
-    protected TestDbContext GetDbContext(string dbPrefixName)
+    protected TestDbContext GetDbContext(string connectionString)
     {
-        return new TestDbContext(GetConnectionString(dbPrefixName));
+        return new TestDbContext(connectionString);
     }
 }

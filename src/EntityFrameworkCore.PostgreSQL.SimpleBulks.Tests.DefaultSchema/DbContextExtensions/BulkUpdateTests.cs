@@ -3,7 +3,6 @@ using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DefaultSchema;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 

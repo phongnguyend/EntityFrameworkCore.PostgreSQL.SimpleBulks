@@ -2,7 +2,6 @@
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.DirectUpdate;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DefaultSchema;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 

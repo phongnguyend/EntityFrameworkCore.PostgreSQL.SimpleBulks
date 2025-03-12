@@ -1,7 +1,6 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMatch;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DefaultSchema;
 using Xunit.Abstractions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DbContextExtensions;
