@@ -8,10 +8,12 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
 
 public class BulkInsertTests : BaseTest
 {
+    private string _schema = "";
+
     public BulkInsertTests(ITestOutputHelper output) : base(output, "BulkInsertTest")
     {
-        TableMapper.Register(typeof(SingleKeyRow<int>), "SingleKeyRows");
-        TableMapper.Register(typeof(CompositeKeyRow<int, int>), "CompositeKeyRows");
+        TableMapper.Register(typeof(SingleKeyRow<int>), _schema, "SingleKeyRows");
+        TableMapper.Register(typeof(CompositeKeyRow<int, int>), _schema, "CompositeKeyRows");
     }
 
     [Theory]
@@ -64,7 +66,7 @@ public class BulkInsertTests : BaseTest
             }
             else
             {
-                _connection.BulkInsert(rows, new TableInfor("SingleKeyRows"),
+                _connection.BulkInsert(rows, new TableInfor(_schema, "SingleKeyRows"),
                     row => new { row.Column1, row.Column2, row.Column3 },
                     row => row.Id,
                     options =>
@@ -72,7 +74,7 @@ public class BulkInsertTests : BaseTest
                         options.LogTo = _output.WriteLine;
                     });
 
-                _connection.BulkInsert(compositeKeyRows, new TableInfor("CompositeKeyRows"),
+                _connection.BulkInsert(compositeKeyRows, new TableInfor(_schema, "CompositeKeyRows"),
                     row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 },
                     options =>
                     {
@@ -102,7 +104,7 @@ public class BulkInsertTests : BaseTest
             }
             else
             {
-                _connection.BulkInsert(rows, new TableInfor("SingleKeyRows"),
+                _connection.BulkInsert(rows, new TableInfor(_schema, "SingleKeyRows"),
                     ["Column1", "Column2", "Column3"],
                     "Id",
                     options =>
@@ -110,7 +112,7 @@ public class BulkInsertTests : BaseTest
                         options.LogTo = _output.WriteLine;
                     });
 
-                _connection.BulkInsert(compositeKeyRows, new TableInfor("CompositeKeyRows"),
+                _connection.BulkInsert(compositeKeyRows, new TableInfor(_schema, "CompositeKeyRows"),
                     ["Id1", "Id2", "Column1", "Column2", "Column3"],
                     options =>
                     {

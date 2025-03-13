@@ -2,9 +2,10 @@
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
 
-internal class TestDbContext : DbContext
+public class TestDbContext : DbContext
 {
     private readonly string _connectionString;
+    private readonly string _schema;
 
     public DbSet<SingleKeyRow<int>> SingleKeyRows { get; set; }
 
@@ -14,9 +15,10 @@ internal class TestDbContext : DbContext
 
     public DbSet<Contact> Contacts { get; set; }
 
-    public TestDbContext(string connectionString)
+    public TestDbContext(string connectionString, string schema)
     {
         _connectionString = connectionString;
+        _schema = schema;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -28,6 +30,11 @@ internal class TestDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        if (!string.IsNullOrEmpty(_schema))
+        {
+            modelBuilder.HasDefaultSchema(_schema);
+        }
+
         modelBuilder.HasPostgresExtension("uuid-ossp");
 
         modelBuilder.Entity<CompositeKeyRow<int, int>>().HasKey(x => new { x.Id1, x.Id2 });
