@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/benchmarks/">
+    <Project Path="EntityFrameworkCore.PostgreSQL.SimpleBulks.Benchmarks/EntityFrameworkCore.PostgreSQL.SimpleBulks.Benchmarks.csproj" />
+  </Folder>
+  <Folder Name="/examples/">
+    <Project Path="EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo/EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="EntityFrameworkCore.PostgreSQL.SimpleBulks/EntityFrameworkCore.PostgreSQL.SimpleBulks.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests/EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.csproj" />
+  </Folder>
+</Solution>
