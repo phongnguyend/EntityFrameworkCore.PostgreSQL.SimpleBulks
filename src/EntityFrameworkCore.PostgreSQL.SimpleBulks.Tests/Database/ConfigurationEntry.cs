@@ -8,8 +8,8 @@ public class ConfigurationEntry
 {
     public Guid Id { get; set; }
 
-    //[Timestamp]
-    //public uint RowVersion { get; set; }
+    [Timestamp]
+    public uint RowVersion { get; set; }
 
     public DateTimeOffset CreatedDateTime { get; set; }
 

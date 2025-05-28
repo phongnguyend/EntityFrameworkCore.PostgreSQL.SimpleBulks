@@ -45,6 +45,7 @@ public static class DbContextExtensions
         if (isEntityType)
         {
             var properties = dbContext.GetProperties(typeof(T));
+            columnNames = properties.Where(x => !x.IsRowVersion).Select(x => x.PropertyName).ToArray();
             columnNameMappings = properties.ToDictionary(x => x.PropertyName, x => x.ColumnName);
         }
 
