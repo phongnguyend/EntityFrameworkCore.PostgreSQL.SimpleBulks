@@ -114,7 +114,7 @@ public static class TypeExtensions
             }
 
             sql.Append($"\n\t\"{GetDbColumnName(name.Key, columnNameMappings)}\"");
-            var sqlType = name.Value.ToPostgreSQLType();
+            var sqlType = GetDbColumnType(name.Key, name.Value, columnTypeMappings);
             sql.Append($" {sqlType} NULL");
 
             i++;
@@ -136,13 +136,13 @@ public static class TypeExtensions
         return columnNameMappings.TryGetValue(columName, out string value) ? value : columName;
     }
 
-    private static string GetDbColumnType(DataColumn dataColumn, IReadOnlyDictionary<string, string> columnTypeMappings)
+    private static string GetDbColumnType(string name, Type type, IReadOnlyDictionary<string, string> columnTypeMappings)
     {
         if (columnTypeMappings == null)
         {
-            return dataColumn.DataType.ToPostgreSQLType();
+            return type.ToPostgreSQLType();
         }
 
-        return columnTypeMappings.TryGetValue(dataColumn.ColumnName, out string value) ? value : dataColumn.DataType.ToPostgreSQLType();
+        return columnTypeMappings.TryGetValue(name, out string value) ? value : type.ToPostgreSQLType();
     }
 }
