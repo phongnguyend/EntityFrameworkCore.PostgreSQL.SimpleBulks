@@ -94,7 +94,7 @@ public class BulkDeleteBuilder<T>
 
         var temptableName = $"\"{Guid.NewGuid()}\"";
         var clrTypes = typeof(T).GetClrTypes(_idColumns);
-        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, _idColumns);
+        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, _idColumns, null, _columnTypeMappings);
 
         var joinCondition = string.Join(" AND ", _idColumns.Select(x =>
         {

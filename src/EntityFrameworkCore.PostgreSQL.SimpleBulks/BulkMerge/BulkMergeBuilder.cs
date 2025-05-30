@@ -142,7 +142,7 @@ public class BulkMergeBuilder<T>
         propertyNames = propertyNames.Distinct().ToList();
 
         var clrTypes = typeof(T).GetClrTypes(propertyNames);
-        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNames, addIndexNumberColumn: returnDbGeneratedId);
+        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNames, null, _columnTypeMappings, addIndexNumberColumn: returnDbGeneratedId);
 
         var mergeStatementBuilder = new StringBuilder();
 

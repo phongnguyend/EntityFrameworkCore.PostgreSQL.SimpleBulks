@@ -113,7 +113,7 @@ public class BulkUpdateBuilder<T>
         propertyNamesIncludeId.AddRange(_idColumns);
 
         var clrTypes = typeof(T).GetClrTypes(propertyNamesIncludeId);
-        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNamesIncludeId);
+        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNamesIncludeId, null, _columnTypeMappings);
 
         var joinCondition = string.Join(" and ", _idColumns.Select(x =>
         {

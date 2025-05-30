@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -26,7 +27,7 @@ public static class TypeExtensions
 
     public static string ToPostgreSQLType(this Type type)
     {
-        if(type.IsEnum)
+        if (type.IsEnum)
         {
             return "int4";
         }
@@ -73,7 +74,10 @@ public static class TypeExtensions
         return updatablePros.ToDictionary(x => x.Name, x => Nullable.GetUnderlyingType(x.PropertyType) ?? x.PropertyType);
     }
 
-    public static string GenerateTempTableDefinition(this Type type, string tableName, IEnumerable<string> propertyNames, IReadOnlyDictionary<string, string> columnNameMappings = null, bool addIndexNumberColumn = false)
+    public static string GenerateTempTableDefinition(this Type type, string tableName, IEnumerable<string> propertyNames,
+        IReadOnlyDictionary<string, string> columnNameMappings,
+        IReadOnlyDictionary<string, string> columnTypeMappings,
+        bool addIndexNumberColumn = false)
     {
         var properties = TypeDescriptor.GetProperties(type);
 
@@ -130,5 +134,15 @@ public static class TypeExtensions
         }
 
         return columnNameMappings.TryGetValue(columName, out string value) ? value : columName;
+    }
+
+    private static string GetDbColumnType(DataColumn dataColumn, IReadOnlyDictionary<string, string> columnTypeMappings)
+    {
+        if (columnTypeMappings == null)
+        {
+            return dataColumn.DataType.ToPostgreSQLType();
+        }
+
+        return columnTypeMappings.TryGetValue(dataColumn.ColumnName, out string value) ? value : dataColumn.DataType.ToPostgreSQLType();
     }
 }

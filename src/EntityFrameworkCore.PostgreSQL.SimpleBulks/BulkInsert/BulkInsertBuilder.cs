@@ -173,7 +173,7 @@ public class BulkInsertBuilder<T>
         }
 
         var temptableName = $"\"{Guid.NewGuid()}\"";
-        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, _columnNames, addIndexNumberColumn: true);
+        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, _columnNames, null, _columnTypeMappings, addIndexNumberColumn: true);
 
         var mergeStatementBuilder = new StringBuilder();
         mergeStatementBuilder.AppendLine($"MERGE INTO {_table.SchemaQualifiedTableName} AS a");

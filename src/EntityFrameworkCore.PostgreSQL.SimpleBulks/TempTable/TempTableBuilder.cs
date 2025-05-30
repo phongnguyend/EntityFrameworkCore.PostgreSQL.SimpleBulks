@@ -85,7 +85,7 @@ public class TempTableBuilder<T>
     public string Execute()
     {
         var tempTableName = $"\"{GetTableName()}\"";
-        var sqlCreateTempTable = typeof(T).GenerateTempTableDefinition(tempTableName, _columnNames, _columnNameMappings);
+        var sqlCreateTempTable = typeof(T).GenerateTempTableDefinition(tempTableName, _columnNames, _columnNameMappings, _columnTypeMappings);
 
         Log($"Begin creating temp table:{Environment.NewLine}{sqlCreateTempTable}");
 
