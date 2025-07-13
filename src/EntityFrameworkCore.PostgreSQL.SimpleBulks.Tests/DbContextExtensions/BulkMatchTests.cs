@@ -5,12 +5,13 @@ using Xunit.Abstractions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DbContextExtensions;
 
+[Collection("PostgreSqlCollection")]
 public class BulkMatchTests : BaseTest
 {
     private readonly List<Customer> _customers;
     private readonly List<Contact> _contacts;
 
-    public BulkMatchTests(ITestOutputHelper output) : base(output, "BulkMatchTest")
+    public BulkMatchTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkMatchTest")
     {
         var tran = _context.Database.BeginTransaction();
 

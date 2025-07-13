@@ -6,9 +6,10 @@ using Xunit.Abstractions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DbContextExtensions;
 
+[Collection("PostgreSqlCollection")]
 public class BulkInsertTests : BaseTest
 {
-    public BulkInsertTests(ITestOutputHelper output) : base(output, "BulkInsertTest")
+    public BulkInsertTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkInsertTest")
     {
     }
 
@@ -109,10 +110,18 @@ public class BulkInsertTests : BaseTest
         }
 
         _context.BulkInsert(rows,
-                row => new { row.Column1, row.Column2, row.Column3, row.Season });
+                row => new { row.Column1, row.Column2, row.Column3, row.Season },
+                options =>
+                {
+                    options.LogTo = _output.WriteLine;
+                });
 
         _context.BulkInsert(compositeKeyRows,
-                row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season });
+                row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season },
+                options =>
+                {
+                    options.LogTo = _output.WriteLine;
+                });
 
         tran.Commit();
 

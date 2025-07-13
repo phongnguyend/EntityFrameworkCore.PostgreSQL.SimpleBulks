@@ -7,16 +7,17 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExten
 public abstract class BaseTest : IDisposable
 {
     protected readonly ITestOutputHelper _output;
-
+    private readonly PostgreSqlFixture _fixture;
     protected readonly TestDbContext _context;
     protected readonly NpgsqlConnection _connection;
 
-    protected BaseTest(ITestOutputHelper output, string dbPrefixName, string schema = "")
+    protected BaseTest(ITestOutputHelper output, PostgreSqlFixture fixture, string dbPrefixName, string schema = "")
     {
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
         _output = output;
-        var connectionString = GetConnectionString(dbPrefixName);
+        _fixture = fixture;
+        var connectionString = _fixture.GetConnectionString(dbPrefixName);
         _context = GetDbContext(connectionString, schema);
         _context.Database.EnsureCreated();
         _connection = new NpgsqlConnection(connectionString);
@@ -25,11 +26,6 @@ public abstract class BaseTest : IDisposable
     public void Dispose()
     {
         _context.Database.EnsureDeleted();
-    }
-
-    protected string GetConnectionString(string dbPrefixName)
-    {
-        return $"Host=127.0.0.1;Database={dbPrefixName}.{Guid.NewGuid()};Username=postgres;Password=postgres";
     }
 
     protected TestDbContext GetDbContext(string connectionString, string schema)

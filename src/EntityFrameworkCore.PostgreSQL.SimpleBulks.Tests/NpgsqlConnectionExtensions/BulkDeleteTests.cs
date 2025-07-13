@@ -6,11 +6,12 @@ using Xunit.Abstractions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.NpgsqlConnectionExtensions;
 
+[Collection("PostgreSqlCollection")]
 public class BulkDeleteTests : BaseTest
 {
     private string _schema = "";
 
-    public BulkDeleteTests(ITestOutputHelper output) : base(output, "BulkDeleteTest")
+    public BulkDeleteTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkDeleteTest")
     {
         TableMapper.Register(typeof(SingleKeyRow<int>), _schema, "SingleKeyRows");
         TableMapper.Register(typeof(CompositeKeyRow<int, int>), _schema, "CompositeKeyRows");

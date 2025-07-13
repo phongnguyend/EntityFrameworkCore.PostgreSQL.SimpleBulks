@@ -8,9 +8,10 @@ using Xunit.Abstractions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DbContextExtensions;
 
+[Collection("PostgreSqlCollection")]
 public class BulkUpdateTests : BaseTest
 {
-    public BulkUpdateTests(ITestOutputHelper output) : base(output, "BulkUpdateTest")
+    public BulkUpdateTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkUpdateTest")
     {
     }
 

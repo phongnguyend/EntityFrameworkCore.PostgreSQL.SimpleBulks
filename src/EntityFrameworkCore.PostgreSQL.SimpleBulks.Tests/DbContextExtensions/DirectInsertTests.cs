@@ -6,9 +6,10 @@ using Xunit.Abstractions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DbContextExtensions;
 
+[Collection("PostgreSqlCollection")]
 public class DirectInsertTests : BaseTest
 {
-    public DirectInsertTests(ITestOutputHelper output) : base(output, "DirectInsertTest")
+    public DirectInsertTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "DirectInsertTest")
     {
     }
 

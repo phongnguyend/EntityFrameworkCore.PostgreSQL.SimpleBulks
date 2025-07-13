@@ -6,6 +6,7 @@ using Xunit.Abstractions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DbContextExtensions;
 
+[Collection("PostgreSqlCollection")]
 public class TempTableTests : BaseTest
 {
     private readonly static List<CustomerDto> _customers = new List<CustomerDto>
@@ -58,7 +59,7 @@ public class TempTableTests : BaseTest
         }
     };
 
-    public TempTableTests(ITestOutputHelper output) : base(output, "TempTableTest")
+    public TempTableTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "TempTableTest")
     {
     }
 

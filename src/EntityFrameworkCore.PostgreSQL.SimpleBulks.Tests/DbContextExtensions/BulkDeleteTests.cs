@@ -6,9 +6,10 @@ using Xunit.Abstractions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.DbContextExtensions;
 
+[Collection("PostgreSqlCollection")]
 public class BulkDeleteTests : BaseTest
 {
-    public BulkDeleteTests(ITestOutputHelper output) : base(output, "BulkDeleteTest")
+    public BulkDeleteTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkDeleteTest")
     {
         var tran = _context.Database.BeginTransaction();
 
