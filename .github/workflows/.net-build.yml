@@ -1,0 +1,39 @@
+name: .Net Build EntityFrameworkCore.PostgreSQL.SimpleBulks
+
+on:
+  push:
+    paths: 
+      - 'src/**'
+  pull_request:
+    paths: 
+      - 'src/**'
+  workflow_dispatch:
+  
+jobs:
+  build:
+
+    defaults: 
+      run:
+        working-directory: src
+        
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+  
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 8.0.100
+
+    - name: Test
+      run: dotnet test EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests/EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.csproj
+
+    - name: Build
+      run: dotnet build EntityFrameworkCore.PostgreSQL.SimpleBulks/EntityFrameworkCore.PostgreSQL.SimpleBulks.csproj --configuration Release
+
+    - name: Upload EntityFrameworkCore.PostgreSQL.SimpleBulks
+      uses: actions/upload-artifact@v4
+      with:
+        name: EntityFrameworkCore.PostgreSQL.SimpleBulks
+        path: src/EntityFrameworkCore.PostgreSQL.SimpleBulks/bin/Release/*.nupkg
