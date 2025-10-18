@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
 
@@ -278,5 +280,10 @@ public class BulkMergeBuilder<T>
     private void Log(string message)
     {
         _options?.LogTo?.Invoke($"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss.fff zzz} [BulkMerge]: {message}");
+    }
+
+    public Task<BulkMergeResult> ExecuteAsync(IEnumerable<T> data, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(Execute(data));
     }
 }
