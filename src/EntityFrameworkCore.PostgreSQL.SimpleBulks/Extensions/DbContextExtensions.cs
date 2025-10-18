@@ -12,7 +12,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 
 public static class DbContextExtensions
 {
-    private static readonly ConcurrentDictionary<Type, IList<ColumnInfor>> _propertiesCache = [];
+    private static readonly ConcurrentDictionary<Type, IReadOnlyList<ColumnInfor>> _propertiesCache = [];
     private static readonly ConcurrentDictionary<Type, TableInfor> _tableInfoCache = [];
 
     public static TableInfor GetTableInfor(this DbContext dbContext, Type type)
@@ -45,7 +45,7 @@ public static class DbContextExtensions
         return transaction == null ? null : transaction.GetDbTransaction() as NpgsqlTransaction;
     }
 
-    public static IList<ColumnInfor> GetProperties(this DbContext dbContext, Type type)
+    public static IReadOnlyList<ColumnInfor> GetProperties(this DbContext dbContext, Type type)
     {
         return _propertiesCache.GetOrAdd(type, (type) =>
         {
