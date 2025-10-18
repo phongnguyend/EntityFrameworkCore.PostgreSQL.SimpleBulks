@@ -29,7 +29,7 @@ public static class DbContextAsyncExtensions
              .WithDbColumnTypeMappings(properties.ToDictionary(x => x.PropertyName, x => x.ColumnType))
              .ToTable(table)
              .ConfigureBulkOptions(configureOptions)
-             .SingleUpdateAsync(data);
+             .SingleUpdateAsync(data, cancellationToken);
     }
 
     public static Task<BulkUpdateResult> DirectUpdateAsync<T>(this DbContext dbContext, T data, IEnumerable<string> columnNames, Action<BulkUpdateOptions> configureOptions = null, CancellationToken cancellationToken = default)
@@ -49,6 +49,6 @@ public static class DbContextAsyncExtensions
             .WithDbColumnTypeMappings(properties.ToDictionary(x => x.PropertyName, x => x.ColumnType))
             .ToTable(table)
             .ConfigureBulkOptions(configureOptions)
-            .SingleUpdateAsync(data);
+            .SingleUpdateAsync(data, cancellationToken);
     }
 }
