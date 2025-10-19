@@ -46,7 +46,7 @@ public static class DbContextExtensions
 
     public static NpgsqlConnection GetNpgsqlConnection(this DbContext dbContext)
     {
-        return dbContext.Database.GetDbConnection().AsNpgsqlConnection();
+        return dbContext.Database.GetDbConnection() as NpgsqlConnection;
     }
 
     public static NpgsqlTransaction GetCurrentNpgsqlTransaction(this DbContext dbContext)

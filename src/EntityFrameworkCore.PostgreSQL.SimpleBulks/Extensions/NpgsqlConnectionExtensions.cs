@@ -3,14 +3,9 @@ using System.Data;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 
-public static class IDbConnectionExtensions
+public static class NpgsqlConnectionExtensions
 {
-    public static NpgsqlConnection AsNpgsqlConnection(this IDbConnection connection)
-    {
-        return connection as NpgsqlConnection;
-    }
-
-    public static void EnsureOpen(this IDbConnection connection)
+    public static void EnsureOpen(this NpgsqlConnection connection)
     {
         var connectionState = connection.State;
 
@@ -20,7 +15,7 @@ public static class IDbConnectionExtensions
         }
     }
 
-    public static void EnsureClosed(this IDbConnection connection)
+    public static void EnsureClosed(this NpgsqlConnection connection)
     {
         var connectionState = connection.State;
 
@@ -30,7 +25,7 @@ public static class IDbConnectionExtensions
         }
     }
 
-    public static IDbCommand CreateTextCommand(this IDbConnection connection, IDbTransaction transaction, string commandText, BulkOptions options = null)
+    public static NpgsqlCommand CreateTextCommand(this NpgsqlConnection connection, NpgsqlTransaction transaction, string commandText, BulkOptions options = null)
     {
         options ??= new BulkOptions()
         {
