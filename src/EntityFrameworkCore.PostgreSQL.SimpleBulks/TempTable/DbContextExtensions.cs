@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.TempTable;
@@ -47,8 +46,7 @@ public static class DbContextExtensions
 
         if (isEntityType)
         {
-            var properties = dbContext.GetProperties(typeof(T));
-            columnNames = properties.Where(x => !x.IsRowVersion).Select(x => x.PropertyName).ToArray();
+            columnNames = dbContext.GetAllPropertyNamesWithoutRowVersions(typeof(T));
             columnNameMappings = dbContext.GetColumnNames(typeof(T));
             columnTypeMappings = dbContext.GetColumnTypes(typeof(T));
         }
