@@ -171,13 +171,81 @@ public class BulkDeleteBuilder<T>
         _options?.LogTo?.Invoke($"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss.fff zzz} [BulkDelete]: {message}");
     }
 
-    public Task<BulkDeleteResult> ExecuteAsync(IEnumerable<T> data, CancellationToken cancellationToken = default)
+    public async Task<BulkDeleteResult> ExecuteAsync(IEnumerable<T> data, CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(Execute(data));
+        if (data.Count() == 1)
+        {
+            return await SingleDeleteAsync(data.First(), cancellationToken);
+        }
+
+        var temptableName = $"\"{Guid.NewGuid()}\"";
+        var clrTypes = typeof(T).GetClrTypes(_idColumns);
+        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, _idColumns, null, _columnTypeMappings);
+
+        var joinCondition = string.Join(" AND ", _idColumns.Select(x =>
+        {
+            string collation = !string.IsNullOrEmpty(_options.Collation) && clrTypes[x] == typeof(string) ?
+            $" COLLATE \"{_options.Collation}\"" : string.Empty;
+            return $"a.\"{GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
+        }));
+
+        var deleteStatement = $"DELETE FROM {_table.SchemaQualifiedTableName} AS a USING {temptableName} AS b WHERE " + joinCondition;
+
+        await _connection.EnsureOpenAsync(cancellationToken);
+
+        Log($"Begin creating temp table:{Environment.NewLine}{sqlCreateTemptable}");
+
+        using (var createTemptableCommand = _connection.CreateTextCommand(_transaction, sqlCreateTemptable, _options))
+        {
+            await createTemptableCommand.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        Log("End creating temp table.");
+
+        Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
+
+        await data.SqlBulkCopyAsync(temptableName, _idColumns, null, false, _connection, _transaction, _options, cancellationToken);
+
+        Log("End executing SqlBulkCopy.");
+
+        Log($"Begin deleting:{Environment.NewLine}{deleteStatement}");
+
+        using var deleteCommand = _connection.CreateTextCommand(_transaction, deleteStatement, _options);
+
+        var affectedRows = await deleteCommand.ExecuteNonQueryAsync(cancellationToken);
+
+        Log("End deleting.");
+
+        return new BulkDeleteResult
+        {
+            AffectedRows = affectedRows
+        };
     }
 
-    public Task<BulkDeleteResult> SingleDeleteAsync(T dataToDelete, CancellationToken cancellationToken = default)
+    public async Task<BulkDeleteResult> SingleDeleteAsync(T dataToDelete, CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(SingleDelete(dataToDelete));
+        var whereCondition = string.Join(" AND ", _idColumns.Select(x =>
+        {
+            return $"\"{GetDbColumnName(x)}\" = @{x}";
+        }));
+
+        var deleteStatement = $"DELETE FROM {_table.SchemaQualifiedTableName} WHERE " + whereCondition;
+
+        Log($"Begin deleting:{Environment.NewLine}{deleteStatement}");
+
+        using var deleteCommand = _connection.CreateTextCommand(_transaction, deleteStatement, _options);
+
+        dataToDelete.ToSqlParameters(_idColumns).ForEach(x => deleteCommand.Parameters.Add(x));
+
+        await _connection.EnsureOpenAsync(cancellationToken);
+
+        var affectedRows = await deleteCommand.ExecuteNonQueryAsync(cancellationToken);
+
+        Log("End deleting.");
+
+        return new BulkDeleteResult
+        {
+            AffectedRows = affectedRows
+        };
     }
 }

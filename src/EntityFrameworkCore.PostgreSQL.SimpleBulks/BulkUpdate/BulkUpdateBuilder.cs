@@ -227,13 +227,91 @@ public class BulkUpdateBuilder<T>
         _options?.LogTo?.Invoke($"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss.fff zzz} [BulkUpdate]: {message}");
     }
 
-    public Task<BulkUpdateResult> ExecuteAsync(IEnumerable<T> data, CancellationToken cancellationToken = default)
+    public async Task<BulkUpdateResult> ExecuteAsync(IEnumerable<T> data, CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(Execute(data));
+        if (data.Count() == 1)
+        {
+            return await SingleUpdateAsync(data.First(), cancellationToken);
+        }
+
+        var temptableName = $"\"{Guid.NewGuid()}\"";
+
+        var propertyNamesIncludeId = _columnNames.Select(RemoveOperator).ToList();
+        propertyNamesIncludeId.AddRange(_idColumns);
+
+        var clrTypes = typeof(T).GetClrTypes(propertyNamesIncludeId);
+        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNamesIncludeId, null, _columnTypeMappings);
+
+        var joinCondition = string.Join(" and ", _idColumns.Select(x =>
+        {
+            string collation = !string.IsNullOrEmpty(_options.Collation) && clrTypes[x] == typeof(string) ?
+            $" COLLATE \"{_options.Collation}\"" : string.Empty;
+            return $"a.\"{GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
+        }));
+
+        var updateStatementBuilder = new StringBuilder();
+        updateStatementBuilder.AppendLine($"UPDATE {_table.SchemaQualifiedTableName} AS a SET");
+        updateStatementBuilder.AppendLine(string.Join("," + Environment.NewLine, _columnNames.Select(x => CreateSetStatement(x, "b"))));
+        updateStatementBuilder.AppendLine($"FROM {temptableName} AS b WHERE " + joinCondition);
+
+        await _connection.EnsureOpenAsync(cancellationToken);
+
+        Log($"Begin creating temp table:{Environment.NewLine}{sqlCreateTemptable}");
+        using (var createTemptableCommand = _connection.CreateTextCommand(_transaction, sqlCreateTemptable, _options))
+        {
+            await createTemptableCommand.ExecuteNonQueryAsync(cancellationToken);
+        }
+        Log("End creating temp table.");
+
+        Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
+        await data.SqlBulkCopyAsync(temptableName, propertyNamesIncludeId, null, false, _connection, _transaction, _options, cancellationToken);
+        Log("End executing SqlBulkCopy.");
+
+        var sqlUpdateStatement = updateStatementBuilder.ToString();
+
+        Log($"Begin updating:{Environment.NewLine}{sqlUpdateStatement}");
+        using var updateCommand = _connection.CreateTextCommand(_transaction, sqlUpdateStatement, _options);
+        var affectedRows = await updateCommand.ExecuteNonQueryAsync(cancellationToken);
+        Log("End updating.");
+
+        return new BulkUpdateResult
+        {
+            AffectedRows = affectedRows
+        };
     }
 
-    public Task<BulkUpdateResult> SingleUpdateAsync(T dataToUpdate, CancellationToken cancellationToken = default)
+    public async Task<BulkUpdateResult> SingleUpdateAsync(T dataToUpdate, CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(SingleUpdate(dataToUpdate));
+        var whereCondition = string.Join(" AND ", _idColumns.Select(x =>
+        {
+            return CreateSetStatement(x);
+        }));
+
+        var updateStatementBuilder = new StringBuilder();
+        updateStatementBuilder.AppendLine($"UPDATE {_table.SchemaQualifiedTableName} SET");
+        updateStatementBuilder.AppendLine(string.Join("," + Environment.NewLine, _columnNames.Select(x => CreateSetStatement(x))));
+        updateStatementBuilder.AppendLine($"WHERE {whereCondition}");
+
+        var sqlUpdateStatement = updateStatementBuilder.ToString();
+
+        var propertyNamesIncludeId = _columnNames.Select(RemoveOperator).ToList();
+        propertyNamesIncludeId.AddRange(_idColumns);
+
+        Log($"Begin updating:{Environment.NewLine}{sqlUpdateStatement}");
+
+        using var updateCommand = _connection.CreateTextCommand(_transaction, sqlUpdateStatement, _options);
+
+        dataToUpdate.ToSqlParameters(propertyNamesIncludeId).ForEach(x => updateCommand.Parameters.Add(x));
+
+        await _connection.EnsureOpenAsync(cancellationToken);
+
+        var affectedRow = await updateCommand.ExecuteNonQueryAsync(cancellationToken);
+
+        Log($"End updating.");
+
+        return new BulkUpdateResult
+        {
+            AffectedRows = affectedRow
+        };
     }
 }

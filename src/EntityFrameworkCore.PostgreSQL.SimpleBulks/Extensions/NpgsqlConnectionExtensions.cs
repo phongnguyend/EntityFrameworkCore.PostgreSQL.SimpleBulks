@@ -1,5 +1,7 @@
 ﻿using Npgsql;
 using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 
@@ -12,6 +14,16 @@ public static class NpgsqlConnectionExtensions
         if (connectionState != ConnectionState.Open)
         {
             connection.Open();
+        }
+    }
+
+    public static async Task EnsureOpenAsync(this NpgsqlConnection connection, CancellationToken cancellationToken = default)
+    {
+        var connectionState = connection.State;
+
+        if (connectionState != ConnectionState.Open)
+        {
+            await connection.OpenAsync(cancellationToken);
         }
     }
 
