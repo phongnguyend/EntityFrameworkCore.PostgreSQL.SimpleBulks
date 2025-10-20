@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
@@ -34,28 +32,6 @@ public static class TypeExtensions
 
         var sqlType = _mappings.TryGetValue(type, out string value) ? value : "text";
         return sqlType;
-    }
-
-    public static string[] GetDbColumnNames(this Type type, params string[] ignoredColumns)
-    {
-        var names = type.GetProperties()
-            .Where(x => IsSupportedType(x))
-            .Where(x => ignoredColumns == null || !ignoredColumns.Contains(x.Name))
-            .Select(x => x.Name);
-        return names.ToArray();
-    }
-
-    public static string[] GetUnSupportedPropertyNames(this Type type)
-    {
-        var names = type.GetProperties()
-            .Where(x => !IsSupportedType(x))
-            .Select(x => x.Name);
-        return names.ToArray();
-    }
-
-    private static bool IsSupportedType(PropertyInfo property)
-    {
-        return _mappings.ContainsKey(Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType) || property.PropertyType.IsValueType;
     }
 
     public static Dictionary<string, Type> GetClrTypes(this Type type, IEnumerable<string> propertyNames)
