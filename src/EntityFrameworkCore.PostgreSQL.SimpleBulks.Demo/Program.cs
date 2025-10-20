@@ -16,7 +16,7 @@ using (var dbct = new DemoDbContext())
 {
     dbct.Database.Migrate();
 
-    var deleteResult = dbct.BulkDelete(dbct.Set<ConfigurationEntry>().AsNoTracking().ToList(),
+    var deleteResult = await dbct.BulkDeleteAsync(dbct.Set<ConfigurationEntry>().AsNoTracking().ToList(),
           opt =>
           {
               opt.LogTo = Console.WriteLine;
@@ -36,11 +36,11 @@ using (var dbct = new DemoDbContext())
         });
     }
 
-    dbct.BulkInsert(configurationEntries,
-        opt =>
-        {
-            opt.LogTo = Console.WriteLine;
-        });
+    await dbct.BulkInsertAsync(configurationEntries,
+         opt =>
+         {
+             opt.LogTo = Console.WriteLine;
+         });
 
     foreach (var row in configurationEntries)
     {
@@ -50,7 +50,7 @@ using (var dbct = new DemoDbContext())
         row.Description = row.Id.ToString();
     }
 
-    var updateResult = dbct.BulkUpdate(configurationEntries,
+    var updateResult = await dbct.BulkUpdateAsync(configurationEntries,
         x => new { x.Key, x.UpdatedDateTime, x.IsSensitive, x.Description },
         opt =>
         {
@@ -66,7 +66,7 @@ using (var dbct = new DemoDbContext())
         CreatedDateTime = DateTimeOffset.Now,
     });
 
-    var mergeResult = dbct.BulkMerge(configurationEntries,
+    var mergeResult = await dbct.BulkMergeAsync(configurationEntries,
         x => x.Id,
         x => new { x.Key, x.UpdatedDateTime, x.IsSensitive, x.Description },
         x => new { x.Key, x.Value, x.IsSensitive, x.CreatedDateTime },
