@@ -113,8 +113,27 @@ public class TempTableBuilder<T>
         _options?.LogTo?.Invoke($"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss.fff zzz} [TempTable]: {message}");
     }
 
-    public Task<string> ExecuteAsync(CancellationToken cancellationToken = default)
+    public async Task<string> ExecuteAsync(CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(Execute());
+        var tempTableName = $"\"{GetTableName()}\"";
+        var sqlCreateTempTable = typeof(T).GenerateTempTableDefinition(tempTableName, _columnNames, _columnNameMappings, _columnTypeMappings);
+
+        Log($"Begin creating temp table:{Environment.NewLine}{sqlCreateTempTable}");
+
+        _connection.EnsureOpen();
+        using (var createTempTableCommand = _connection.CreateTextCommand(_transaction, sqlCreateTempTable))
+        {
+            await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        Log("End creating temp table.");
+
+        Log($"Begin executing SqlBulkCopy. TableName: {tempTableName}");
+
+        await _data.SqlBulkCopyAsync(tempTableName, _columnNames, _columnNameMappings, false, _connection, _transaction, cancellationToken: cancellationToken);
+
+        Log("End executing SqlBulkCopy.");
+
+        return tempTableName;
     }
 }
