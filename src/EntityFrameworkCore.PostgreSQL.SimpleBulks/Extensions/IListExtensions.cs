@@ -1,4 +1,5 @@
-﻿using Npgsql;
+﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -149,5 +150,25 @@ public static class IListExtensions
         }
 
         return columnNameMappings.TryGetValue(columName, out string value) ? value : columName;
+    }
+
+    private static Type GetProviderClrType(PropertyDescriptor property, IReadOnlyDictionary<string, ValueConverter> valueConverters)
+    {
+        if (valueConverters != null && valueConverters.TryGetValue(property.Name, out var converter))
+        {
+            return converter.ProviderClrType;
+        }
+
+        return Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+    }
+
+    private static object GetProviderValue<T>(PropertyDescriptor property, T item, IReadOnlyDictionary<string, ValueConverter> valueConverters)
+    {
+        if (valueConverters != null && valueConverters.TryGetValue(property.Name, out var converter))
+        {
+            return converter.ConvertToProvider(property.GetValue(item));
+        }
+
+        return property.GetValue(item);
     }
 }
