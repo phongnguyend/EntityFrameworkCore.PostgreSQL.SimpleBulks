@@ -1,4 +1,5 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ public class BulkDeleteBuilder<T>
     private IEnumerable<string> _idColumns;
     private IReadOnlyDictionary<string, string> _columnNameMappings;
     private IReadOnlyDictionary<string, string> _columnTypeMappings;
+    private IReadOnlyDictionary<string, ValueConverter> _valueConverters;
     private BulkDeleteOptions _options;
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction _transaction;
@@ -64,6 +66,12 @@ public class BulkDeleteBuilder<T>
     public BulkDeleteBuilder<T> WithDbColumnTypeMappings(IReadOnlyDictionary<string, string> columnTypeMappings)
     {
         _columnTypeMappings = columnTypeMappings;
+        return this;
+    }
+
+    public BulkDeleteBuilder<T> WithValueConverters(IReadOnlyDictionary<string, ValueConverter> valueConverters)
+    {
+        _valueConverters = valueConverters;
         return this;
     }
 
@@ -121,7 +129,7 @@ public class BulkDeleteBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        data.SqlBulkCopy(temptableName, _idColumns, null, false, _connection, _transaction, _options);
+        data.SqlBulkCopy(temptableName, _idColumns, null, false, _connection, _transaction, _options, valueConverters: _valueConverters);
 
         Log("End executing SqlBulkCopy.");
 
@@ -204,7 +212,7 @@ public class BulkDeleteBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        await data.SqlBulkCopyAsync(temptableName, _idColumns, null, false, _connection, _transaction, _options, cancellationToken);
+        await data.SqlBulkCopyAsync(temptableName, _idColumns, null, false, _connection, _transaction, _options, valueConverters: _valueConverters, cancellationToken: cancellationToken);
 
         Log("End executing SqlBulkCopy.");
 

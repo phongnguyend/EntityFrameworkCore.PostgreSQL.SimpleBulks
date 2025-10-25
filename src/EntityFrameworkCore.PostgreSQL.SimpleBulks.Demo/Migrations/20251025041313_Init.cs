@@ -41,7 +41,9 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo.Migrations
                     Key1 = table.Column<string>(type: "text", nullable: true),
                     Value = table.Column<string>(type: "text", nullable: true),
                     Description = table.Column<string>(type: "text", nullable: true),
-                    IsSensitive = table.Column<bool>(type: "boolean", nullable: false)
+                    IsSensitive = table.Column<bool>(type: "boolean", nullable: false),
+                    SeasonAsInt = table.Column<int>(type: "integer", nullable: true),
+                    SeasonAsString = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {

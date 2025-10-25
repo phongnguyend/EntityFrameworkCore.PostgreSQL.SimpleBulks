@@ -1,4 +1,5 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ public class BulkMergeBuilder<T>
     private IEnumerable<string> _insertColumnNames;
     private IReadOnlyDictionary<string, string> _columnNameMappings;
     private IReadOnlyDictionary<string, string> _columnTypeMappings;
+    private IReadOnlyDictionary<string, ValueConverter> _valueConverters;
     private string _outputIdColumn;
     private BulkMergeOptions _options;
     private readonly NpgsqlConnection _connection;
@@ -92,6 +94,12 @@ public class BulkMergeBuilder<T>
     public BulkMergeBuilder<T> WithDbColumnTypeMappings(IReadOnlyDictionary<string, string> columnTypeMappings)
     {
         _columnTypeMappings = columnTypeMappings;
+        return this;
+    }
+
+    public BulkMergeBuilder<T> WithValueConverters(IReadOnlyDictionary<string, ValueConverter> valueConverters)
+    {
+        _valueConverters = valueConverters;
         return this;
     }
 
@@ -194,7 +202,7 @@ public class BulkMergeBuilder<T>
         Log("End creating temp table.");
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
-        data.SqlBulkCopy(temptableName, propertyNames, null, returnDbGeneratedId, _connection, _transaction, _options);
+        data.SqlBulkCopy(temptableName, propertyNames, null, returnDbGeneratedId, _connection, _transaction, _options, valueConverters: _valueConverters);
         Log("End executing SqlBulkCopy.");
 
         var sqlMergeStatement = mergeStatementBuilder.ToString();
@@ -349,7 +357,7 @@ public class BulkMergeBuilder<T>
         Log("End creating temp table.");
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
-        await data.SqlBulkCopyAsync(temptableName, propertyNames, null, returnDbGeneratedId, _connection, _transaction, _options, cancellationToken);
+        await data.SqlBulkCopyAsync(temptableName, propertyNames, null, returnDbGeneratedId, _connection, _transaction, _options, valueConverters: _valueConverters, cancellationToken: cancellationToken);
         Log("End executing SqlBulkCopy.");
 
         var sqlMergeStatement = mergeStatementBuilder.ToString();

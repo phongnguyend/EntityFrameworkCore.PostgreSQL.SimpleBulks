@@ -12,7 +12,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 
 public static class IListExtensions
 {
-    public static void SqlBulkCopy<T>(this IEnumerable<T> data, string tableName, IEnumerable<string> propertyNames, IReadOnlyDictionary<string, string> columnNameMappings, bool addIndexNumberColumn, NpgsqlConnection connection, NpgsqlTransaction transaction, BulkOptions options = null)
+    public static void SqlBulkCopy<T>(this IEnumerable<T> data, string tableName, IEnumerable<string> propertyNames, IReadOnlyDictionary<string, string> columnNameMappings, bool addIndexNumberColumn, NpgsqlConnection connection, NpgsqlTransaction transaction, BulkOptions options = null, IReadOnlyDictionary<string, ValueConverter> valueConverters = null)
     {
         options ??= new BulkOptions()
         {
@@ -57,9 +57,7 @@ public static class IListExtensions
                     continue;
                 }
 
-                var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-                var tempValue = prop.GetValue(item);
-                var value = type.IsEnum && tempValue != null ? (int)tempValue : tempValue;
+                var value = GetProviderValue(prop, item, valueConverters);
 
                 writer.Write(value);
             }
@@ -75,7 +73,7 @@ public static class IListExtensions
         writer.Complete();
     }
 
-    public static async Task SqlBulkCopyAsync<T>(this IEnumerable<T> data, string tableName, IEnumerable<string> propertyNames, IReadOnlyDictionary<string, string> columnNameMappings, bool addIndexNumberColumn, NpgsqlConnection connection, NpgsqlTransaction transaction, BulkOptions options = null, CancellationToken cancellationToken = default)
+    public static async Task SqlBulkCopyAsync<T>(this IEnumerable<T> data, string tableName, IEnumerable<string> propertyNames, IReadOnlyDictionary<string, string> columnNameMappings, bool addIndexNumberColumn, NpgsqlConnection connection, NpgsqlTransaction transaction, BulkOptions options = null, IReadOnlyDictionary<string, ValueConverter> valueConverters = null, CancellationToken cancellationToken = default)
     {
         options ??= new BulkOptions()
         {
@@ -124,9 +122,7 @@ public static class IListExtensions
                     continue;
                 }
 
-                var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-                var tempValue = prop.GetValue(item);
-                var value = type.IsEnum && tempValue != null ? (int)tempValue : tempValue;
+                var value = GetProviderValue(prop, item, valueConverters);
 
                 await writer.WriteAsync(value, cancellationToken);
             }
@@ -152,16 +148,6 @@ public static class IListExtensions
         return columnNameMappings.TryGetValue(columName, out string value) ? value : columName;
     }
 
-    private static Type GetProviderClrType(PropertyDescriptor property, IReadOnlyDictionary<string, ValueConverter> valueConverters)
-    {
-        if (valueConverters != null && valueConverters.TryGetValue(property.Name, out var converter))
-        {
-            return converter.ProviderClrType;
-        }
-
-        return Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
-    }
-
     private static object GetProviderValue<T>(PropertyDescriptor property, T item, IReadOnlyDictionary<string, ValueConverter> valueConverters)
     {
         if (valueConverters != null && valueConverters.TryGetValue(property.Name, out var converter))
@@ -169,6 +155,10 @@ public static class IListExtensions
             return converter.ConvertToProvider(property.GetValue(item));
         }
 
-        return property.GetValue(item);
+        var type = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+        var tempValue = property.GetValue(item);
+        var value = type.IsEnum && tempValue != null ? (int)tempValue : tempValue;
+
+        return value;
     }
 }

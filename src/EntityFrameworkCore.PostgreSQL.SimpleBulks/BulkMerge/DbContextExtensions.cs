@@ -10,7 +10,6 @@ public static class DbContextExtensions
 {
     public static BulkMergeResult BulkMerge<T>(this DbContext dbContext, IEnumerable<T> data, Expression<Func<T, object>> idSelector, Expression<Func<T, object>> updateColumnNamesSelector, Expression<Func<T, object>> insertColumnNamesSelector, Action<BulkMergeOptions> configureOptions = null)
     {
-        var table = dbContext.GetTableInfor(typeof(T));
         var connection = dbContext.GetNpgsqlConnection();
         var transaction = dbContext.GetCurrentNpgsqlTransaction();
         var outputIdColumn = dbContext.GetOutputId(typeof(T))?.PropertyName;
@@ -21,15 +20,15 @@ public static class DbContextExtensions
              .WithInsertColumns(insertColumnNamesSelector)
              .WithDbColumnMappings(dbContext.GetColumnNames(typeof(T)))
              .WithDbColumnTypeMappings(dbContext.GetColumnTypes(typeof(T)))
+             .WithValueConverters(dbContext.GetValueConverters(typeof(T)))
              .WithOutputId(outputIdColumn)
-             .ToTable(table)
+             .ToTable(dbContext.GetTableInfor(typeof(T)))
              .ConfigureBulkOptions(configureOptions)
              .Execute(data);
     }
 
     public static BulkMergeResult BulkMerge<T>(this DbContext dbContext, IEnumerable<T> data, string idColumn, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, Action<BulkMergeOptions> configureOptions = null)
     {
-        var table = dbContext.GetTableInfor(typeof(T));
         var connection = dbContext.GetNpgsqlConnection();
         var transaction = dbContext.GetCurrentNpgsqlTransaction();
         var outputIdColumn = dbContext.GetOutputId(typeof(T))?.PropertyName;
@@ -40,15 +39,15 @@ public static class DbContextExtensions
             .WithInsertColumns(insertColumnNames)
             .WithDbColumnMappings(dbContext.GetColumnNames(typeof(T)))
             .WithDbColumnTypeMappings(dbContext.GetColumnTypes(typeof(T)))
+            .WithValueConverters(dbContext.GetValueConverters(typeof(T)))
             .WithOutputId(outputIdColumn)
-            .ToTable(table)
+            .ToTable(dbContext.GetTableInfor(typeof(T)))
             .ConfigureBulkOptions(configureOptions)
             .Execute(data);
     }
 
     public static BulkMergeResult BulkMerge<T>(this DbContext dbContext, IEnumerable<T> data, IEnumerable<string> idColumns, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, Action<BulkMergeOptions> configureOptions = null)
     {
-        var table = dbContext.GetTableInfor(typeof(T));
         var connection = dbContext.GetNpgsqlConnection();
         var transaction = dbContext.GetCurrentNpgsqlTransaction();
         var outputIdColumn = dbContext.GetOutputId(typeof(T))?.PropertyName;
@@ -59,8 +58,9 @@ public static class DbContextExtensions
             .WithInsertColumns(insertColumnNames)
             .WithDbColumnMappings(dbContext.GetColumnNames(typeof(T)))
             .WithDbColumnTypeMappings(dbContext.GetColumnTypes(typeof(T)))
+            .WithValueConverters(dbContext.GetValueConverters(typeof(T)))
             .WithOutputId(outputIdColumn)
-            .ToTable(table)
+            .ToTable(dbContext.GetTableInfor(typeof(T)))
             .ConfigureBulkOptions(configureOptions)
             .Execute(data);
     }

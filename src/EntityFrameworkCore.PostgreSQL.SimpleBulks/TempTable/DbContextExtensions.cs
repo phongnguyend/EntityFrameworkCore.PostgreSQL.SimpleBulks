@@ -29,6 +29,7 @@ public static class DbContextExtensions
              .WithColumns(columnNamesSelector)
              .WithDbColumnMappings(columnNameMappings)
              .WithDbColumnTypeMappings(columnTypeMappings)
+             .WithValueConverters(isEntityType ? dbContext.GetValueConverters(typeof(T)) : null)
              .ConfigureTempTableOptions(configureOptions)
              .Execute();
     }
@@ -55,6 +56,7 @@ public static class DbContextExtensions
              .WithColumns(columnNames)
              .WithDbColumnMappings(columnNameMappings)
              .WithDbColumnTypeMappings(columnTypeMappings)
+             .WithValueConverters(isEntityType ? dbContext.GetValueConverters(typeof(T)) : null)
              .ConfigureTempTableOptions(configureOptions)
              .Execute();
     }

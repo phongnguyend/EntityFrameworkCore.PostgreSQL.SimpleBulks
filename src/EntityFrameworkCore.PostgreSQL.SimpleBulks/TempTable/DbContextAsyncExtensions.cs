@@ -31,6 +31,7 @@ public static class DbContextAsyncExtensions
              .WithColumns(columnNamesSelector)
              .WithDbColumnMappings(columnNameMappings)
              .WithDbColumnTypeMappings(columnTypeMappings)
+             .WithValueConverters(isEntityType ? dbContext.GetValueConverters(typeof(T)) : null)
              .ConfigureTempTableOptions(configureOptions)
              .ExecuteAsync(cancellationToken);
     }
@@ -57,6 +58,7 @@ public static class DbContextAsyncExtensions
              .WithColumns(columnNames)
              .WithDbColumnMappings(columnNameMappings)
              .WithDbColumnTypeMappings(columnTypeMappings)
+             .WithValueConverters(isEntityType ? dbContext.GetValueConverters(typeof(T)) : null)
              .ConfigureTempTableOptions(configureOptions)
              .ExecuteAsync(cancellationToken);
     }

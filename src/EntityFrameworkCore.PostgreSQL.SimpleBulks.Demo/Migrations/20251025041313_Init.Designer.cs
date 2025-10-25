@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo.Migrations
 {
     [DbContext(typeof(DemoDbContext))]
-    [Migration("20241002124108_Init")]
+    [Migration("20251025041313_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -74,6 +74,12 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
+
+                    b.Property<int?>("SeasonAsInt")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SeasonAsString")
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset?>("UpdatedDateTime")
                         .HasColumnType("timestamp with time zone");

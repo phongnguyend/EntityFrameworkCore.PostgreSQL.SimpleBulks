@@ -1,4 +1,5 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ public class TempTableBuilder<T>
     private IEnumerable<string> _columnNames;
     private IReadOnlyDictionary<string, string> _columnNameMappings;
     private IReadOnlyDictionary<string, string> _columnTypeMappings;
+    private IReadOnlyDictionary<string, ValueConverter> _valueConverters;
     private TempTableOptions _options;
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction _transaction;
@@ -59,6 +61,12 @@ public class TempTableBuilder<T>
         return this;
     }
 
+    public TempTableBuilder<T> WithValueConverters(IReadOnlyDictionary<string, ValueConverter> valueConverters)
+    {
+        _valueConverters = valueConverters;
+        return this;
+    }
+
     public TempTableBuilder<T> ConfigureTempTableOptions(Action<TempTableOptions> configureOptions)
     {
         _options = new TempTableOptions();
@@ -101,7 +109,7 @@ public class TempTableBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {tempTableName}");
 
-        _data.SqlBulkCopy(tempTableName, _columnNames, _columnNameMappings, false, _connection, _transaction);
+        _data.SqlBulkCopy(tempTableName, _columnNames, _columnNameMappings, false, _connection, _transaction, valueConverters: _valueConverters);
 
         Log("End executing SqlBulkCopy.");
 
@@ -130,7 +138,7 @@ public class TempTableBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {tempTableName}");
 
-        await _data.SqlBulkCopyAsync(tempTableName, _columnNames, _columnNameMappings, false, _connection, _transaction, cancellationToken: cancellationToken);
+        await _data.SqlBulkCopyAsync(tempTableName, _columnNames, _columnNameMappings, false, _connection, _transaction, valueConverters: _valueConverters, cancellationToken: cancellationToken);
 
         Log("End executing SqlBulkCopy.");
 

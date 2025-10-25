@@ -1,4 +1,5 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ public class BulkInsertBuilder<T>
     private IEnumerable<string> _columnNames;
     private IReadOnlyDictionary<string, string> _columnNameMappings;
     private IReadOnlyDictionary<string, string> _columnTypeMappings;
+    private IReadOnlyDictionary<string, ValueConverter> _valueConverters;
     private BulkInsertOptions _options;
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction _transaction;
@@ -83,6 +85,12 @@ public class BulkInsertBuilder<T>
         return this;
     }
 
+    public BulkInsertBuilder<T> WithValueConverters(IReadOnlyDictionary<string, ValueConverter> valueConverters)
+    {
+        _valueConverters = valueConverters;
+        return this;
+    }
+
     public BulkInsertBuilder<T> ConfigureBulkOptions(Action<BulkInsertOptions> configureOptions)
     {
         _options = new BulkInsertOptions();
@@ -128,7 +136,7 @@ public class BulkInsertBuilder<T>
             _connection.EnsureOpen();
 
             Log($"Begin executing SqlBulkCopy. TableName: {_table.SchemaQualifiedTableName}");
-            data.SqlBulkCopy(_table.SchemaQualifiedTableName, _columnNames, _columnNameMappings, false, _connection, _transaction, _options);
+            data.SqlBulkCopy(_table.SchemaQualifiedTableName, _columnNames, _columnNameMappings, false, _connection, _transaction, _options, valueConverters: _valueConverters);
             Log("End executing SqlBulkCopy.");
             return;
         }
@@ -144,7 +152,7 @@ public class BulkInsertBuilder<T>
             _connection.EnsureOpen();
 
             Log($"Begin executing SqlBulkCopy. TableName: {_table.SchemaQualifiedTableName}");
-            data.SqlBulkCopy(_table.SchemaQualifiedTableName, columnsToInsert, _columnNameMappings, false, _connection, _transaction, _options);
+            data.SqlBulkCopy(_table.SchemaQualifiedTableName, columnsToInsert, _columnNameMappings, false, _connection, _transaction, _options, valueConverters: _valueConverters);
             Log("End executing SqlBulkCopy.");
             return;
         }
@@ -169,7 +177,7 @@ public class BulkInsertBuilder<T>
             _connection.EnsureOpen();
 
             Log($"Begin executing SqlBulkCopy. TableName: {_table.SchemaQualifiedTableName}");
-            data.SqlBulkCopy(_table.SchemaQualifiedTableName, columnsToInsert, _columnNameMappings, false, _connection, _transaction, _options);
+            data.SqlBulkCopy(_table.SchemaQualifiedTableName, columnsToInsert, _columnNameMappings, false, _connection, _transaction, _options, valueConverters: _valueConverters);
             Log("End executing SqlBulkCopy.");
             return;
         }
@@ -200,7 +208,7 @@ public class BulkInsertBuilder<T>
         Log("End creating temp table.");
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
-        data.SqlBulkCopy(temptableName, _columnNames, null, true, _connection, _transaction, _options);
+        data.SqlBulkCopy(temptableName, _columnNames, null, true, _connection, _transaction, _options, valueConverters: _valueConverters);
         Log("End executing SqlBulkCopy.");
 
         var returnedIds = new Dictionary<long, object>();
@@ -318,7 +326,7 @@ public class BulkInsertBuilder<T>
             await _connection.EnsureOpenAsync(cancellationToken);
 
             Log($"Begin executing SqlBulkCopy. TableName: {_table.SchemaQualifiedTableName}");
-            await data.SqlBulkCopyAsync(_table.SchemaQualifiedTableName, _columnNames, _columnNameMappings, false, _connection, _transaction, _options, cancellationToken);
+            await data.SqlBulkCopyAsync(_table.SchemaQualifiedTableName, _columnNames, _columnNameMappings, false, _connection, _transaction, _options, valueConverters: _valueConverters, cancellationToken: cancellationToken);
             Log("End executing SqlBulkCopy.");
             return;
         }
@@ -334,7 +342,7 @@ public class BulkInsertBuilder<T>
             await _connection.EnsureOpenAsync(cancellationToken);
 
             Log($"Begin executing SqlBulkCopy. TableName: {_table.SchemaQualifiedTableName}");
-            await data.SqlBulkCopyAsync(_table.SchemaQualifiedTableName, columnsToInsert, _columnNameMappings, false, _connection, _transaction, _options, cancellationToken);
+            await data.SqlBulkCopyAsync(_table.SchemaQualifiedTableName, columnsToInsert, _columnNameMappings, false, _connection, _transaction, _options, valueConverters: _valueConverters, cancellationToken: cancellationToken);
             Log("End executing SqlBulkCopy.");
             return;
         }
@@ -359,7 +367,7 @@ public class BulkInsertBuilder<T>
             await _connection.EnsureOpenAsync(cancellationToken);
 
             Log($"Begin executing SqlBulkCopy. TableName: {_table.SchemaQualifiedTableName}");
-            await data.SqlBulkCopyAsync(_table.SchemaQualifiedTableName, columnsToInsert, _columnNameMappings, false, _connection, _transaction, _options, cancellationToken);
+            await data.SqlBulkCopyAsync(_table.SchemaQualifiedTableName, columnsToInsert, _columnNameMappings, false, _connection, _transaction, _options, valueConverters: _valueConverters, cancellationToken: cancellationToken);
             Log("End executing SqlBulkCopy.");
             return;
         }
@@ -390,7 +398,7 @@ public class BulkInsertBuilder<T>
         Log("End creating temp table.");
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
-        await data.SqlBulkCopyAsync(temptableName, _columnNames, null, true, _connection, _transaction, _options, cancellationToken);
+        await data.SqlBulkCopyAsync(temptableName, _columnNames, null, true, _connection, _transaction, _options, valueConverters: _valueConverters, cancellationToken: cancellationToken);
         Log("End executing SqlBulkCopy.");
 
         var returnedIds = new Dictionary<long, object>();

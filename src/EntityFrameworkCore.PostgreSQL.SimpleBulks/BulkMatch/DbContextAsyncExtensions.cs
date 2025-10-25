@@ -12,33 +12,33 @@ public static class DbContextAsyncExtensions
 {
     public static Task<List<T>> BulkMatchAsync<T>(this DbContext dbContext, IEnumerable<T> machedValues, Expression<Func<T, object>> matchedColumnsSelector, Action<BulkMatchOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
-        var table = dbContext.GetTableInfor(typeof(T));
         var connection = dbContext.GetNpgsqlConnection();
         var transaction = dbContext.GetCurrentNpgsqlTransaction();
 
-        return new BulkMatchBuilder<T>(connection, transaction)
-             .WithReturnedColumns(dbContext.GetAllPropertyNames(typeof(T)))
-             .WithDbColumnMappings(dbContext.GetColumnNames(typeof(T)))
-             .WithDbColumnTypeMappings(dbContext.GetColumnTypes(typeof(T)))
-             .WithTable(table)
-             .WithMatchedColumns(matchedColumnsSelector)
+      return new BulkMatchBuilder<T>(connection, transaction)
+    .WithReturnedColumns(dbContext.GetAllPropertyNames(typeof(T)))
+  .WithDbColumnMappings(dbContext.GetColumnNames(typeof(T)))
+    .WithDbColumnTypeMappings(dbContext.GetColumnTypes(typeof(T)))
+     .WithValueConverters(dbContext.GetValueConverters(typeof(T)))
+      .WithTable(dbContext.GetTableInfor(typeof(T)))
+  .WithMatchedColumns(matchedColumnsSelector)
              .ConfigureBulkOptions(configureOptions)
              .ExecuteAsync(machedValues, cancellationToken);
     }
 
     public static Task<List<T>> BulkMatchAsync<T>(this DbContext dbContext, IEnumerable<T> machedValues, Expression<Func<T, object>> matchedColumnsSelector, Expression<Func<T, object>> returnedColumnsSelector, Action<BulkMatchOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
-        var table = dbContext.GetTableInfor(typeof(T));
-        var connection = dbContext.GetNpgsqlConnection();
-        var transaction = dbContext.GetCurrentNpgsqlTransaction();
+  var connection = dbContext.GetNpgsqlConnection();
+  var transaction = dbContext.GetCurrentNpgsqlTransaction();
 
-        return new BulkMatchBuilder<T>(connection, transaction)
-             .WithReturnedColumns(returnedColumnsSelector)
-             .WithDbColumnMappings(dbContext.GetColumnNames(typeof(T)))
-             .WithDbColumnTypeMappings(dbContext.GetColumnTypes(typeof(T)))
-             .WithTable(table)
-             .WithMatchedColumns(matchedColumnsSelector)
-             .ConfigureBulkOptions(configureOptions)
-             .ExecuteAsync(machedValues, cancellationToken);
+     return new BulkMatchBuilder<T>(connection, transaction)
+      .WithReturnedColumns(returnedColumnsSelector)
+    .WithDbColumnMappings(dbContext.GetColumnNames(typeof(T)))
+       .WithDbColumnTypeMappings(dbContext.GetColumnTypes(typeof(T)))
+        .WithValueConverters(dbContext.GetValueConverters(typeof(T)))
+       .WithTable(dbContext.GetTableInfor(typeof(T)))
+    .WithMatchedColumns(matchedColumnsSelector)
+        .ConfigureBulkOptions(configureOptions)
+  .ExecuteAsync(machedValues, cancellationToken);
     }
 }

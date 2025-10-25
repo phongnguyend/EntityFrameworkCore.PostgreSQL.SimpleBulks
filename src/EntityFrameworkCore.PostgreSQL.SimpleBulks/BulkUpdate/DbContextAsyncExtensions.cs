@@ -12,7 +12,6 @@ public static class DbContextAsyncExtensions
 {
     public static Task<BulkUpdateResult> BulkUpdateAsync<T>(this DbContext dbContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, Action<BulkUpdateOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
-        var table = dbContext.GetTableInfor(typeof(T));
         var connection = dbContext.GetNpgsqlConnection();
         var transaction = dbContext.GetCurrentNpgsqlTransaction();
 
@@ -21,24 +20,25 @@ public static class DbContextAsyncExtensions
              .WithColumns(columnNamesSelector)
              .WithDbColumnMappings(dbContext.GetColumnNames(typeof(T)))
              .WithDbColumnTypeMappings(dbContext.GetColumnTypes(typeof(T)))
-             .ToTable(table)
+             .WithValueConverters(dbContext.GetValueConverters(typeof(T)))
+             .ToTable(dbContext.GetTableInfor(typeof(T)))
              .ConfigureBulkOptions(configureOptions)
              .ExecuteAsync(data, cancellationToken);
     }
 
     public static Task<BulkUpdateResult> BulkUpdateAsync<T>(this DbContext dbContext, IEnumerable<T> data, IEnumerable<string> columnNames, Action<BulkUpdateOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
-        var table = dbContext.GetTableInfor(typeof(T));
         var connection = dbContext.GetNpgsqlConnection();
         var transaction = dbContext.GetCurrentNpgsqlTransaction();
 
         return new BulkUpdateBuilder<T>(connection, transaction)
-            .WithId(dbContext.GetPrimaryKeys(typeof(T)))
-            .WithColumns(columnNames)
-            .WithDbColumnMappings(dbContext.GetColumnNames(typeof(T)))
-            .WithDbColumnTypeMappings(dbContext.GetColumnTypes(typeof(T)))
-            .ToTable(table)
-            .ConfigureBulkOptions(configureOptions)
-            .ExecuteAsync(data, cancellationToken);
+             .WithId(dbContext.GetPrimaryKeys(typeof(T)))
+             .WithColumns(columnNames)
+             .WithDbColumnMappings(dbContext.GetColumnNames(typeof(T)))
+             .WithDbColumnTypeMappings(dbContext.GetColumnTypes(typeof(T)))
+             .WithValueConverters(dbContext.GetValueConverters(typeof(T)))
+             .ToTable(dbContext.GetTableInfor(typeof(T)))
+             .ConfigureBulkOptions(configureOptions)
+             .ExecuteAsync(data, cancellationToken);
     }
 }
