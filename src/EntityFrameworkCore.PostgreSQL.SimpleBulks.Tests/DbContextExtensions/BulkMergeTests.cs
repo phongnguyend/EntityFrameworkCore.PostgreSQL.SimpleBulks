@@ -27,7 +27,9 @@ public class BulkMergeTests : BaseTest
             {
                 Column1 = i,
                 Column2 = "" + i,
-                Column3 = DateTime.Now
+                Column3 = DateTime.Now,
+                Season = Season.Spring,
+                SeasonAsString = Season.Summer
             });
 
             compositeKeyRows.Add(new CompositeKeyRow<int, int>
@@ -36,15 +38,17 @@ public class BulkMergeTests : BaseTest
                 Id2 = i,
                 Column1 = i,
                 Column2 = "" + i,
-                Column3 = DateTime.Now
+                Column3 = DateTime.Now,
+                Season = Season.Spring,
+                SeasonAsString = Season.Summer
             });
         }
 
         _context.BulkInsert(rows,
-                row => new { row.Column1, row.Column2, row.Column3 });
+                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString });
 
         _context.BulkInsert(compositeKeyRows,
-                row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 });
+                row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString });
 
         tran.Commit();
     }
@@ -65,12 +69,16 @@ public class BulkMergeTests : BaseTest
         {
             row.Column2 = "abc";
             row.Column3 = DateTime.Now;
+            row.Season = Season.Winter;
+            row.SeasonAsString = Season.Autumn;
         }
 
         foreach (var row in compositeKeyRows)
         {
             row.Column2 = "abc";
             row.Column3 = DateTime.Now;
+            row.Season = Season.Winter;
+            row.SeasonAsString = Season.Autumn;
         }
 
         rows.Add(new SingleKeyRow<int>
@@ -78,6 +86,8 @@ public class BulkMergeTests : BaseTest
             Column1 = length,
             Column2 = "Inserted using Merge" + length,
             Column3 = DateTime.Now,
+            Season = Season.Spring,
+            SeasonAsString = Season.Summer
         });
 
         var newId1 = length;
@@ -90,12 +100,14 @@ public class BulkMergeTests : BaseTest
             Column1 = newId2,
             Column2 = "Inserted using Merge" + newId2,
             Column3 = DateTime.Now,
+            Season = Season.Spring,
+            SeasonAsString = Season.Summer
         });
 
         _context.BulkMerge(rows,
                 row => row.Id,
-                row => new { row.Column1, row.Column2, row.Column3 },
-                row => new { row.Column1, row.Column2, row.Column3 },
+                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
                 options =>
                 {
                     options.LogTo = _output.WriteLine;
@@ -104,8 +116,8 @@ public class BulkMergeTests : BaseTest
 
         _context.BulkMerge(compositeKeyRows,
                 row => new { row.Id1, row.Id2 },
-                row => new { row.Column1, row.Column2, row.Column3 },
-                row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 },
+                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+                row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
                 options =>
                 {
                     options.LogTo = _output.WriteLine;
@@ -123,12 +135,16 @@ public class BulkMergeTests : BaseTest
             Assert.Equal(rows[i].Column1, dbRows[i].Column1);
             Assert.Equal(rows[i].Column2, dbRows[i].Column2);
             Assert.Equal(rows[i].Column3.TruncateToMicroseconds(), dbRows[i].Column3);
+            Assert.Equal(rows[i].Season, dbRows[i].Season);
+            Assert.Equal(rows[i].SeasonAsString, dbRows[i].SeasonAsString);
 
             Assert.Equal(compositeKeyRows[i].Id1, dbCompositeKeyRows[i].Id1);
             Assert.Equal(compositeKeyRows[i].Id2, dbCompositeKeyRows[i].Id2);
             Assert.Equal(compositeKeyRows[i].Column1, dbCompositeKeyRows[i].Column1);
             Assert.Equal(compositeKeyRows[i].Column2, dbCompositeKeyRows[i].Column2);
             Assert.Equal(compositeKeyRows[i].Column3.TruncateToMicroseconds(), dbCompositeKeyRows[i].Column3);
+            Assert.Equal(compositeKeyRows[i].Season, dbCompositeKeyRows[i].Season);
+            Assert.Equal(compositeKeyRows[i].SeasonAsString, dbCompositeKeyRows[i].SeasonAsString);
         }
     }
 
@@ -148,12 +164,16 @@ public class BulkMergeTests : BaseTest
         {
             row.Column2 = "abc";
             row.Column3 = DateTime.Now;
+            row.Season = Season.Winter;
+            row.SeasonAsString = Season.Autumn;
         }
 
         foreach (var row in compositeKeyRows)
         {
             row.Column2 = "abc";
             row.Column3 = DateTime.Now;
+            row.Season = Season.Winter;
+            row.SeasonAsString = Season.Autumn;
         }
 
         rows.Add(new SingleKeyRow<int>
@@ -177,8 +197,8 @@ public class BulkMergeTests : BaseTest
 
         _context.BulkMerge(rows,
             "Id",
-            ["Column1", "Column2", "Column3"],
-            ["Column1", "Column2", "Column3"],
+            ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+            ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
             options =>
             {
                 options.LogTo = _output.WriteLine;
@@ -186,8 +206,8 @@ public class BulkMergeTests : BaseTest
             });
         _context.BulkMerge(compositeKeyRows,
             ["Id1", "Id2"],
-            ["Column1", "Column2", "Column3"],
-            ["Id1", "Id2", "Column1", "Column2", "Column3"],
+            ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+            ["Id1", "Id2", "Column1", "Column2", "Column3", "Season", "SeasonAsString"],
             options =>
             {
                 options.LogTo = _output.WriteLine;
