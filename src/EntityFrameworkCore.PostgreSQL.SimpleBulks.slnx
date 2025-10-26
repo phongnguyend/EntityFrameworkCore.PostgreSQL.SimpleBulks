@@ -9,6 +9,8 @@
     <Project Path="EntityFrameworkCore.PostgreSQL.SimpleBulks/EntityFrameworkCore.PostgreSQL.SimpleBulks.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="EntityFrameworkCore.PostgreSQL.SimpleBulks.ConnectionExtensionsTests/EntityFrameworkCore.PostgreSQL.SimpleBulks.ConnectionExtensionsTests.csproj" />
+    <Project Path="EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests/EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.csproj" Id="f1fc39c3-3b51-410c-a332-8dd583f4ad7b" />
     <Project Path="EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests/EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.csproj" />
   </Folder>
 </Solution>
