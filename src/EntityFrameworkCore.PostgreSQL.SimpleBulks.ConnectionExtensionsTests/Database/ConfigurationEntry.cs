@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.ConnectionExtensionsTests.Database;
 
@@ -22,7 +20,4 @@ public class ConfigurationEntry
     public string Description { get; set; }
 
     public bool IsSensitive { get; set; }
-
-    [NotMapped]
-    public string TestNotMapped { get; set; }
 }
