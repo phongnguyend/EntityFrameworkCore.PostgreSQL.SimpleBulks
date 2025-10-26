@@ -27,7 +27,9 @@ public class BulkMatchTests : BaseTest
                 FirstName = "FirstName " + i,
                 LastName = "LastName " + i,
                 Index = i,
-                CurrentCountryIsoCode = isoCodes[random.Next(isoCodes.Length)]
+                CurrentCountryIsoCode = isoCodes[random.Next(isoCodes.Length)],
+                Season = Season.Spring,
+                SeasonAsString = Season.Spring
             };
 
             customer.Contacts = new List<Contact>();
@@ -40,6 +42,8 @@ public class BulkMatchTests : BaseTest
                     PhoneNumber = $"PhoneNumber {i} - {j}",
                     CountryIsoCode = isoCodes[random.Next(isoCodes.Length)],
                     Index = j,
+                    Season = Season.Spring,
+                    SeasonAsString = Season.Spring
                 });
             }
 
@@ -87,6 +91,8 @@ public class BulkMatchTests : BaseTest
             Assert.Equal(customers[i].FirstName, customersFromDb[i].FirstName);
             Assert.Equal(customers[i].LastName, customersFromDb[i].LastName);
             Assert.Equal(customers[i].Index, customersFromDb[i].Index);
+            Assert.Equal(customers[i].Season, customersFromDb[i].Season);
+            Assert.Equal(customers[i].SeasonAsString, customersFromDb[i].SeasonAsString);
         }
     }
 
@@ -115,6 +121,8 @@ public class BulkMatchTests : BaseTest
             Assert.Equal(customers[i].FirstName, customersFromDb[i].FirstName);
             Assert.Null(customersFromDb[i].LastName);
             Assert.Equal(0, customersFromDb[i].Index);
+            Assert.Null(customersFromDb[i].Season);
+            Assert.Null(customersFromDb[i].SeasonAsString);
         }
     }
 
@@ -147,6 +155,8 @@ public class BulkMatchTests : BaseTest
             Assert.Equal(contactsInMemory[i].CountryIsoCode, contactsFromDb[i].CountryIsoCode);
             Assert.Equal(contactsInMemory[i].Index, contactsFromDb[i].Index);
             Assert.Equal(contactsInMemory[i].CustomerId, contactsFromDb[i].CustomerId);
+            Assert.Equal(contactsInMemory[i].Season, contactsFromDb[i].Season);
+            Assert.Equal(contactsInMemory[i].SeasonAsString, contactsFromDb[i].SeasonAsString);
         }
     }
 
@@ -179,6 +189,8 @@ public class BulkMatchTests : BaseTest
             Assert.Equal(contactsInMemory[i].PhoneNumber, contactsFromDb[i].PhoneNumber);
             Assert.Equal(0, contactsFromDb[i].Index);
             Assert.Equal(Guid.Empty, contactsFromDb[i].CustomerId);
+            Assert.Null(contactsFromDb[i].Season);
+            Assert.Null(contactsFromDb[i].SeasonAsString);
         }
     }
 
@@ -210,6 +222,8 @@ public class BulkMatchTests : BaseTest
             Assert.Equal(contactsInMemory[i].CountryIsoCode, contactsFromDb[i].CountryIsoCode);
             Assert.Equal(contactsInMemory[i].Index, contactsFromDb[i].Index);
             Assert.Equal(contactsInMemory[i].CustomerId, contactsFromDb[i].CustomerId);
+            Assert.Equal(contactsInMemory[i].Season, contactsFromDb[i].Season);
+            Assert.Equal(contactsInMemory[i].SeasonAsString, contactsFromDb[i].SeasonAsString);
         }
     }
 
@@ -242,6 +256,8 @@ public class BulkMatchTests : BaseTest
             Assert.Equal(contactsInMemory[i].PhoneNumber, contactsFromDb[i].PhoneNumber);
             Assert.Equal(0, contactsFromDb[i].Index);
             Assert.Equal(Guid.Empty, contactsFromDb[i].CustomerId);
+            Assert.Null(contactsFromDb[i].Season);
+            Assert.Null(contactsFromDb[i].SeasonAsString);
         }
     }
 }

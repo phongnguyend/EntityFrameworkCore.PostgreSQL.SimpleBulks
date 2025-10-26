@@ -47,8 +47,10 @@ public class TestDbContext : DbContext
         modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Key).HasColumnName("Key1");
 
         modelBuilder.Entity<Customer>().Property(x => x.Id).HasDefaultValueSql("uuid_generate_v1mc()");
+        modelBuilder.Entity<Customer>().Property(x => x.SeasonAsString).HasConversion(v => v.ToString(), v => (Season)Enum.Parse(typeof(Season), v));
 
         modelBuilder.Entity<Contact>().Property(x => x.Id).HasDefaultValueSql("uuid_generate_v1mc()");
+        modelBuilder.Entity<Contact>().Property(x => x.SeasonAsString).HasConversion(v => v.ToString(), v => (Season)Enum.Parse(typeof(Season), v));
 
         base.OnModelCreating(modelBuilder);
     }
