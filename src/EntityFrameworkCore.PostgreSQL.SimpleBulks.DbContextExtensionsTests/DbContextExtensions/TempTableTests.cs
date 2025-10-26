@@ -392,36 +392,35 @@ public class TempTableTests : BaseTest
         }
     }
 
-}
-
-class CustomerDto
-{
-    public string IdNumber { get; set; }
-
-    public string FirstName { get; set; }
-
-    public string LastName { get; set; }
-
-    public string CurrentCountryIsoCode { get; set; }
-
-    public override string ToString()
+    class CustomerDto
     {
-        return $"{IdNumber}\t{FirstName}\t{LastName}";
+        public string IdNumber { get; set; }
+
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
+        public string CurrentCountryIsoCode { get; set; }
+
+        public override string ToString()
+        {
+            return $"{IdNumber}\t{FirstName}\t{LastName}";
+        }
     }
-}
 
-class ContactDto
-{
-    public string EmailAddress { get; set; }
-
-    public string PhoneNumber { get; set; }
-
-    public string CustomerIdNumber { get; set; }
-
-    public string CountryIsoCode { get; set; }
-
-    public override string ToString()
+    class ContactDto
     {
-        return $"{CustomerIdNumber}\t{EmailAddress}\t{PhoneNumber}";
+        public string EmailAddress { get; set; }
+
+        public string PhoneNumber { get; set; }
+
+        public string CustomerIdNumber { get; set; }
+
+        public string CountryIsoCode { get; set; }
+
+        public override string ToString()
+        {
+            return $"{CustomerIdNumber}\t{EmailAddress}\t{PhoneNumber}";
+        }
     }
 }

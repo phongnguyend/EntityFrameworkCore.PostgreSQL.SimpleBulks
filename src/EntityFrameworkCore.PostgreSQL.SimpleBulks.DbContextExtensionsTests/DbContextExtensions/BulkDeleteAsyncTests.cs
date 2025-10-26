@@ -4,19 +4,19 @@ using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Databa
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
-namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.DbContextAsyncExtensions;
+namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.DbContextExtensions;
 
 [Collection("PostgreSqlCollection")]
-public class BulkDeleteTests : BaseTest
+public class BulkDeleteAsyncTests : BaseTest
 {
-    public BulkDeleteTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkDeleteTest")
+    public BulkDeleteAsyncTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkDeleteTest")
     {
         var tran = _context.Database.BeginTransaction();
 
         var rows = new List<SingleKeyRow<int>>();
         var compositeKeyRows = new List<CompositeKeyRow<int, int>>();
 
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
             rows.Add(new SingleKeyRow<int>
             {

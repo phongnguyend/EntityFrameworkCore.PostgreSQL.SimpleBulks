@@ -6,12 +6,12 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
-namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.DbContextAsyncExtensions;
+namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.DbContextExtensions;
 
 [Collection("PostgreSqlCollection")]
-public class DirectUpdateTests : BaseTest
+public class DirectUpdateAsyncTests : BaseTest
 {
-    public DirectUpdateTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "DirectUpdateTest")
+    public DirectUpdateAsyncTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "DirectUpdateTest")
     {
     }
 
@@ -22,7 +22,7 @@ public class DirectUpdateTests : BaseTest
         var rows = new List<SingleKeyRow<int>>();
         var compositeKeyRows = new List<CompositeKeyRow<int, int>>();
 
-        for (int i = 0; i < length; i++)
+        for (var i = 0; i < length; i++)
         {
             rows.Add(new SingleKeyRow<int>
             {
@@ -101,7 +101,7 @@ public class DirectUpdateTests : BaseTest
         Assert.Equal(1, updateResult1.AffectedRows);
         Assert.Equal(1, updateResult2.AffectedRows);
 
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
             Assert.Equal(rows[i].Id, dbRows[i].Id);
             Assert.Equal(rows[i].Column1, dbRows[i].Column1);
@@ -167,7 +167,7 @@ public class DirectUpdateTests : BaseTest
         Assert.Equal(1, updateResult1.AffectedRows);
         Assert.Equal(1, updateResult2.AffectedRows);
 
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
             Assert.Equal(rows[i].Id, dbRows[i].Id);
             Assert.Equal(rows[i].Column1, dbRows[i].Column1);

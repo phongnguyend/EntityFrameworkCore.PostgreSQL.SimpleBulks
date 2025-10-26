@@ -4,15 +4,15 @@ using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Databa
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
-namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.DbContextAsyncExtensions;
+namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.DbContextExtensions;
 
 [Collection("PostgreSqlCollection")]
-public class BulkMatchTests : BaseTest
+public class BulkMatchAsyncTests : BaseTest
 {
     private readonly List<Customer> _customers;
     private readonly List<Contact> _contacts;
 
-    public BulkMatchTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkMatchTest")
+    public BulkMatchAsyncTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkMatchTest")
     {
         var tran = _context.Database.BeginTransaction();
 
@@ -21,7 +21,7 @@ public class BulkMatchTests : BaseTest
 
         _customers = new List<Customer>();
 
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
             var customer = new Customer
             {
@@ -33,7 +33,7 @@ public class BulkMatchTests : BaseTest
 
             customer.Contacts = new List<Contact>();
 
-            for (int j = 0; j < 100; j++)
+            for (var j = 0; j < 100; j++)
             {
                 customer.Contacts.Add(new Contact
                 {
@@ -82,7 +82,7 @@ public class BulkMatchTests : BaseTest
 
         // Assert
         Assert.Equal(customers.Count, customersFromDb.Count);
-        for (int i = 0; i < customers.Count; i++)
+        for (var i = 0; i < customers.Count; i++)
         {
             Assert.Equal(customers[i].Id, customersFromDb[i].Id);
             Assert.Equal(customers[i].FirstName, customersFromDb[i].FirstName);
@@ -110,7 +110,7 @@ public class BulkMatchTests : BaseTest
 
         // Assert
         Assert.Equal(customers.Count, customersFromDb.Count);
-        for (int i = 0; i < customers.Count; i++)
+        for (var i = 0; i < customers.Count; i++)
         {
             Assert.Equal(customers[i].Id, customersFromDb[i].Id);
             Assert.Equal(customers[i].FirstName, customersFromDb[i].FirstName);
@@ -140,7 +140,7 @@ public class BulkMatchTests : BaseTest
 
         // Assert
         Assert.Equal(contactsInMemory.Count, contactsFromDb.Count);
-        for (int i = 0; i < contactsInMemory.Count; i++)
+        for (var i = 0; i < contactsInMemory.Count; i++)
         {
             Assert.Equal(contactsInMemory[i].Id, contactsFromDb[i].Id);
             Assert.Equal(contactsInMemory[i].EmailAddress, contactsFromDb[i].EmailAddress);
@@ -173,7 +173,7 @@ public class BulkMatchTests : BaseTest
 
         // Assert
         Assert.Equal(contactsInMemory.Count, contactsFromDb.Count);
-        for (int i = 0; i < contactsInMemory.Count; i++)
+        for (var i = 0; i < contactsInMemory.Count; i++)
         {
             Assert.Equal(contactsInMemory[i].Id, contactsFromDb[i].Id);
             Assert.Null(contactsFromDb[i].EmailAddress);
@@ -203,7 +203,7 @@ public class BulkMatchTests : BaseTest
 
         // Assert
         Assert.Equal(contactsInMemory.Count, contactsFromDb.Count);
-        for (int i = 0; i < contactsInMemory.Count; i++)
+        for (var i = 0; i < contactsInMemory.Count; i++)
         {
             Assert.Equal(contactsInMemory[i].Id, contactsFromDb[i].Id);
             Assert.Equal(contactsInMemory[i].EmailAddress, contactsFromDb[i].EmailAddress);
@@ -236,7 +236,7 @@ public class BulkMatchTests : BaseTest
         // Assert
         Assert.Equal(contactsInMemory.Count, contactsFromDb.Count);
 
-        for (int i = 0; i < contactsInMemory.Count; i++)
+        for (var i = 0; i < contactsInMemory.Count; i++)
         {
             Assert.Equal(contactsInMemory[i].Id, contactsFromDb[i].Id);
             Assert.Null(contactsFromDb[i].EmailAddress);

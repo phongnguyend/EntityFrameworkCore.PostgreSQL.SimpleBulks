@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
-namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.ConnectionExtensionsTests.ConnectionAsyncExtensions;
+namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.ConnectionExtensionsTests.ConnectionExtensions;
 
 [Collection("PostgreSqlCollection")]
-public class BulkInsertTests : BaseTest
+public class BulkInsertAsyncTests : BaseTest
 {
     private string _schema = "";
 
-    public BulkInsertTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkInsertTest")
+    public BulkInsertAsyncTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkInsertTest")
     {
         TableMapper.Register(typeof(SingleKeyRow<int>), _schema, "SingleKeyRows");
         TableMapper.Register(typeof(CompositeKeyRow<int, int>), _schema, "CompositeKeyRows");
@@ -28,7 +28,7 @@ public class BulkInsertTests : BaseTest
         var rows = new List<SingleKeyRow<int>>();
         var compositeKeyRows = new List<CompositeKeyRow<int, int>>();
 
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
             rows.Add(new SingleKeyRow<int>
             {
@@ -129,7 +129,7 @@ public class BulkInsertTests : BaseTest
         var dbRows = _context.SingleKeyRows.AsNoTracking().ToList();
         var dbCompositeKeyRows = _context.CompositeKeyRows.AsNoTracking().ToList();
 
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
             Assert.Equal(rows[i].Id, dbRows[i].Id);
             Assert.Equal(rows[i].Column1, dbRows[i].Column1);

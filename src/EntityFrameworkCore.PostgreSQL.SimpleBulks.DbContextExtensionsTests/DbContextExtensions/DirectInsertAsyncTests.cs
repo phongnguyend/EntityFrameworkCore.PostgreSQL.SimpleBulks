@@ -5,12 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
-namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.DbContextAsyncExtensions;
+namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.DbContextExtensions;
 
 [Collection("PostgreSqlCollection")]
-public class DirectInsertTests : BaseTest
+public class DirectInsertAsyncTests : BaseTest
 {
-    public DirectInsertTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "DirectInsertTest")
+    public DirectInsertAsyncTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "DirectInsertTest")
     {
     }
 

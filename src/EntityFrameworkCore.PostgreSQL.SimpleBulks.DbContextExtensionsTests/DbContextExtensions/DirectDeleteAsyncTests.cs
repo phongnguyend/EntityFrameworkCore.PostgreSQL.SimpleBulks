@@ -5,19 +5,19 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
-namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.DbContextAsyncExtensions;
+namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.DbContextExtensions;
 
 [Collection("PostgreSqlCollection")]
-public class DirectDeleteTests : BaseTest
+public class DirectDeleteAsyncTests : BaseTest
 {
-    public DirectDeleteTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "DirectDeleteTest")
+    public DirectDeleteAsyncTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "DirectDeleteTest")
     {
         var tran = _context.Database.BeginTransaction();
 
         var rows = new List<SingleKeyRow<int>>();
         var compositeKeyRows = new List<CompositeKeyRow<int, int>>();
 
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
             rows.Add(new SingleKeyRow<int>
             {
