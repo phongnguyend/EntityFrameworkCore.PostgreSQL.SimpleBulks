@@ -137,6 +137,11 @@ public class BulkMergeBuilder<T>
 
     public BulkMergeResult Execute(IEnumerable<T> data)
     {
+        if (data.Count() == 1)
+        {
+            return SingleMerge(data.First());
+        }
+
         if (!_updateColumnNames.Any() && !_insertColumnNames.Any())
         {
             return new BulkMergeResult();
@@ -151,7 +156,7 @@ public class BulkMergeBuilder<T>
         propertyNames.AddRange(_insertColumnNames);
         propertyNames = propertyNames.Distinct().ToList();
 
-        var clrTypes = typeof(T).GetClrTypes(propertyNames);
+        var clrTypes = typeof(T).GetProviderClrTypes(propertyNames, _valueConverters);
         var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNames, null, _columnTypeMappings, addIndexNumberColumn: returnDbGeneratedId);
 
         var mergeStatementBuilder = new StringBuilder();
@@ -292,6 +297,11 @@ public class BulkMergeBuilder<T>
 
     public async Task<BulkMergeResult> ExecuteAsync(IEnumerable<T> data, CancellationToken cancellationToken = default)
     {
+        if (data.Count() == 1)
+        {
+            return await SingleMergeAsync(data.First(), cancellationToken);
+        }
+
         if (!_updateColumnNames.Any() && !_insertColumnNames.Any())
         {
             return new BulkMergeResult();
@@ -306,7 +316,7 @@ public class BulkMergeBuilder<T>
         propertyNames.AddRange(_insertColumnNames);
         propertyNames = propertyNames.Distinct().ToList();
 
-        var clrTypes = typeof(T).GetClrTypes(propertyNames);
+        var clrTypes = typeof(T).GetProviderClrTypes(propertyNames, _valueConverters);
         var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNames, null, _columnTypeMappings, addIndexNumberColumn: returnDbGeneratedId);
 
         var mergeStatementBuilder = new StringBuilder();
@@ -417,6 +427,218 @@ public class BulkMergeBuilder<T>
                 idx++;
             }
         }
+
+        return result;
+    }
+
+    public BulkMergeResult SingleMerge(T data)
+    {
+        if (!_updateColumnNames.Any() && !_insertColumnNames.Any())
+        {
+            return new BulkMergeResult();
+        }
+
+        bool returnDbGeneratedId = _options.ReturnDbGeneratedId && !string.IsNullOrEmpty(_outputIdColumn) && _insertColumnNames.Any();
+
+        var propertyNames = _updateColumnNames.Select(RemoveOperator).ToList();
+        propertyNames.AddRange(_idColumns);
+        propertyNames.AddRange(_insertColumnNames);
+        propertyNames = propertyNames.Distinct().ToList();
+
+        var clrTypes = typeof(T).GetProviderClrTypes(propertyNames, _valueConverters);
+
+        var mergeStatementBuilder = new StringBuilder();
+
+        var joinCondition = string.Join(" and ", _idColumns.Select(x =>
+        {
+            string collation = !string.IsNullOrEmpty(_options.Collation) && clrTypes[x] == typeof(string) ?
+            $" COLLATE \"{_options.Collation}\"" : string.Empty;
+            return $"s.\"{x}\"{collation} = t.\"{GetDbColumnName(x)}\"{collation}";
+        }));
+
+        var parameterNames = string.Join(", ", propertyNames.Select(x => "@" + x));
+        var columnNames = string.Join(", ", propertyNames.Select(x => "\"" + x + "\""));
+
+        mergeStatementBuilder.AppendLine($"MERGE INTO {_table.SchemaQualifiedTableName} AS t");
+        mergeStatementBuilder.AppendLine($"    USING (values ({parameterNames})) AS s ({columnNames}) ");
+        mergeStatementBuilder.AppendLine($"ON ({joinCondition})");
+
+        if (_updateColumnNames.Any())
+        {
+            mergeStatementBuilder.AppendLine($"WHEN MATCHED");
+            mergeStatementBuilder.AppendLine($"    THEN UPDATE SET");
+            mergeStatementBuilder.AppendLine(string.Join("," + Environment.NewLine, _updateColumnNames.Select(x => "         " + CreateSetStatement(x, "s"))));
+        }
+
+        if (_insertColumnNames.Any())
+        {
+            mergeStatementBuilder.AppendLine($"WHEN NOT MATCHED");
+            mergeStatementBuilder.AppendLine($"    THEN INSERT ({string.Join(", ", _insertColumnNames.Select(x => $"\"{GetDbColumnName(x)}\""))})");
+            mergeStatementBuilder.AppendLine($"         VALUES ({string.Join(", ", _insertColumnNames.Select(x => $"s.\"{x}\""))})");
+        }
+
+        if (returnDbGeneratedId)
+        {
+            mergeStatementBuilder.AppendLine($"RETURNING merge_action() as MERGE_ACTION, t.\"{GetDbColumnName(_outputIdColumn)}\"");
+        }
+        else
+        {
+            mergeStatementBuilder.AppendLine($"RETURNING merge_action() as MERGE_ACTION");
+        }
+
+        mergeStatementBuilder.AppendLine(";");
+
+        _connection.EnsureOpen();
+
+        var sqlMergeStatement = mergeStatementBuilder.ToString();
+
+        Log($"Begin merging temp table:{Environment.NewLine}{sqlMergeStatement}");
+
+        BulkMergeResult result = new();
+        string outputIdDbColumnName = null;
+
+        if (returnDbGeneratedId)
+        {
+            outputIdDbColumnName = GetDbColumnName(_outputIdColumn);
+        }
+
+        using (var updateCommand = _connection.CreateTextCommand(_transaction, sqlMergeStatement, _options))
+        {
+            data.ToSqlParameters(propertyNames, valueConverters: _valueConverters)
+                .ForEach(x => updateCommand.Parameters.Add(x));
+
+            using var reader = updateCommand.ExecuteReader();
+
+            while (reader.Read())
+            {
+                var action = reader["MERGE_ACTION"] as string;
+
+                if (action == "INSERT")
+                {
+                    if (returnDbGeneratedId)
+                    {
+                        var idProperty = typeof(T).GetProperty(_outputIdColumn);
+                        idProperty.SetValue(data, reader[outputIdDbColumnName]);
+                    }
+
+                    result.InsertedRows++;
+                }
+                else if (action == "UPDATE")
+                {
+                    result.UpdatedRows++;
+                }
+
+                result.AffectedRows++;
+            }
+        }
+
+        Log("End merging temp table.");
+
+        return result;
+    }
+
+    public async Task<BulkMergeResult> SingleMergeAsync(T data, CancellationToken cancellationToken = default)
+    {
+        if (!_updateColumnNames.Any() && !_insertColumnNames.Any())
+        {
+            return new BulkMergeResult();
+        }
+
+        bool returnDbGeneratedId = _options.ReturnDbGeneratedId && !string.IsNullOrEmpty(_outputIdColumn) && _insertColumnNames.Any();
+
+        var propertyNames = _updateColumnNames.Select(RemoveOperator).ToList();
+        propertyNames.AddRange(_idColumns);
+        propertyNames.AddRange(_insertColumnNames);
+        propertyNames = propertyNames.Distinct().ToList();
+
+        var clrTypes = typeof(T).GetProviderClrTypes(propertyNames, _valueConverters);
+
+        var mergeStatementBuilder = new StringBuilder();
+
+        var joinCondition = string.Join(" and ", _idColumns.Select(x =>
+        {
+            string collation = !string.IsNullOrEmpty(_options.Collation) && clrTypes[x] == typeof(string) ?
+            $" COLLATE \"{_options.Collation}\"" : string.Empty;
+            return $"s.\"{x}\"{collation} = t.\"{GetDbColumnName(x)}\"{collation}";
+        }));
+
+        var parameterNames = string.Join(", ", propertyNames.Select(x => "@" + x));
+        var columnNames = string.Join(", ", propertyNames.Select(x => "\"" + x + "\""));
+
+        mergeStatementBuilder.AppendLine($"MERGE INTO {_table.SchemaQualifiedTableName} AS t");
+        mergeStatementBuilder.AppendLine($"    USING (values ({parameterNames})) AS s ({columnNames}) ");
+        mergeStatementBuilder.AppendLine($"ON ({joinCondition})");
+
+        if (_updateColumnNames.Any())
+        {
+            mergeStatementBuilder.AppendLine($"WHEN MATCHED");
+            mergeStatementBuilder.AppendLine($"    THEN UPDATE SET");
+            mergeStatementBuilder.AppendLine(string.Join("," + Environment.NewLine, _updateColumnNames.Select(x => "         " + CreateSetStatement(x, "s"))));
+        }
+
+        if (_insertColumnNames.Any())
+        {
+            mergeStatementBuilder.AppendLine($"WHEN NOT MATCHED");
+            mergeStatementBuilder.AppendLine($"    THEN INSERT ({string.Join(", ", _insertColumnNames.Select(x => $"\"{GetDbColumnName(x)}\""))})");
+            mergeStatementBuilder.AppendLine($"         VALUES ({string.Join(", ", _insertColumnNames.Select(x => $"s.\"{x}\""))})");
+        }
+
+        if (returnDbGeneratedId)
+        {
+            mergeStatementBuilder.AppendLine($"RETURNING merge_action() as MERGE_ACTION, t.\"{GetDbColumnName(_outputIdColumn)}\"");
+        }
+        else
+        {
+            mergeStatementBuilder.AppendLine($"RETURNING merge_action() as MERGE_ACTION");
+        }
+
+        mergeStatementBuilder.AppendLine(";");
+
+        await _connection.EnsureOpenAsync(cancellationToken);
+
+        var sqlMergeStatement = mergeStatementBuilder.ToString();
+
+        Log($"Begin merging temp table:{Environment.NewLine}{sqlMergeStatement}");
+
+        BulkMergeResult result = new();
+        string outputIdDbColumnName = null;
+
+        if (returnDbGeneratedId)
+        {
+            outputIdDbColumnName = GetDbColumnName(_outputIdColumn);
+        }
+
+        using (var updateCommand = _connection.CreateTextCommand(_transaction, sqlMergeStatement, _options))
+        {
+            data.ToSqlParameters(propertyNames, valueConverters: _valueConverters)
+                .ForEach(x => updateCommand.Parameters.Add(x));
+
+            using var reader = await updateCommand.ExecuteReaderAsync(cancellationToken);
+
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                var action = reader["MERGE_ACTION"] as string;
+
+                if (action == "INSERT")
+                {
+                    if (returnDbGeneratedId)
+                    {
+                        var idProperty = typeof(T).GetProperty(_outputIdColumn);
+                        idProperty.SetValue(data, reader[outputIdDbColumnName]);
+                    }
+
+                    result.InsertedRows++;
+                }
+                else if (action == "UPDATE")
+                {
+                    result.UpdatedRows++;
+                }
+
+                result.AffectedRows++;
+            }
+        }
+
+        Log("End merging temp table.");
 
         return result;
     }

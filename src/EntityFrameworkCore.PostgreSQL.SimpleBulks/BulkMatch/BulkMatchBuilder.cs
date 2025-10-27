@@ -115,7 +115,7 @@ public class BulkMatchBuilder<T>
     {
         var temptableName = $"\"{Guid.NewGuid()}\"";
 
-        var clrTypes = typeof(T).GetClrTypes(_matchedColumns);
+        var clrTypes = typeof(T).GetProviderClrTypes(_matchedColumns, _valueConverters);
         var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, _matchedColumns, null, _columnTypeMappings);
 
         var joinCondition = string.Join(" AND ", _matchedColumns.Select(x =>
@@ -191,7 +191,7 @@ public class BulkMatchBuilder<T>
     {
         var temptableName = $"\"{Guid.NewGuid()}\"";
 
-        var clrTypes = typeof(T).GetClrTypes(_matchedColumns);
+        var clrTypes = typeof(T).GetProviderClrTypes(_matchedColumns, _valueConverters);
         var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, _matchedColumns, null, _columnTypeMappings);
 
         var joinCondition = string.Join(" AND ", _matchedColumns.Select(x =>

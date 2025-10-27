@@ -122,7 +122,7 @@ public class BulkUpdateBuilder<T>
         var propertyNamesIncludeId = _columnNames.Select(RemoveOperator).ToList();
         propertyNamesIncludeId.AddRange(_idColumns);
 
-        var clrTypes = typeof(T).GetClrTypes(propertyNamesIncludeId);
+        var clrTypes = typeof(T).GetProviderClrTypes(propertyNamesIncludeId, _valueConverters);
         var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNamesIncludeId, null, _columnTypeMappings);
 
         var joinCondition = string.Join(" and ", _idColumns.Select(x =>
@@ -247,7 +247,7 @@ public class BulkUpdateBuilder<T>
         var propertyNamesIncludeId = _columnNames.Select(RemoveOperator).ToList();
         propertyNamesIncludeId.AddRange(_idColumns);
 
-        var clrTypes = typeof(T).GetClrTypes(propertyNamesIncludeId);
+        var clrTypes = typeof(T).GetProviderClrTypes(propertyNamesIncludeId, _valueConverters);
         var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNamesIncludeId, null, _columnTypeMappings);
 
         var joinCondition = string.Join(" and ", _idColumns.Select(x =>

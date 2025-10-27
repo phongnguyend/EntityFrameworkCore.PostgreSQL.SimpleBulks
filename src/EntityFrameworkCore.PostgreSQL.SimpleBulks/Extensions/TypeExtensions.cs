@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -34,7 +35,7 @@ public static class TypeExtensions
         return sqlType;
     }
 
-    public static Dictionary<string, Type> GetClrTypes(this Type type, IEnumerable<string> propertyNames)
+    public static Dictionary<string, Type> GetProviderClrTypes(this Type type, IEnumerable<string> propertyNames, IReadOnlyDictionary<string, ValueConverter> valueConverters)
     {
         var properties = TypeDescriptor.GetProperties(type);
 
@@ -47,7 +48,17 @@ public static class TypeExtensions
             }
         }
 
-        return updatablePros.ToDictionary(x => x.Name, x => Nullable.GetUnderlyingType(x.PropertyType) ?? x.PropertyType);
+        return updatablePros.ToDictionary(x => x.Name, x => GetProviderClrType(x, valueConverters));
+    }
+
+    private static Type GetProviderClrType(PropertyDescriptor property, IReadOnlyDictionary<string, ValueConverter> valueConverters)
+    {
+        if (valueConverters != null && valueConverters.TryGetValue(property.Name, out var converter))
+        {
+            return converter.ProviderClrType;
+        }
+
+        return Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
     }
 
     public static string GenerateTempTableDefinition(this Type type, string tableName, IEnumerable<string> propertyNames,
