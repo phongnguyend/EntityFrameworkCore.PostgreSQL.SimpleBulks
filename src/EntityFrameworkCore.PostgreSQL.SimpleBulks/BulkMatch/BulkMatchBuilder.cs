@@ -18,9 +18,6 @@ public class BulkMatchBuilder<T>
     private TableInfor _table;
     private IEnumerable<string> _matchedColumns;
     private IEnumerable<string> _returnedColumns;
-    private IReadOnlyDictionary<string, string> _columnNameMappings;
-    private IReadOnlyDictionary<string, string> _columnTypeMappings;
-    private IReadOnlyDictionary<string, ValueConverter> _valueConverters;
     private BulkMatchOptions _options;
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction _transaction;
@@ -73,24 +70,6 @@ public class BulkMatchBuilder<T>
         return this;
     }
 
-    public BulkMatchBuilder<T> WithDbColumnMappings(IReadOnlyDictionary<string, string> columnNameMappings)
-    {
-        _columnNameMappings = columnNameMappings;
-        return this;
-    }
-
-    public BulkMatchBuilder<T> WithDbColumnTypeMappings(IReadOnlyDictionary<string, string> columnTypeMappings)
-    {
-        _columnTypeMappings = columnTypeMappings;
-        return this;
-    }
-
-    public BulkMatchBuilder<T> WithValueConverters(IReadOnlyDictionary<string, ValueConverter> valueConverters)
-    {
-        _valueConverters = valueConverters;
-        return this;
-    }
-
     public BulkMatchBuilder<T> ConfigureBulkOptions(Action<BulkMatchOptions> configureOptions)
     {
         _options = new BulkMatchOptions();
@@ -103,20 +82,20 @@ public class BulkMatchBuilder<T>
 
     private string GetDbColumnName(string columnName)
     {
-        if (_columnNameMappings == null)
+        if (_table.ColumnNameMappings == null)
         {
             return columnName;
         }
 
-        return _columnNameMappings.TryGetValue(columnName, out string value) ? value : columnName;
+        return _table.ColumnNameMappings.TryGetValue(columnName, out string value) ? value : columnName;
     }
 
     public List<T> Execute(IEnumerable<T> machedValues)
     {
         var temptableName = $"\"{Guid.NewGuid()}\"";
 
-        var clrTypes = typeof(T).GetProviderClrTypes(_matchedColumns, _valueConverters);
-        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, _matchedColumns, null, _columnTypeMappings);
+        var clrTypes = typeof(T).GetProviderClrTypes(_matchedColumns, _table.ValueConverters);
+        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, _matchedColumns, null, _table.ColumnTypeMappings);
 
         var joinCondition = string.Join(" AND ", _matchedColumns.Select(x =>
         {
@@ -143,7 +122,7 @@ public class BulkMatchBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        machedValues.SqlBulkCopy(temptableName, _matchedColumns, null, false, _connection, _transaction, _options, valueConverters: _valueConverters);
+        machedValues.SqlBulkCopy(temptableName, _matchedColumns, null, false, _connection, _transaction, _options, valueConverters: _table.ValueConverters);
 
         Log("End executing SqlBulkCopy.");
 
@@ -165,7 +144,7 @@ public class BulkMatchBuilder<T>
             {
                 if (!Equals(reader[prop.Name], DBNull.Value))
                 {
-                    prop.SetValue(obj, GetValue(prop, reader, _valueConverters), null);
+                    prop.SetValue(obj, GetValue(prop, reader, _table.ValueConverters), null);
                 }
             }
 
@@ -191,8 +170,8 @@ public class BulkMatchBuilder<T>
     {
         var temptableName = $"\"{Guid.NewGuid()}\"";
 
-        var clrTypes = typeof(T).GetProviderClrTypes(_matchedColumns, _valueConverters);
-        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, _matchedColumns, null, _columnTypeMappings);
+        var clrTypes = typeof(T).GetProviderClrTypes(_matchedColumns, _table.ValueConverters);
+        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, _matchedColumns, null, _table.ColumnTypeMappings);
 
         var joinCondition = string.Join(" AND ", _matchedColumns.Select(x =>
         {
@@ -219,7 +198,7 @@ public class BulkMatchBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        await machedValues.SqlBulkCopyAsync(temptableName, _matchedColumns, null, false, _connection, _transaction, _options, valueConverters: _valueConverters, cancellationToken: cancellationToken);
+        await machedValues.SqlBulkCopyAsync(temptableName, _matchedColumns, null, false, _connection, _transaction, _options, valueConverters: _table.ValueConverters, cancellationToken: cancellationToken);
 
         Log("End executing SqlBulkCopy.");
 
@@ -241,7 +220,7 @@ public class BulkMatchBuilder<T>
             {
                 if (!Equals(reader[prop.Name], DBNull.Value))
                 {
-                    prop.SetValue(obj, GetValue(prop, reader, _valueConverters), null);
+                    prop.SetValue(obj, GetValue(prop, reader, _table.ValueConverters), null);
                 }
             }
 

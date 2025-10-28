@@ -1,5 +1,4 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -14,9 +13,6 @@ public class BulkDeleteBuilder<T>
 {
     private TableInfor _table;
     private IEnumerable<string> _idColumns;
-    private IReadOnlyDictionary<string, string> _columnNameMappings;
-    private IReadOnlyDictionary<string, string> _columnTypeMappings;
-    private IReadOnlyDictionary<string, ValueConverter> _valueConverters;
     private BulkDeleteOptions _options;
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction _transaction;
@@ -57,24 +53,6 @@ public class BulkDeleteBuilder<T>
         return this;
     }
 
-    public BulkDeleteBuilder<T> WithDbColumnMappings(IReadOnlyDictionary<string, string> columnNameMappings)
-    {
-        _columnNameMappings = columnNameMappings;
-        return this;
-    }
-
-    public BulkDeleteBuilder<T> WithDbColumnTypeMappings(IReadOnlyDictionary<string, string> columnTypeMappings)
-    {
-        _columnTypeMappings = columnTypeMappings;
-        return this;
-    }
-
-    public BulkDeleteBuilder<T> WithValueConverters(IReadOnlyDictionary<string, ValueConverter> valueConverters)
-    {
-        _valueConverters = valueConverters;
-        return this;
-    }
-
     public BulkDeleteBuilder<T> ConfigureBulkOptions(Action<BulkDeleteOptions> configureOptions)
     {
         _options = new BulkDeleteOptions();
@@ -87,12 +65,12 @@ public class BulkDeleteBuilder<T>
 
     private string GetDbColumnName(string columnName)
     {
-        if (_columnNameMappings == null)
+        if (_table.ColumnNameMappings == null)
         {
             return columnName;
         }
 
-        return _columnNameMappings.TryGetValue(columnName, out string value) ? value : columnName;
+        return _table.ColumnNameMappings.TryGetValue(columnName, out string value) ? value : columnName;
     }
 
     public BulkDeleteResult Execute(IEnumerable<T> data)
@@ -103,8 +81,8 @@ public class BulkDeleteBuilder<T>
         }
 
         var temptableName = $"\"{Guid.NewGuid()}\"";
-        var clrTypes = typeof(T).GetProviderClrTypes(_idColumns, _valueConverters);
-        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, _idColumns, null, _columnTypeMappings);
+        var clrTypes = typeof(T).GetProviderClrTypes(_idColumns, _table.ValueConverters);
+        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, _idColumns, null, _table.ColumnTypeMappings);
 
         var joinCondition = string.Join(" AND ", _idColumns.Select(x =>
         {
@@ -129,7 +107,7 @@ public class BulkDeleteBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        data.SqlBulkCopy(temptableName, _idColumns, null, false, _connection, _transaction, _options, valueConverters: _valueConverters);
+        data.SqlBulkCopy(temptableName, _idColumns, null, false, _connection, _transaction, _options, valueConverters: _table.ValueConverters);
 
         Log("End executing SqlBulkCopy.");
 
@@ -187,8 +165,8 @@ public class BulkDeleteBuilder<T>
         }
 
         var temptableName = $"\"{Guid.NewGuid()}\"";
-        var clrTypes = typeof(T).GetProviderClrTypes(_idColumns, _valueConverters);
-        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, _idColumns, null, _columnTypeMappings);
+        var clrTypes = typeof(T).GetProviderClrTypes(_idColumns, _table.ValueConverters);
+        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, _idColumns, null, _table.ColumnTypeMappings);
 
         var joinCondition = string.Join(" AND ", _idColumns.Select(x =>
         {
@@ -212,7 +190,7 @@ public class BulkDeleteBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        await data.SqlBulkCopyAsync(temptableName, _idColumns, null, false, _connection, _transaction, _options, valueConverters: _valueConverters, cancellationToken: cancellationToken);
+        await data.SqlBulkCopyAsync(temptableName, _idColumns, null, false, _connection, _transaction, _options, valueConverters: _table.ValueConverters, cancellationToken: cancellationToken);
 
         Log("End executing SqlBulkCopy.");
 

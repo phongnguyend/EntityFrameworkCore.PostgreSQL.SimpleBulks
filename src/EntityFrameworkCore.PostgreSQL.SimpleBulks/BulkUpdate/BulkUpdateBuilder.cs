@@ -17,9 +17,6 @@ public class BulkUpdateBuilder<T>
     private TableInfor _table;
     private IEnumerable<string> _idColumns;
     private IEnumerable<string> _columnNames;
-    private IReadOnlyDictionary<string, string> _columnNameMappings;
-    private IReadOnlyDictionary<string, string> _columnTypeMappings;
-    private IReadOnlyDictionary<string, ValueConverter> _valueConverters;
     private BulkUpdateOptions _options;
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction _transaction;
@@ -72,24 +69,6 @@ public class BulkUpdateBuilder<T>
         return this;
     }
 
-    public BulkUpdateBuilder<T> WithDbColumnMappings(IReadOnlyDictionary<string, string> columnNameMappings)
-    {
-        _columnNameMappings = columnNameMappings;
-        return this;
-    }
-
-    public BulkUpdateBuilder<T> WithDbColumnTypeMappings(IReadOnlyDictionary<string, string> columnTypeMappings)
-    {
-        _columnTypeMappings = columnTypeMappings;
-        return this;
-    }
-
-    public BulkUpdateBuilder<T> WithValueConverters(IReadOnlyDictionary<string, ValueConverter> valueConverters)
-    {
-        _valueConverters = valueConverters;
-        return this;
-    }
-
     public BulkUpdateBuilder<T> ConfigureBulkOptions(Action<BulkUpdateOptions> configureOptions)
     {
         _options = new BulkUpdateOptions();
@@ -102,12 +81,12 @@ public class BulkUpdateBuilder<T>
 
     private string GetDbColumnName(string columnName)
     {
-        if (_columnNameMappings == null)
+        if (_table.ColumnNameMappings == null)
         {
             return columnName;
         }
 
-        return _columnNameMappings.TryGetValue(columnName, out string value) ? value : columnName;
+        return _table.ColumnNameMappings.TryGetValue(columnName, out string value) ? value : columnName;
     }
 
     public BulkUpdateResult Execute(IEnumerable<T> data)
@@ -122,8 +101,8 @@ public class BulkUpdateBuilder<T>
         var propertyNamesIncludeId = _columnNames.Select(RemoveOperator).ToList();
         propertyNamesIncludeId.AddRange(_idColumns);
 
-        var clrTypes = typeof(T).GetProviderClrTypes(propertyNamesIncludeId, _valueConverters);
-        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNamesIncludeId, null, _columnTypeMappings);
+        var clrTypes = typeof(T).GetProviderClrTypes(propertyNamesIncludeId, _table.ValueConverters);
+        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNamesIncludeId, null, _table.ColumnTypeMappings);
 
         var joinCondition = string.Join(" and ", _idColumns.Select(x =>
         {
@@ -147,7 +126,7 @@ public class BulkUpdateBuilder<T>
         Log("End creating temp table.");
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
-        data.SqlBulkCopy(temptableName, propertyNamesIncludeId, null, false, _connection, _transaction, _options, valueConverters: _valueConverters);
+        data.SqlBulkCopy(temptableName, propertyNamesIncludeId, null, false, _connection, _transaction, _options, valueConverters: _table.ValueConverters);
         Log("End executing SqlBulkCopy.");
 
         var sqlUpdateStatement = updateStatementBuilder.ToString();
@@ -247,8 +226,8 @@ public class BulkUpdateBuilder<T>
         var propertyNamesIncludeId = _columnNames.Select(RemoveOperator).ToList();
         propertyNamesIncludeId.AddRange(_idColumns);
 
-        var clrTypes = typeof(T).GetProviderClrTypes(propertyNamesIncludeId, _valueConverters);
-        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNamesIncludeId, null, _columnTypeMappings);
+        var clrTypes = typeof(T).GetProviderClrTypes(propertyNamesIncludeId, _table.ValueConverters);
+        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNamesIncludeId, null, _table.ColumnTypeMappings);
 
         var joinCondition = string.Join(" and ", _idColumns.Select(x =>
         {
@@ -272,7 +251,7 @@ public class BulkUpdateBuilder<T>
         Log("End creating temp table.");
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
-        await data.SqlBulkCopyAsync(temptableName, propertyNamesIncludeId, null, false, _connection, _transaction, _options, valueConverters: _valueConverters, cancellationToken: cancellationToken);
+        await data.SqlBulkCopyAsync(temptableName, propertyNamesIncludeId, null, false, _connection, _transaction, _options, valueConverters: _table.ValueConverters, cancellationToken: cancellationToken);
         Log("End executing SqlBulkCopy.");
 
         var sqlUpdateStatement = updateStatementBuilder.ToString();
