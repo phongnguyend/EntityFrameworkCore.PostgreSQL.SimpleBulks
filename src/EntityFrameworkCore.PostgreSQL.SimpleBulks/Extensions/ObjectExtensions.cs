@@ -9,7 +9,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 
 public static class ObjectExtensions
 {
-    public static List<NpgsqlParameter> ToSqlParameters<T>(this T data, IEnumerable<string> propertyNames, IReadOnlyDictionary<string, ValueConverter> valueConverters)
+    public static List<NpgsqlParameter> ToSqlParameters<T>(this T data, IEnumerable<string> propertyNames, IReadOnlyDictionary<string, string> columnTypeMappings, IReadOnlyDictionary<string, ValueConverter> valueConverters)
     {
         var properties = TypeDescriptor.GetProperties(typeof(T));
 
@@ -26,19 +26,27 @@ public static class ObjectExtensions
 
         foreach (PropertyDescriptor prop in updatablePros)
         {
-            var type = GetProviderClrType(prop, valueConverters);
 
             var value = GetProviderValue(prop, data, valueConverters);
 
             var para = new NpgsqlParameter($"@{prop.Name}", value ?? DBNull.Value);
 
-            if (type == typeof(DateTime))
+            if (columnTypeMappings != null && columnTypeMappings.TryGetValue(prop.Name, out var columnType))
             {
-                para.DbType = System.Data.DbType.DateTime2;
+                para.DataTypeName = columnType;
             }
-            else if (type == typeof(DateTimeOffset))
+            else
             {
-                para.DbType = System.Data.DbType.DateTimeOffset;
+                var type = GetProviderClrType(prop, valueConverters);
+
+                if (type == typeof(DateTime))
+                {
+                    para.DbType = System.Data.DbType.DateTime2;
+                }
+                else if (type == typeof(DateTimeOffset))
+                {
+                    para.DbType = System.Data.DbType.DateTimeOffset;
+                }
             }
 
             parameters.Add(para);
