@@ -36,6 +36,10 @@ public static class ObjectExtensions
             {
                 para.DbType = System.Data.DbType.DateTime2;
             }
+            else if (type == typeof(DateTimeOffset))
+            {
+                para.DbType = System.Data.DbType.DateTimeOffset;
+            }
 
             parameters.Add(para);
         }
