@@ -95,7 +95,7 @@ public class BulkUpdateTests : BaseTest
             }
             else
             {
-                _connection.BulkUpdate(rows, new TableInfor(_schema, "SingleKeyRows"),
+                _connection.BulkUpdate(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
                     row => row.Id,
                     row => new { row.Column3, row.Column2 },
                     options =>
@@ -103,7 +103,7 @@ public class BulkUpdateTests : BaseTest
                         options.LogTo = _output.WriteLine;
                     });
 
-                _connection.BulkUpdate(compositeKeyRows, new TableInfor(_schema, "CompositeKeyRows"),
+                _connection.BulkUpdate(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
                     row => new { row.Id1, row.Id2 },
                     row => new { row.Column3, row.Column2 },
                     options =>
@@ -156,7 +156,7 @@ public class BulkUpdateTests : BaseTest
             }
             else
             {
-                _connection.BulkMerge(rows, new TableInfor(_schema, "SingleKeyRows"),
+                _connection.BulkMerge(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
                     row => row.Id,
                     row => new { row.Column1, row.Column2 },
                     row => new { row.Column1, row.Column2, row.Column3 },
@@ -165,7 +165,7 @@ public class BulkUpdateTests : BaseTest
                         options.LogTo = _output.WriteLine;
                     });
 
-                _connection.BulkMerge(compositeKeyRows, new TableInfor(_schema, "CompositeKeyRows"),
+                _connection.BulkMerge(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
                     row => new { row.Id1, row.Id2 },
                     row => new { row.Column1, row.Column2, row.Column3 },
                     row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 },
@@ -198,7 +198,7 @@ public class BulkUpdateTests : BaseTest
             }
             else
             {
-                _connection.BulkUpdate(rows, new TableInfor(_schema, "SingleKeyRows"),
+                _connection.BulkUpdate(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
                     "Id",
                     ["Column3", "Column2"],
                     options =>
@@ -206,7 +206,7 @@ public class BulkUpdateTests : BaseTest
                         options.LogTo = _output.WriteLine;
                     });
 
-                _connection.BulkUpdate(compositeKeyRows, new TableInfor(_schema, "CompositeKeyRows"),
+                _connection.BulkUpdate(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
                     ["Id1", "Id2"],
                     ["Column3", "Column2"],
                     options =>
@@ -259,7 +259,7 @@ public class BulkUpdateTests : BaseTest
             }
             else
             {
-                _connection.BulkMerge(rows, new TableInfor(_schema, "SingleKeyRows"),
+                _connection.BulkMerge(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
                     "Id",
                     ["Column1", "Column2"],
                     ["Column1", "Column2", "Column3"],
@@ -268,7 +268,7 @@ public class BulkUpdateTests : BaseTest
                         options.LogTo = _output.WriteLine;
                     });
 
-                _connection.BulkMerge(compositeKeyRows, new TableInfor(_schema, "CompositeKeyRows"),
+                _connection.BulkMerge(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
                     ["Id1", "Id2"],
                     ["Column1", "Column2", "Column3"],
                     ["Id1", "Id2", "Column1", "Column2", "Column3"],

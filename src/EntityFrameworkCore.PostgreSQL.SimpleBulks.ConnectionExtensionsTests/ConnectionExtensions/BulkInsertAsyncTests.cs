@@ -68,7 +68,7 @@ public class BulkInsertAsyncTests : BaseTest
             }
             else
             {
-                await _connection.BulkInsertAsync(rows, new TableInfor(_schema, "SingleKeyRows"),
+                await _connection.BulkInsertAsync(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
                      row => new { row.Column1, row.Column2, row.Column3 },
                      row => row.Id,
                      options =>
@@ -76,7 +76,7 @@ public class BulkInsertAsyncTests : BaseTest
                          options.LogTo = _output.WriteLine;
                      });
 
-                await _connection.BulkInsertAsync(compositeKeyRows, new TableInfor(_schema, "CompositeKeyRows"),
+                await _connection.BulkInsertAsync(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
                       row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 },
                       options =>
                       {
@@ -106,7 +106,7 @@ public class BulkInsertAsyncTests : BaseTest
             }
             else
             {
-                await _connection.BulkInsertAsync(rows, new TableInfor(_schema, "SingleKeyRows"),
+                await _connection.BulkInsertAsync(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
                       ["Column1", "Column2", "Column3"],
                       "Id",
                       options =>
@@ -114,7 +114,7 @@ public class BulkInsertAsyncTests : BaseTest
                           options.LogTo = _output.WriteLine;
                       });
 
-                await _connection.BulkInsertAsync(compositeKeyRows, new TableInfor(_schema, "CompositeKeyRows"),
+                await _connection.BulkInsertAsync(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
                       ["Id1", "Id2", "Column1", "Column2", "Column3"],
                       options =>
                       {

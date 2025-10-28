@@ -280,7 +280,8 @@ public class BulkInsertBuilder<T>
         var insertStatement = insertStatementBuilder.ToString();
 
         using var insertCommand = _connection.CreateTextCommand(_transaction, insertStatement, _options);
-        dataToInsert.ToSqlParameters(columnsToInsert, _columnTypeMappings, valueConverters: _valueConverters).ForEach(x => insertCommand.Parameters.Add(x));
+
+        _table.CreateSqlParameters(insertCommand, dataToInsert, columnsToInsert).ForEach(x => insertCommand.Parameters.Add(x));
 
         Log($"Begin inserting: {Environment.NewLine}{insertStatement}");
 
@@ -470,7 +471,7 @@ public class BulkInsertBuilder<T>
         var insertStatement = insertStatementBuilder.ToString();
 
         using var insertCommand = _connection.CreateTextCommand(_transaction, insertStatement, _options);
-        dataToInsert.ToSqlParameters(columnsToInsert, _columnTypeMappings, valueConverters: _valueConverters).ForEach(x => insertCommand.Parameters.Add(x));
+        _table.CreateSqlParameters(insertCommand, dataToInsert, columnsToInsert).ForEach(x => insertCommand.Parameters.Add(x));
 
         Log($"Begin inserting: {Environment.NewLine}{insertStatement}");
 
