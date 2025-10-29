@@ -55,16 +55,18 @@ public class BulkDeleteTests : BaseTest
         var rows = _context.SingleKeyRows.AsNoTracking().Take(99).ToList();
         var compositeKeyRows = _context.CompositeKeyRows.AsNoTracking().Take(99).ToList();
 
+        var connectionContext = new ConnectionContext(_connection, null);
+
         if (useLinq)
         {
             if (omitTableName)
             {
-                _connection.BulkDelete(rows, row => row.Id,
+                connectionContext.BulkDelete(rows, row => row.Id,
                 options =>
                 {
                     options.LogTo = _output.WriteLine;
                 });
-                _connection.BulkDelete(compositeKeyRows, row => new { row.Id1, row.Id2 },
+                connectionContext.BulkDelete(compositeKeyRows, row => new { row.Id1, row.Id2 },
                 options =>
                 {
                     options.LogTo = _output.WriteLine;
@@ -72,12 +74,12 @@ public class BulkDeleteTests : BaseTest
             }
             else
             {
-                _connection.BulkDelete(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"), row => row.Id,
+                connectionContext.BulkDelete(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"), row => row.Id,
                 options =>
                 {
                     options.LogTo = _output.WriteLine;
                 });
-                _connection.BulkDelete(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"), row => new { row.Id1, row.Id2 },
+                connectionContext.BulkDelete(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"), row => new { row.Id1, row.Id2 },
                 options =>
                 {
                     options.LogTo = _output.WriteLine;
@@ -88,12 +90,12 @@ public class BulkDeleteTests : BaseTest
         {
             if (omitTableName)
             {
-                _connection.BulkDelete(rows, "Id",
+                connectionContext.BulkDelete(rows, "Id",
                 options =>
                 {
                     options.LogTo = _output.WriteLine;
                 });
-                _connection.BulkDelete(compositeKeyRows, ["Id1", "Id2"],
+                connectionContext.BulkDelete(compositeKeyRows, ["Id1", "Id2"],
                 options =>
                 {
                     options.LogTo = _output.WriteLine;
@@ -101,12 +103,12 @@ public class BulkDeleteTests : BaseTest
             }
             else
             {
-                _connection.BulkDelete(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"), "Id",
+                connectionContext.BulkDelete(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"), "Id",
                 options =>
                 {
                     options.LogTo = _output.WriteLine;
                 });
-                _connection.BulkDelete(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"), ["Id1", "Id2"],
+                connectionContext.BulkDelete(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"), ["Id1", "Id2"],
                 options =>
                 {
                     options.LogTo = _output.WriteLine;

@@ -46,11 +46,13 @@ public class BulkInsertTests : BaseTest
             });
         }
 
+        var connectionContext = new ConnectionContext(_connection, null);
+
         if (useLinq)
         {
             if (omitTableName)
             {
-                _connection.BulkInsert(rows,
+                connectionContext.BulkInsert(rows,
                     row => new { row.Column1, row.Column2, row.Column3 },
                     row => row.Id,
                     options =>
@@ -58,7 +60,7 @@ public class BulkInsertTests : BaseTest
                         options.LogTo = _output.WriteLine;
                     });
 
-                _connection.BulkInsert(compositeKeyRows,
+                connectionContext.BulkInsert(compositeKeyRows,
                     row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 },
                     options =>
                     {
@@ -67,7 +69,7 @@ public class BulkInsertTests : BaseTest
             }
             else
             {
-                _connection.BulkInsert(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                connectionContext.BulkInsert(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
                     row => new { row.Column1, row.Column2, row.Column3 },
                     row => row.Id,
                     options =>
@@ -75,7 +77,7 @@ public class BulkInsertTests : BaseTest
                         options.LogTo = _output.WriteLine;
                     });
 
-                _connection.BulkInsert(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                connectionContext.BulkInsert(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
                     row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 },
                     options =>
                     {
@@ -88,7 +90,7 @@ public class BulkInsertTests : BaseTest
         {
             if (omitTableName)
             {
-                _connection.BulkInsert(rows,
+                connectionContext.BulkInsert(rows,
                     ["Column1", "Column2", "Column3"],
                     "Id",
                     options =>
@@ -96,7 +98,7 @@ public class BulkInsertTests : BaseTest
                         options.LogTo = _output.WriteLine;
                     });
 
-                _connection.BulkInsert(compositeKeyRows,
+                connectionContext.BulkInsert(compositeKeyRows,
                     ["Id1", "Id2", "Column1", "Column2", "Column3"],
                     options =>
                     {
@@ -105,7 +107,7 @@ public class BulkInsertTests : BaseTest
             }
             else
             {
-                _connection.BulkInsert(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                connectionContext.BulkInsert(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
                     ["Column1", "Column2", "Column3"],
                     "Id",
                     options =>
@@ -113,7 +115,7 @@ public class BulkInsertTests : BaseTest
                         options.LogTo = _output.WriteLine;
                     });
 
-                _connection.BulkInsert(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                connectionContext.BulkInsert(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
                     ["Id1", "Id2", "Column1", "Column2", "Column3"],
                     options =>
                     {
