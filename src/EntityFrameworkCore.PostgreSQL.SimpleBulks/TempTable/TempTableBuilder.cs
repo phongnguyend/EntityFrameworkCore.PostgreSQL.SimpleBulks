@@ -16,10 +16,10 @@ public class TempTableBuilder<T>
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction _transaction;
 
-    public TempTableBuilder(NpgsqlConnection connection, NpgsqlTransaction transaction)
+    public TempTableBuilder(ConnectionContext connectionContext)
     {
-        _connection = connection;
-        _transaction = transaction;
+        _connection = connectionContext.Connection;
+        _transaction = connectionContext.Transaction;
     }
 
     public TempTableBuilder<T> WithColumns(IEnumerable<string> columnNames)

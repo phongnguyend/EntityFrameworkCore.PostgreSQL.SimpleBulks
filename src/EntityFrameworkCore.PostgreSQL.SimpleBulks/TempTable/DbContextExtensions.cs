@@ -10,10 +10,9 @@ public static class DbContextExtensions
 {
     public static string CreateTempTable<T>(this DbContext dbContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, Action<TempTableOptions> configureOptions = null)
     {
-        var connection = dbContext.GetNpgsqlConnection();
-        var transaction = dbContext.GetCurrentNpgsqlTransaction();
+        var connectionContext = dbContext.GetConnectionContext();
 
-        return new TempTableBuilder<T>(connection, transaction)
+        return new TempTableBuilder<T>(connectionContext)
              .WithColumns(columnNamesSelector)
              .WithMappingContext(dbContext.GetMappingContext(typeof(T)))
              .ConfigureTempTableOptions(configureOptions)
@@ -22,8 +21,7 @@ public static class DbContextExtensions
 
     public static string CreateTempTable<T>(this DbContext dbContext, IEnumerable<T> data, IEnumerable<string> columnNames, Action<TempTableOptions> configureOptions = null)
     {
-        var connection = dbContext.GetNpgsqlConnection();
-        var transaction = dbContext.GetCurrentNpgsqlTransaction();
+        var connectionContext = dbContext.GetConnectionContext();
 
         var isEntityType = dbContext.IsEntityType(typeof(T));
 
@@ -32,7 +30,7 @@ public static class DbContextExtensions
             columnNames = dbContext.GetAllPropertyNamesWithoutRowVersions(typeof(T));
         }
 
-        return new TempTableBuilder<T>(connection, transaction)
+        return new TempTableBuilder<T>(connectionContext)
              .WithColumns(columnNames)
              .WithMappingContext(dbContext.GetMappingContext(typeof(T)))
              .ConfigureTempTableOptions(configureOptions)

@@ -1,5 +1,4 @@
-﻿using Npgsql;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -11,7 +10,7 @@ public static class NpgsqlConnectionExtensions
     {
         var table = TableMapper.Resolve(typeof(T));
 
-        return new BulkMatchBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
+        return new BulkMatchBuilder<T>(connectionContext)
              .WithReturnedColumns(returnedColumnsSelector)
              .WithTable(table)
              .WithMatchedColumns(matchedColumnsSelector)
@@ -23,7 +22,7 @@ public static class NpgsqlConnectionExtensions
     {
         var table = TableMapper.Resolve(typeof(T));
 
-        return new BulkMatchBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
+        return new BulkMatchBuilder<T>(connectionContext)
             .WithReturnedColumns(returnedColumns)
             .WithTable(table)
             .WithMatchedColumn(matchedColumn)
@@ -35,7 +34,7 @@ public static class NpgsqlConnectionExtensions
     {
         var table = TableMapper.Resolve(typeof(T));
 
-        return new BulkMatchBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
+        return new BulkMatchBuilder<T>(connectionContext)
             .WithReturnedColumns(returnedColumns)
             .WithTable(table)
             .WithMatchedColumns(matchedColumns)
@@ -45,7 +44,7 @@ public static class NpgsqlConnectionExtensions
 
     public static List<T> BulkMatch<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, TableInfor table, Expression<Func<T, object>> matchedColumnsSelector, Expression<Func<T, object>> returnedColumnsSelector, Action<BulkMatchOptions> configureOptions = null)
     {
-        return new BulkMatchBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
+        return new BulkMatchBuilder<T>(connectionContext)
              .WithReturnedColumns(returnedColumnsSelector)
              .WithTable(table)
              .WithMatchedColumns(matchedColumnsSelector)
@@ -55,7 +54,7 @@ public static class NpgsqlConnectionExtensions
 
     public static List<T> BulkMatch<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, TableInfor table, string matchedColumns, IEnumerable<string> returnedColumns, Action<BulkMatchOptions> configureOptions = null)
     {
-        return new BulkMatchBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
+        return new BulkMatchBuilder<T>(connectionContext)
             .WithReturnedColumns(returnedColumns)
             .WithTable(table)
             .WithMatchedColumn(matchedColumns)
@@ -65,7 +64,7 @@ public static class NpgsqlConnectionExtensions
 
     public static List<T> BulkMatch<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, TableInfor table, IEnumerable<string> matchedColumns, IEnumerable<string> returnedColumns, Action<BulkMatchOptions> configureOptions = null)
     {
-        return new BulkMatchBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
+        return new BulkMatchBuilder<T>(connectionContext)
             .WithReturnedColumns(returnedColumns)
             .WithTable(table)
             .WithMatchedColumns(matchedColumns)

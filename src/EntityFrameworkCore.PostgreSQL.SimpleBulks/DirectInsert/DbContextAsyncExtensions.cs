@@ -12,11 +12,10 @@ public static class DbContextAsyncExtensions
 {
     public static Task DirectInsertAsync<T>(this DbContext dbContext, T data, Action<BulkInsertOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
-        var connection = dbContext.GetNpgsqlConnection();
-        var transaction = dbContext.GetCurrentNpgsqlTransaction();
+        var connectionContext = dbContext.GetConnectionContext();
         var idColumn = dbContext.GetOutputId(typeof(T));
 
-        return new BulkInsertBuilder<T>(connection, transaction)
+        return new BulkInsertBuilder<T>(connectionContext)
               .WithColumns(dbContext.GetInsertablePropertyNames(typeof(T)))
               .ToTable(dbContext.GetTableInfor(typeof(T)))
               .WithOutputId(idColumn?.PropertyName)
@@ -27,11 +26,10 @@ public static class DbContextAsyncExtensions
 
     public static Task DirectInsertAsync<T>(this DbContext dbContext, T data, Expression<Func<T, object>> columnNamesSelector, Action<BulkInsertOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
-        var connection = dbContext.GetNpgsqlConnection();
-        var transaction = dbContext.GetCurrentNpgsqlTransaction();
+        var connectionContext = dbContext.GetConnectionContext();
         var idColumn = dbContext.GetOutputId(typeof(T));
 
-        return new BulkInsertBuilder<T>(connection, transaction)
+        return new BulkInsertBuilder<T>(connectionContext)
              .WithColumns(columnNamesSelector)
              .ToTable(dbContext.GetTableInfor(typeof(T)))
              .WithOutputId(idColumn?.PropertyName)

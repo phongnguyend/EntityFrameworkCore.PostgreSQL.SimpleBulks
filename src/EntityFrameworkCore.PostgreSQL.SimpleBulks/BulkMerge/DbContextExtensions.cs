@@ -10,11 +10,10 @@ public static class DbContextExtensions
 {
     public static BulkMergeResult BulkMerge<T>(this DbContext dbContext, IEnumerable<T> data, Expression<Func<T, object>> idSelector, Expression<Func<T, object>> updateColumnNamesSelector, Expression<Func<T, object>> insertColumnNamesSelector, Action<BulkMergeOptions> configureOptions = null)
     {
-        var connection = dbContext.GetNpgsqlConnection();
-        var transaction = dbContext.GetCurrentNpgsqlTransaction();
+        var connectionContext = dbContext.GetConnectionContext();
         var outputIdColumn = dbContext.GetOutputId(typeof(T))?.PropertyName;
 
-        return new BulkMergeBuilder<T>(connection, transaction)
+        return new BulkMergeBuilder<T>(connectionContext)
              .WithId(idSelector)
              .WithUpdateColumns(updateColumnNamesSelector)
              .WithInsertColumns(insertColumnNamesSelector)
@@ -26,11 +25,10 @@ public static class DbContextExtensions
 
     public static BulkMergeResult BulkMerge<T>(this DbContext dbContext, IEnumerable<T> data, string idColumn, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, Action<BulkMergeOptions> configureOptions = null)
     {
-        var connection = dbContext.GetNpgsqlConnection();
-        var transaction = dbContext.GetCurrentNpgsqlTransaction();
+        var connectionContext = dbContext.GetConnectionContext();
         var outputIdColumn = dbContext.GetOutputId(typeof(T))?.PropertyName;
 
-        return new BulkMergeBuilder<T>(connection, transaction)
+        return new BulkMergeBuilder<T>(connectionContext)
             .WithId(idColumn)
             .WithUpdateColumns(updateColumnNames)
             .WithInsertColumns(insertColumnNames)
@@ -42,11 +40,10 @@ public static class DbContextExtensions
 
     public static BulkMergeResult BulkMerge<T>(this DbContext dbContext, IEnumerable<T> data, IEnumerable<string> idColumns, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, Action<BulkMergeOptions> configureOptions = null)
     {
-        var connection = dbContext.GetNpgsqlConnection();
-        var transaction = dbContext.GetCurrentNpgsqlTransaction();
+        var connectionContext = dbContext.GetConnectionContext();
         var outputIdColumn = dbContext.GetOutputId(typeof(T))?.PropertyName;
 
-        return new BulkMergeBuilder<T>(connection, transaction)
+        return new BulkMergeBuilder<T>(connectionContext)
             .WithId(idColumns)
             .WithUpdateColumns(updateColumnNames)
             .WithInsertColumns(insertColumnNames)

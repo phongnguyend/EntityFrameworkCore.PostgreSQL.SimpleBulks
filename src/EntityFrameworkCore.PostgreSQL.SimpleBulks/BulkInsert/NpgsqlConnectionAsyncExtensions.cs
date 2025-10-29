@@ -1,5 +1,4 @@
-﻿using Npgsql;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
@@ -13,83 +12,83 @@ public static class NpgsqlConnectionAsyncExtensions
     {
         var table = TableMapper.Resolve(typeof(T));
 
-        return new BulkInsertBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
-             .WithColumns(columnNamesSelector)
-             .ToTable(table)
-             .ConfigureBulkOptions(configureOptions)
-             .ExecuteAsync(data, cancellationToken);
+        return new BulkInsertBuilder<T>(connectionContext)
+  .WithColumns(columnNamesSelector)
+    .ToTable(table)
+     .ConfigureBulkOptions(configureOptions)
+       .ExecuteAsync(data, cancellationToken);
     }
 
     public static Task BulkInsertAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, Expression<Func<T, object>> idSelector, Action<BulkInsertOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
         var table = TableMapper.Resolve(typeof(T));
 
-        return new BulkInsertBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
-             .WithColumns(columnNamesSelector)
-             .ToTable(table)
-             .WithOutputId(idSelector)
-             .ConfigureBulkOptions(configureOptions)
-             .ExecuteAsync(data, cancellationToken);
+        return new BulkInsertBuilder<T>(connectionContext)
+ .WithColumns(columnNamesSelector)
+       .ToTable(table)
+      .WithOutputId(idSelector)
+      .ConfigureBulkOptions(configureOptions)
+       .ExecuteAsync(data, cancellationToken);
     }
 
     public static Task BulkInsertAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, IEnumerable<string> columnNames, Action<BulkInsertOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
         var table = TableMapper.Resolve(typeof(T));
 
-        return new BulkInsertBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
-             .WithColumns(columnNames)
-             .ToTable(table)
-             .ConfigureBulkOptions(configureOptions)
-             .ExecuteAsync(data, cancellationToken);
+        return new BulkInsertBuilder<T>(connectionContext)
+   .WithColumns(columnNames)
+    .ToTable(table)
+     .ConfigureBulkOptions(configureOptions)
+      .ExecuteAsync(data, cancellationToken);
     }
 
     public static Task BulkInsertAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, IEnumerable<string> columnNames, string idColumnName, Action<BulkInsertOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
         var table = TableMapper.Resolve(typeof(T));
 
-        return new BulkInsertBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
-            .WithColumns(columnNames)
-            .ToTable(table)
-            .WithOutputId(idColumnName)
-            .ConfigureBulkOptions(configureOptions)
-            .ExecuteAsync(data, cancellationToken);
+        return new BulkInsertBuilder<T>(connectionContext)
+  .WithColumns(columnNames)
+     .ToTable(table)
+   .WithOutputId(idColumnName)
+    .ConfigureBulkOptions(configureOptions)
+     .ExecuteAsync(data, cancellationToken);
     }
 
     public static Task BulkInsertAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, TableInfor table, Expression<Func<T, object>> columnNamesSelector, Action<BulkInsertOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
-        return new BulkInsertBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
-            .WithColumns(columnNamesSelector)
-            .ToTable(table)
-            .ConfigureBulkOptions(configureOptions)
-            .ExecuteAsync(data, cancellationToken);
+        return new BulkInsertBuilder<T>(connectionContext)
+    .WithColumns(columnNamesSelector)
+         .ToTable(table)
+    .ConfigureBulkOptions(configureOptions)
+        .ExecuteAsync(data, cancellationToken);
     }
 
     public static Task BulkInsertAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, TableInfor table, Expression<Func<T, object>> columnNamesSelector, Expression<Func<T, object>> idSelector, Action<BulkInsertOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
-        return new BulkInsertBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
-            .WithColumns(columnNamesSelector)
-            .ToTable(table)
+        return new BulkInsertBuilder<T>(connectionContext)
+             .WithColumns(columnNamesSelector)
+         .ToTable(table)
             .WithOutputId(idSelector)
             .ConfigureBulkOptions(configureOptions)
-            .ExecuteAsync(data, cancellationToken);
+         .ExecuteAsync(data, cancellationToken);
     }
 
     public static Task BulkInsertAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, TableInfor table, IEnumerable<string> columnNames, Action<BulkInsertOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
-        return new BulkInsertBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
-            .WithColumns(columnNames)
-            .ToTable(table)
-            .ConfigureBulkOptions(configureOptions)
-            .ExecuteAsync(data, cancellationToken);
+        return new BulkInsertBuilder<T>(connectionContext)
+ .WithColumns(columnNames)
+       .ToTable(table)
+       .ConfigureBulkOptions(configureOptions)
+       .ExecuteAsync(data, cancellationToken);
     }
 
     public static Task BulkInsertAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, TableInfor table, IEnumerable<string> columnNames, string idColumnName, Action<BulkInsertOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
-        return new BulkInsertBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
-            .WithColumns(columnNames)
-            .ToTable(table)
-            .WithOutputId(idColumnName)
-            .ConfigureBulkOptions(configureOptions)
-            .ExecuteAsync(data, cancellationToken);
+        return new BulkInsertBuilder<T>(connectionContext)
+      .WithColumns(columnNames)
+      .ToTable(table)
+         .WithOutputId(idColumnName)
+      .ConfigureBulkOptions(configureOptions)
+        .ExecuteAsync(data, cancellationToken);
     }
 }

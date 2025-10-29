@@ -9,12 +9,11 @@ public static class DbContextExtensions
 {
     public static BulkDeleteResult BulkDelete<T>(this DbContext dbContext, IEnumerable<T> data, Action<BulkDeleteOptions> configureOptions = null)
     {
-        var connection = dbContext.GetNpgsqlConnection();
-        var transaction = dbContext.GetCurrentNpgsqlTransaction();
+        var connectionContext = dbContext.GetConnectionContext();
 
-        return new BulkDeleteBuilder<T>(connection, transaction)
+        return new BulkDeleteBuilder<T>(connectionContext)
              .WithId(dbContext.GetPrimaryKeys(typeof(T)))
-             .ToTable(dbContext.GetTableInfor(typeof(T)))
+ .ToTable(dbContext.GetTableInfor(typeof(T)))
              .ConfigureBulkOptions(configureOptions)
              .Execute(data);
     }

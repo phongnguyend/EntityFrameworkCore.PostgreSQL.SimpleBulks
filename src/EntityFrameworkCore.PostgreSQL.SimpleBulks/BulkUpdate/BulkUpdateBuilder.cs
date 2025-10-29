@@ -1,5 +1,4 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -21,10 +20,10 @@ public class BulkUpdateBuilder<T>
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction _transaction;
 
-    public BulkUpdateBuilder(NpgsqlConnection connection, NpgsqlTransaction transaction)
+    public BulkUpdateBuilder(ConnectionContext connectionContext)
     {
-        _connection = connection;
-        _transaction = transaction;
+        _connection = connectionContext.Connection;
+        _transaction = connectionContext.Transaction;
     }
 
     public BulkUpdateBuilder<T> ToTable(TableInfor table)

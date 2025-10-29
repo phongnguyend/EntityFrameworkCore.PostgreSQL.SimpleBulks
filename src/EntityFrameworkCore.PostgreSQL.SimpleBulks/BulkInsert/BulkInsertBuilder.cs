@@ -22,10 +22,10 @@ public class BulkInsertBuilder<T>
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction _transaction;
 
-    public BulkInsertBuilder(NpgsqlConnection connection, NpgsqlTransaction transaction)
+    public BulkInsertBuilder(ConnectionContext connectionContext)
     {
-        _connection = connection;
-        _transaction = transaction;
+        _connection = connectionContext.Connection;
+        _transaction = connectionContext.Transaction;
     }
 
     public BulkInsertBuilder<T> ToTable(TableInfor table)

@@ -10,41 +10,39 @@ public static class DbContextExtensions
 {
     public static void BulkInsert<T>(this DbContext dbContext, IEnumerable<T> data, Action<BulkInsertOptions> configureOptions = null)
     {
-        var connection = dbContext.GetNpgsqlConnection();
-        var transaction = dbContext.GetCurrentNpgsqlTransaction();
-      var idColumn = dbContext.GetOutputId(typeof(T));
+        var connectionContext = dbContext.GetConnectionContext();
+        var idColumn = dbContext.GetOutputId(typeof(T));
 
-    new BulkInsertBuilder<T>(connection, transaction)
-      .WithColumns(dbContext.GetInsertablePropertyNames(typeof(T)))
-   .ToTable(dbContext.GetTableInfor(typeof(T)))
-       .WithOutputId(idColumn?.PropertyName)
-            .WithOutputIdMode(GetOutputIdMode(idColumn))
-            .ConfigureBulkOptions(configureOptions)
- .Execute(data);
+        new BulkInsertBuilder<T>(connectionContext)
+          .WithColumns(dbContext.GetInsertablePropertyNames(typeof(T)))
+       .ToTable(dbContext.GetTableInfor(typeof(T)))
+        .WithOutputId(idColumn?.PropertyName)
+         .WithOutputIdMode(GetOutputIdMode(idColumn))
+     .ConfigureBulkOptions(configureOptions)
+     .Execute(data);
     }
 
     public static void BulkInsert<T>(this DbContext dbContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, Action<BulkInsertOptions> configureOptions = null)
     {
-    var connection = dbContext.GetNpgsqlConnection();
-    var transaction = dbContext.GetCurrentNpgsqlTransaction();
-  var idColumn = dbContext.GetOutputId(typeof(T));
+        var connectionContext = dbContext.GetConnectionContext();
+        var idColumn = dbContext.GetOutputId(typeof(T));
 
-      new BulkInsertBuilder<T>(connection, transaction)
-   .WithColumns(columnNamesSelector)
-            .ToTable(dbContext.GetTableInfor(typeof(T)))
-         .WithOutputId(idColumn?.PropertyName)
-            .WithOutputIdMode(GetOutputIdMode(idColumn))
-     .ConfigureBulkOptions(configureOptions)
-      .Execute(data);
- }
+        new BulkInsertBuilder<T>(connectionContext)
+     .WithColumns(columnNamesSelector)
+              .ToTable(dbContext.GetTableInfor(typeof(T)))
+           .WithOutputId(idColumn?.PropertyName)
+        .WithOutputIdMode(GetOutputIdMode(idColumn))
+       .ConfigureBulkOptions(configureOptions)
+        .Execute(data);
+    }
 
     private static OutputIdMode GetOutputIdMode(ColumnInfor columnInfor)
     {
-  if (columnInfor == null)
+        if (columnInfor == null)
         {
-    return OutputIdMode.ServerGenerated;
-   }
+            return OutputIdMode.ServerGenerated;
+        }
 
-  return columnInfor.PropertyType == typeof(Guid) && string.IsNullOrEmpty(columnInfor.DefaultValueSql) ? OutputIdMode.ClientGenerated : OutputIdMode.ServerGenerated;
+        return columnInfor.PropertyType == typeof(Guid) && string.IsNullOrEmpty(columnInfor.DefaultValueSql) ? OutputIdMode.ClientGenerated : OutputIdMode.ServerGenerated;
     }
 }

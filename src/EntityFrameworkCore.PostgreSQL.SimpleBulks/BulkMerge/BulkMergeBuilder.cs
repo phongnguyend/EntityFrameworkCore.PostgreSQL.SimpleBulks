@@ -21,10 +21,10 @@ public class BulkMergeBuilder<T>
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction _transaction;
 
-    public BulkMergeBuilder(NpgsqlConnection connection, NpgsqlTransaction transaction)
+    public BulkMergeBuilder(ConnectionContext connectionContext)
     {
-        _connection = connection;
-        _transaction = transaction;
+        _connection = connectionContext.Connection;
+        _transaction = connectionContext.Transaction;
     }
 
     public BulkMergeBuilder<T> ToTable(TableInfor table)

@@ -1,5 +1,4 @@
-﻿using Npgsql;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
@@ -13,7 +12,7 @@ public static class NpgsqlConnectionAsyncExtensions
     {
         var table = TableMapper.Resolve(typeof(T));
 
-        return new BulkDeleteBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
+        return new BulkDeleteBuilder<T>(connectionContext)
               .WithId(idSelector)
               .ToTable(table)
               .ConfigureBulkOptions(configureOptions)
@@ -24,7 +23,7 @@ public static class NpgsqlConnectionAsyncExtensions
     {
         var table = TableMapper.Resolve(typeof(T));
 
-        return new BulkDeleteBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
+        return new BulkDeleteBuilder<T>(connectionContext)
             .WithId(idColumn)
             .ToTable(table)
             .ConfigureBulkOptions(configureOptions)
@@ -35,7 +34,7 @@ public static class NpgsqlConnectionAsyncExtensions
     {
         var table = TableMapper.Resolve(typeof(T));
 
-        return new BulkDeleteBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
+        return new BulkDeleteBuilder<T>(connectionContext)
             .WithId(idColumns)
             .ToTable(table)
             .ConfigureBulkOptions(configureOptions)
@@ -44,7 +43,7 @@ public static class NpgsqlConnectionAsyncExtensions
 
     public static Task<BulkDeleteResult> BulkDeleteAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, TableInfor table, Expression<Func<T, object>> idSelector, Action<BulkDeleteOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
-        return new BulkDeleteBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
+        return new BulkDeleteBuilder<T>(connectionContext)
             .WithId(idSelector)
             .ToTable(table)
             .ConfigureBulkOptions(configureOptions)
@@ -53,7 +52,7 @@ public static class NpgsqlConnectionAsyncExtensions
 
     public static Task<BulkDeleteResult> BulkDeleteAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, TableInfor table, string idColumn, Action<BulkDeleteOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
-        return new BulkDeleteBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
+        return new BulkDeleteBuilder<T>(connectionContext)
             .WithId(idColumn)
             .ToTable(table)
             .ConfigureBulkOptions(configureOptions)
@@ -62,7 +61,7 @@ public static class NpgsqlConnectionAsyncExtensions
 
     public static Task<BulkDeleteResult> BulkDeleteAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, TableInfor table, IEnumerable<string> idColumns, Action<BulkDeleteOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
-        return new BulkDeleteBuilder<T>(connectionContext.Connection, connectionContext.Transaction)
+        return new BulkDeleteBuilder<T>(connectionContext)
             .WithId(idColumns)
             .ToTable(table)
             .ConfigureBulkOptions(configureOptions)

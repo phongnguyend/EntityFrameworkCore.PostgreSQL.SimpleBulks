@@ -2,7 +2,6 @@
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.DirectDelete;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Database;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.DbContextExtensions;

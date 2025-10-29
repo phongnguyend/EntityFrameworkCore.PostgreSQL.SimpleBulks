@@ -22,10 +22,10 @@ public class BulkMatchBuilder<T>
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction _transaction;
 
-    public BulkMatchBuilder(NpgsqlConnection connection, NpgsqlTransaction transaction)
+    public BulkMatchBuilder(ConnectionContext connectionContext)
     {
-        _connection = connection;
-        _transaction = transaction;
+        _connection = connectionContext.Connection;
+        _transaction = connectionContext.Transaction;
     }
 
     public BulkMatchBuilder<T> WithTable(TableInfor table)
