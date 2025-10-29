@@ -16,11 +16,6 @@ public class TempTableBuilder<T>
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction _transaction;
 
-    public TempTableBuilder(NpgsqlConnection connection)
-    {
-        _connection = connection;
-    }
-
     public TempTableBuilder(NpgsqlConnection connection, NpgsqlTransaction transaction)
     {
         _connection = connection;

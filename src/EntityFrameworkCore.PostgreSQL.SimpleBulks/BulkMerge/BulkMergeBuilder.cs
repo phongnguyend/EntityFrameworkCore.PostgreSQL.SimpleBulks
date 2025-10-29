@@ -21,11 +21,6 @@ public class BulkMergeBuilder<T>
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction _transaction;
 
-    public BulkMergeBuilder(NpgsqlConnection connection)
-    {
-        _connection = connection;
-    }
-
     public BulkMergeBuilder(NpgsqlConnection connection, NpgsqlTransaction transaction)
     {
         _connection = connection;

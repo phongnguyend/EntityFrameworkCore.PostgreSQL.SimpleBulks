@@ -22,11 +22,6 @@ public class BulkInsertBuilder<T>
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction _transaction;
 
-    public BulkInsertBuilder(NpgsqlConnection connection)
-    {
-        _connection = connection;
-    }
-
     public BulkInsertBuilder(NpgsqlConnection connection, NpgsqlTransaction transaction)
     {
         _connection = connection;

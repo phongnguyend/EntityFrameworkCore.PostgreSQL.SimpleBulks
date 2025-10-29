@@ -17,11 +17,6 @@ public class BulkDeleteBuilder<T>
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction _transaction;
 
-    public BulkDeleteBuilder(NpgsqlConnection connection)
-    {
-        _connection = connection;
-    }
-
     public BulkDeleteBuilder(NpgsqlConnection connection, NpgsqlTransaction transaction)
     {
         _connection = connection;

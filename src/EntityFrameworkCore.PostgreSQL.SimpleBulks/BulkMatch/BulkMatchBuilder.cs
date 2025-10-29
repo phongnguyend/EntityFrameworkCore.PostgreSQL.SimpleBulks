@@ -22,11 +22,6 @@ public class BulkMatchBuilder<T>
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction _transaction;
 
-    public BulkMatchBuilder(NpgsqlConnection connection)
-    {
-        _connection = connection;
-    }
-
     public BulkMatchBuilder(NpgsqlConnection connection, NpgsqlTransaction transaction)
     {
         _connection = connection;
