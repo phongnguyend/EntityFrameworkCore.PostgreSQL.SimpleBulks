@@ -167,10 +167,10 @@ public class BulkMergeBuilder<T>
 
         mergeStatementBuilder.AppendLine(";");
 
-        _connectionContext.Connection.EnsureOpen();
+        _connectionContext.EnsureOpen();
 
         Log($"Begin creating temp table:{Environment.NewLine}{sqlCreateTemptable}");
-        using (var createTemptableCommand = _connectionContext.Connection.CreateTextCommand(_connectionContext.Transaction, sqlCreateTemptable, _options))
+        using (var createTemptableCommand = _connectionContext.CreateTextCommand(sqlCreateTemptable, _options))
         {
             createTemptableCommand.ExecuteNonQuery();
         }
@@ -194,7 +194,7 @@ public class BulkMergeBuilder<T>
             outputIdDbColumnName = GetDbColumnName(_outputIdColumn);
         }
 
-        using (var updateCommand = _connectionContext.Connection.CreateTextCommand(_connectionContext.Transaction, sqlMergeStatement, _options))
+        using (var updateCommand = _connectionContext.CreateTextCommand(sqlMergeStatement, _options))
         {
             using var reader = updateCommand.ExecuteReader();
 
@@ -327,10 +327,10 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
 
         mergeStatementBuilder.AppendLine(";");
 
-        await _connectionContext.Connection.EnsureOpenAsync(cancellationToken);
+        await _connectionContext.EnsureOpenAsync(cancellationToken);
 
         Log($"Begin creating temp table:{Environment.NewLine}{sqlCreateTemptable}");
-        using (var createTemptableCommand = _connectionContext.Connection.CreateTextCommand(_connectionContext.Transaction, sqlCreateTemptable, _options))
+        using (var createTemptableCommand = _connectionContext.CreateTextCommand(sqlCreateTemptable, _options))
         {
             await createTemptableCommand.ExecuteNonQueryAsync(cancellationToken);
         }
@@ -354,7 +354,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
             outputIdDbColumnName = GetDbColumnName(_outputIdColumn);
         }
 
-        using (var updateCommand = _connectionContext.Connection.CreateTextCommand(_connectionContext.Transaction, sqlMergeStatement, _options))
+        using (var updateCommand = _connectionContext.CreateTextCommand(sqlMergeStatement, _options))
         {
             using var reader = await updateCommand.ExecuteReaderAsync(cancellationToken);
 
@@ -458,7 +458,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
 
         mergeStatementBuilder.AppendLine(";");
 
-        _connectionContext.Connection.EnsureOpen();
+        _connectionContext.EnsureOpen();
 
         var sqlMergeStatement = mergeStatementBuilder.ToString();
 
@@ -472,7 +472,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
             outputIdDbColumnName = GetDbColumnName(_outputIdColumn);
         }
 
-        using (var updateCommand = _connectionContext.Connection.CreateTextCommand(_connectionContext.Transaction, sqlMergeStatement, _options))
+        using (var updateCommand = _connectionContext.CreateTextCommand(sqlMergeStatement, _options))
         {
             _table.CreateSqlParameters(updateCommand, data, propertyNames)
  .ForEach(x => updateCommand.Parameters.Add(x));
@@ -564,7 +564,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
 
         mergeStatementBuilder.AppendLine(";");
 
-        await _connectionContext.Connection.EnsureOpenAsync(cancellationToken);
+        await _connectionContext.EnsureOpenAsync(cancellationToken);
 
         var sqlMergeStatement = mergeStatementBuilder.ToString();
 
@@ -578,7 +578,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
             outputIdDbColumnName = GetDbColumnName(_outputIdColumn);
         }
 
-        using (var updateCommand = _connectionContext.Connection.CreateTextCommand(_connectionContext.Transaction, sqlMergeStatement, _options))
+        using (var updateCommand = _connectionContext.CreateTextCommand(sqlMergeStatement, _options))
         {
             _table.CreateSqlParameters(updateCommand, data, propertyNames)
        .ForEach(x => updateCommand.Parameters.Add(x));
