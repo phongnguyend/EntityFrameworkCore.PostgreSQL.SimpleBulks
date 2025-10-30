@@ -1,5 +1,4 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
-using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,13 +13,11 @@ public class BulkDeleteBuilder<T>
     private TableInfor _table;
     private IEnumerable<string> _idColumns;
     private BulkDeleteOptions _options;
-    private readonly NpgsqlConnection _connection;
-    private readonly NpgsqlTransaction _transaction;
+    private readonly ConnectionContext _connectionContext;
 
     public BulkDeleteBuilder(ConnectionContext connectionContext)
     {
-        _connection = connectionContext.Connection;
-        _transaction = connectionContext.Transaction;
+        _connectionContext = connectionContext;
     }
 
     public BulkDeleteBuilder<T> ToTable(TableInfor table)
@@ -88,11 +85,11 @@ public class BulkDeleteBuilder<T>
 
         var deleteStatement = $"DELETE FROM {_table.SchemaQualifiedTableName} AS a USING {temptableName} AS b WHERE " + joinCondition;
 
-        _connection.EnsureOpen();
+        _connectionContext.Connection.EnsureOpen();
 
         Log($"Begin creating temp table:{Environment.NewLine}{sqlCreateTemptable}");
 
-        using (var createTemptableCommand = _connection.CreateTextCommand(_transaction, sqlCreateTemptable, _options))
+        using (var createTemptableCommand = _connectionContext.Connection.CreateTextCommand(_connectionContext.Transaction, sqlCreateTemptable, _options))
         {
             createTemptableCommand.ExecuteNonQuery();
         }
@@ -102,13 +99,13 @@ public class BulkDeleteBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        data.SqlBulkCopy(temptableName, _idColumns, null, false, _connection, _transaction, _options, valueConverters: _table.ValueConverters);
+        data.SqlBulkCopy(temptableName, _idColumns, null, false, _connectionContext.Connection, _connectionContext.Transaction, _options, valueConverters: _table.ValueConverters);
 
         Log("End executing SqlBulkCopy.");
 
         Log($"Begin deleting:{Environment.NewLine}{deleteStatement}");
 
-        using var deleteCommand = _connection.CreateTextCommand(_transaction, deleteStatement, _options);
+        using var deleteCommand = _connectionContext.Connection.CreateTextCommand(_connectionContext.Transaction, deleteStatement, _options);
 
         var affectedRows = deleteCommand.ExecuteNonQuery();
 
@@ -131,11 +128,11 @@ public class BulkDeleteBuilder<T>
 
         Log($"Begin deleting:{Environment.NewLine}{deleteStatement}");
 
-        using var deleteCommand = _connection.CreateTextCommand(_transaction, deleteStatement, _options);
+        using var deleteCommand = _connectionContext.Connection.CreateTextCommand(_connectionContext.Transaction, deleteStatement, _options);
 
         _table.CreateSqlParameters(deleteCommand, dataToDelete, _idColumns).ForEach(x => deleteCommand.Parameters.Add(x));
 
-        _connection.EnsureOpen();
+        _connectionContext.Connection.EnsureOpen();
 
         var affectedRows = deleteCommand.ExecuteNonQuery();
 
@@ -172,11 +169,11 @@ public class BulkDeleteBuilder<T>
 
         var deleteStatement = $"DELETE FROM {_table.SchemaQualifiedTableName} AS a USING {temptableName} AS b WHERE " + joinCondition;
 
-        await _connection.EnsureOpenAsync(cancellationToken);
+        await _connectionContext.Connection.EnsureOpenAsync(cancellationToken);
 
         Log($"Begin creating temp table:{Environment.NewLine}{sqlCreateTemptable}");
 
-        using (var createTemptableCommand = _connection.CreateTextCommand(_transaction, sqlCreateTemptable, _options))
+        using (var createTemptableCommand = _connectionContext.Connection.CreateTextCommand(_connectionContext.Transaction, sqlCreateTemptable, _options))
         {
             await createTemptableCommand.ExecuteNonQueryAsync(cancellationToken);
         }
@@ -185,13 +182,13 @@ public class BulkDeleteBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        await data.SqlBulkCopyAsync(temptableName, _idColumns, null, false, _connection, _transaction, _options, valueConverters: _table.ValueConverters, cancellationToken: cancellationToken);
+        await data.SqlBulkCopyAsync(temptableName, _idColumns, null, false, _connectionContext.Connection, _connectionContext.Transaction, _options, valueConverters: _table.ValueConverters, cancellationToken: cancellationToken);
 
         Log("End executing SqlBulkCopy.");
 
         Log($"Begin deleting:{Environment.NewLine}{deleteStatement}");
 
-        using var deleteCommand = _connection.CreateTextCommand(_transaction, deleteStatement, _options);
+        using var deleteCommand = _connectionContext.Connection.CreateTextCommand(_connectionContext.Transaction, deleteStatement, _options);
 
         var affectedRows = await deleteCommand.ExecuteNonQueryAsync(cancellationToken);
 
@@ -214,11 +211,11 @@ public class BulkDeleteBuilder<T>
 
         Log($"Begin deleting:{Environment.NewLine}{deleteStatement}");
 
-        using var deleteCommand = _connection.CreateTextCommand(_transaction, deleteStatement, _options);
+        using var deleteCommand = _connectionContext.Connection.CreateTextCommand(_connectionContext.Transaction, deleteStatement, _options);
 
         _table.CreateSqlParameters(deleteCommand, dataToDelete, _idColumns).ForEach(x => deleteCommand.Parameters.Add(x));
 
-        await _connection.EnsureOpenAsync(cancellationToken);
+        await _connectionContext.Connection.EnsureOpenAsync(cancellationToken);
 
         var affectedRows = await deleteCommand.ExecuteNonQueryAsync(cancellationToken);
 
