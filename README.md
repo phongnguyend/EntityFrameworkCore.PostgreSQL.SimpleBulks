@@ -165,7 +165,7 @@ await connection.BulkMergeAsync(compositeKeyRows, "CompositeKeyRows",
            [ "Column1", "Column2", "Column3" ],
            [ "Id1", "Id2", "Column1", "Column2", "Column3" ]);
 
-await connection.BulkDeleteAsync(rows, "Rows", "Id");
+await connection.BulkDeleteAsync(rows, "Rows", ["Id"]);
 await connection.BulkDeleteAsync(compositeKeyRows, "CompositeKeyRows", [ "Id1", "Id2" ]);
 ```
 ### Using Builder Approach in case you need to mix both Dynamic & Lambda Expression
