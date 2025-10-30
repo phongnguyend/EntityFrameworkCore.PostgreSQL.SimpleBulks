@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,7 +17,7 @@ public static class IListExtensions
         Timeout = 30,
     };
 
-    public static void SqlBulkCopy<T>(this IEnumerable<T> data, string tableName, IEnumerable<string> propertyNames, IReadOnlyDictionary<string, string> columnNameMappings, bool addIndexNumberColumn, NpgsqlConnection connection, NpgsqlTransaction transaction, BulkOptions options = null, IReadOnlyDictionary<string, ValueConverter> valueConverters = null)
+    public static void SqlBulkCopy<T>(this IEnumerable<T> data, string tableName, IEnumerable<string> propertyNames, IReadOnlyDictionary<string, string> columnNameMappings, bool addIndexNumberColumn, ConnectionContext connectionContext, BulkOptions options = null, IReadOnlyDictionary<string, ValueConverter> valueConverters = null)
     {
         options ??= DefaultBulkOptions;
 
@@ -42,7 +41,7 @@ public static class IListExtensions
 
         var sql = $"COPY {tableName} ({string.Join(',', columnNamesToInsert.Select(x => $"\"{GetDbColumnName(x, columnNameMappings)}\""))}) FROM STDIN (FORMAT binary)";
 
-        using var writer = connection.BeginBinaryImport(sql);
+        using var writer = connectionContext.Connection.BeginBinaryImport(sql);
 
         long idx = 0;
 
@@ -75,7 +74,7 @@ public static class IListExtensions
         writer.Complete();
     }
 
-    public static async Task SqlBulkCopyAsync<T>(this IEnumerable<T> data, string tableName, IEnumerable<string> propertyNames, IReadOnlyDictionary<string, string> columnNameMappings, bool addIndexNumberColumn, NpgsqlConnection connection, NpgsqlTransaction transaction, BulkOptions options = null, IReadOnlyDictionary<string, ValueConverter> valueConverters = null, CancellationToken cancellationToken = default)
+    public static async Task SqlBulkCopyAsync<T>(this IEnumerable<T> data, string tableName, IEnumerable<string> propertyNames, IReadOnlyDictionary<string, string> columnNameMappings, bool addIndexNumberColumn, ConnectionContext connectionContext, BulkOptions options = null, IReadOnlyDictionary<string, ValueConverter> valueConverters = null, CancellationToken cancellationToken = default)
     {
         options ??= DefaultBulkOptions;
 
@@ -99,7 +98,7 @@ public static class IListExtensions
 
         var sql = $"COPY {tableName} ({string.Join(',', columnNamesToInsert.Select(x => $"\"{GetDbColumnName(x, columnNameMappings)}\""))}) FROM STDIN (FORMAT binary)";
 
-        using var writer = await connection.BeginBinaryImportAsync(sql, cancellationToken);
+        using var writer = await connectionContext.Connection.BeginBinaryImportAsync(sql, cancellationToken);
 
         long idx = 0;
 

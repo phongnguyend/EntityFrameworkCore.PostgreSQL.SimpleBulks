@@ -115,7 +115,7 @@ public class BulkMatchBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        machedValues.SqlBulkCopy(temptableName, _matchedColumns, null, false, _connectionContext.Connection, _connectionContext.Transaction, _options, valueConverters: _table.ValueConverters);
+        machedValues.SqlBulkCopy(temptableName, _matchedColumns, null, false, _connectionContext, _options, valueConverters: _table.ValueConverters);
 
         Log("End executing SqlBulkCopy.");
 
@@ -191,7 +191,7 @@ public class BulkMatchBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        await machedValues.SqlBulkCopyAsync(temptableName, _matchedColumns, null, false, _connectionContext.Connection, _connectionContext.Transaction, _options, valueConverters: _table.ValueConverters, cancellationToken: cancellationToken);
+        await machedValues.SqlBulkCopyAsync(temptableName, _matchedColumns, null, false, _connectionContext, _options, valueConverters: _table.ValueConverters, cancellationToken: cancellationToken);
 
         Log("End executing SqlBulkCopy.");
 
