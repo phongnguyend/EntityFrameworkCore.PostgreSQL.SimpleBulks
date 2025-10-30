@@ -12,13 +12,15 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 
 public static class IListExtensions
 {
+    private static readonly BulkOptions DefaultBulkOptions = new BulkOptions()
+    {
+        BatchSize = 0,
+        Timeout = 30,
+    };
+
     public static void SqlBulkCopy<T>(this IEnumerable<T> data, string tableName, IEnumerable<string> propertyNames, IReadOnlyDictionary<string, string> columnNameMappings, bool addIndexNumberColumn, NpgsqlConnection connection, NpgsqlTransaction transaction, BulkOptions options = null, IReadOnlyDictionary<string, ValueConverter> valueConverters = null)
     {
-        options ??= new BulkOptions()
-        {
-            BatchSize = 0,
-            Timeout = 30,
-        };
+        options ??= DefaultBulkOptions;
 
         var properties = TypeDescriptor.GetProperties(typeof(T));
 
@@ -75,11 +77,7 @@ public static class IListExtensions
 
     public static async Task SqlBulkCopyAsync<T>(this IEnumerable<T> data, string tableName, IEnumerable<string> propertyNames, IReadOnlyDictionary<string, string> columnNameMappings, bool addIndexNumberColumn, NpgsqlConnection connection, NpgsqlTransaction transaction, BulkOptions options = null, IReadOnlyDictionary<string, ValueConverter> valueConverters = null, CancellationToken cancellationToken = default)
     {
-        options ??= new BulkOptions()
-        {
-            BatchSize = 0,
-            Timeout = 30,
-        };
+        options ??= DefaultBulkOptions;
 
         var properties = TypeDescriptor.GetProperties(typeof(T));
 
