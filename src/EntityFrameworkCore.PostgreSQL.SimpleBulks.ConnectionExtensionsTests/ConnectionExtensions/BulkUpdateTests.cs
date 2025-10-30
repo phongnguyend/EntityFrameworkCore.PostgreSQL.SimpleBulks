@@ -183,7 +183,7 @@ public class BulkUpdateTests : BaseTest
             if (omitTableName)
             {
                 connectionContext.BulkUpdate(rows,
-                    "Id",
+                    ["Id"],
                     ["Column3", "Column2"],
                     options =>
                     {
@@ -201,7 +201,7 @@ public class BulkUpdateTests : BaseTest
             else
             {
                 connectionContext.BulkUpdate(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
-                    "Id",
+                    ["Id"],
                     ["Column3", "Column2"],
                     options =>
                     {
@@ -242,7 +242,7 @@ public class BulkUpdateTests : BaseTest
             if (omitTableName)
             {
                 connectionContext.BulkMerge(rows,
-                    "Id",
+                    ["Id"],
                     ["Column1", "Column2"],
                     ["Column1", "Column2", "Column3"],
                     options =>
@@ -262,7 +262,7 @@ public class BulkUpdateTests : BaseTest
             else
             {
                 connectionContext.BulkMerge(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
-                    "Id",
+                    ["Id"],
                     ["Column1", "Column2"],
                     ["Column1", "Column2", "Column3"],
                     options =>

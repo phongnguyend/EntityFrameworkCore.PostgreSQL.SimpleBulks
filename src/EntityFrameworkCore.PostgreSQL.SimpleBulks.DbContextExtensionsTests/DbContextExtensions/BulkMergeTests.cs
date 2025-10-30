@@ -212,7 +212,7 @@ public class BulkMergeTests : BaseTest
         }
 
         var result1 = _context.BulkMerge(rows,
-            "Id",
+            ["Id"],
             ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
             ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
             options =>

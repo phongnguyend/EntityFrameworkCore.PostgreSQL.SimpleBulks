@@ -90,7 +90,7 @@ public class BulkDeleteAsyncTests : BaseTest
         {
             if (omitTableName)
             {
-                await connectionContext.BulkDeleteAsync(rows, "Id",
+                await connectionContext.BulkDeleteAsync(rows, ["Id"],
                  options =>
                  {
                      options.LogTo = _output.WriteLine;
@@ -103,7 +103,7 @@ public class BulkDeleteAsyncTests : BaseTest
             }
             else
             {
-                connectionContext.BulkDelete(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"), "Id",
+                connectionContext.BulkDelete(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"), ["Id"],
                 options =>
                 {
                     options.LogTo = _output.WriteLine;

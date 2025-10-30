@@ -79,7 +79,7 @@ await dbct.BulkUpdateAsync(compositeKeyRows,
     [ "Column3", "Column2" ]);
 
 await dbct.BulkMergeAsync(rows,
-    "Id",
+    ["Id"],
     [ "Column1", "Column2" ],
     [ "Column1", "Column2", "Column3" ]);
 await dbct.BulkMergeAsync(compositeKeyRows,
@@ -150,14 +150,14 @@ await connection.BulkInsertAsync(compositeKeyRows, "CompositeKeyRows",
            [ "Id1", "Id2", "Column1", "Column2", "Column3" ]);
 
 await connection.BulkUpdateAsync(rows, "Rows",
-           "Id",
+           ["Id"],
            [ "Column3", "Column2" ]);
 await connection.BulkUpdateAsync(compositeKeyRows, "CompositeKeyRows",
            [ "Id1", "Id2" ],
            [ "Column3", "Column2" ]);
 
 await connection.BulkMergeAsync(rows, "Rows",
-           "Id",
+           ["Id"],
            [ "Column1", "Column2" ],
            [ "Column1", "Column2", "Column3" ]);
 await connection.BulkMergeAsync(compositeKeyRows, "CompositeKeyRows",

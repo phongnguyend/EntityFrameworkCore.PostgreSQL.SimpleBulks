@@ -22,19 +22,6 @@ public static class NpgsqlConnectionAsyncExtensions
             .SingleMergeAsync(data, cancellationToken);
     }
 
-    public static Task<BulkMergeResult> UpsertAsync<T>(this ConnectionContext connectionContext, T data, string idColumn, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, Action<BulkMergeOptions> configureOptions = null, CancellationToken cancellationToken = default)
-    {
-        var table = TableMapper.Resolve(typeof(T));
-
-        return new BulkMergeBuilder<T>(connectionContext)
-            .WithId(idColumn)
-            .WithUpdateColumns(updateColumnNames)
-            .WithInsertColumns(insertColumnNames)
-            .ToTable(table)
-            .ConfigureBulkOptions(configureOptions)
-            .SingleMergeAsync(data, cancellationToken);
-    }
-
     public static Task<BulkMergeResult> UpsertAsync<T>(this ConnectionContext connectionContext, T data, IEnumerable<string> idColumns, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, Action<BulkMergeOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
         var table = TableMapper.Resolve(typeof(T));
@@ -54,17 +41,6 @@ public static class NpgsqlConnectionAsyncExtensions
             .WithId(idSelector)
             .WithUpdateColumns(updateColumnNamesSelector)
             .WithInsertColumns(insertColumnNamesSelector)
-            .ToTable(table)
-            .ConfigureBulkOptions(configureOptions)
-            .SingleMergeAsync(data, cancellationToken);
-    }
-
-    public static Task<BulkMergeResult> UpsertAsync<T>(this ConnectionContext connectionContext, T data, TableInfor table, string idColumn, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, Action<BulkMergeOptions> configureOptions = null, CancellationToken cancellationToken = default)
-    {
-        return new BulkMergeBuilder<T>(connectionContext)
-            .WithId(idColumn)
-            .WithUpdateColumns(updateColumnNames)
-            .WithInsertColumns(insertColumnNames)
             .ToTable(table)
             .ConfigureBulkOptions(configureOptions)
             .SingleMergeAsync(data, cancellationToken);

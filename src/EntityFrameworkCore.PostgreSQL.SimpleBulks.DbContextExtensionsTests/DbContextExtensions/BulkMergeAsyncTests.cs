@@ -212,7 +212,7 @@ public class BulkMergeAsyncTests : BaseTest
         }
 
         var result1 = await _context.BulkMergeAsync(rows,
-            "Id",
+            ["Id"],
             ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
             ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
             options =>
