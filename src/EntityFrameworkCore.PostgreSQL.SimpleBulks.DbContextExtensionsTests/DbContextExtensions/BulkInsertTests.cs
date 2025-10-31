@@ -1,6 +1,6 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Database;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
@@ -46,17 +46,17 @@ public class BulkInsertTests : BaseTest
 
         _context.BulkInsert(rows,
                 row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                });
+              new BulkInsertOptions
+              {
+                  LogTo = _output.WriteLine
+              });
 
         _context.BulkInsert(compositeKeyRows,
-                row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                });
+             row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+              new BulkInsertOptions
+              {
+                  LogTo = _output.WriteLine
+              });
 
 
         // Assert
@@ -116,18 +116,18 @@ public class BulkInsertTests : BaseTest
         }
 
         _context.BulkInsert(rows,
-                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                });
+    row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+  new BulkInsertOptions
+  {
+      LogTo = _output.WriteLine
+  });
 
         _context.BulkInsert(compositeKeyRows,
-                row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                });
+    row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+              new BulkInsertOptions
+              {
+                  LogTo = _output.WriteLine
+              });
 
         tran.Commit();
 
@@ -188,10 +188,10 @@ public class BulkInsertTests : BaseTest
         }
 
         _context.BulkInsert(rows,
-                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString });
+     row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString });
 
         _context.BulkInsert(compositeKeyRows,
-                row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString });
+               row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString });
 
         tran.Rollback();
 
@@ -222,10 +222,10 @@ public class BulkInsertTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
+        _context.BulkInsert(configurationEntries, new BulkInsertOptions
         {
-            options.KeepIdentity = true;
-            options.LogTo = _output.WriteLine;
+            KeepIdentity = true,
+            LogTo = _output.WriteLine
         });
 
         // Assert
@@ -260,9 +260,9 @@ public class BulkInsertTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
+        _context.BulkInsert(configurationEntries, new BulkInsertOptions
         {
-            options.LogTo = _output.WriteLine;
+            LogTo = _output.WriteLine
         });
 
         // Assert

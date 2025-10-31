@@ -1,6 +1,6 @@
-﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
+﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Database;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.TempTable;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Database;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
@@ -76,9 +76,9 @@ public class TempTableTests : BaseTest
                    x.LastName,
                    x.CurrentCountryIsoCode
                },
-               options =>
+               new TempTableOptions
                {
-                   options.LogTo = _output.WriteLine;
+                   LogTo = _output.WriteLine
                });
 
         string sql = $"select * from {tableName}";
@@ -117,9 +117,9 @@ public class TempTableTests : BaseTest
                 x.LastName,
                 x.CurrentCountryIsoCode
             },
-            options =>
+            new TempTableOptions
             {
-                options.LogTo = _output.WriteLine;
+                LogTo = _output.WriteLine
             });
 
         var contactTableName = _context.CreateTempTable(_contacts,
@@ -130,9 +130,9 @@ public class TempTableTests : BaseTest
                             x.CustomerIdNumber,
                             x.CountryIsoCode
                         },
-                        options =>
+                        new TempTableOptions
                         {
-                            options.LogTo = _output.WriteLine;
+                            LogTo = _output.WriteLine
                         });
 
         string sql = $"select * from {contactTableName} contact join {customerTableName} customer on contact.\"CustomerIdNumber\" = customer.\"IdNumber\"";
@@ -184,9 +184,9 @@ public class TempTableTests : BaseTest
         // Act
         var tableName = _context.CreateTempTable(_customers,
                ["IdNumber", "FirstName", "LastName", "CurrentCountryIsoCode"],
-               options =>
+               new TempTableOptions
                {
-                   options.LogTo = _output.WriteLine;
+                   LogTo = _output.WriteLine
                });
 
         string sql = $"select * from {tableName}";
@@ -221,16 +221,16 @@ public class TempTableTests : BaseTest
         // Act
         var customerTableName = _context.CreateTempTable(_customers,
                ["IdNumber", "FirstName", "LastName", "CurrentCountryIsoCode"],
-               options =>
+               new TempTableOptions
                {
-                   options.LogTo = _output.WriteLine;
+                   LogTo = _output.WriteLine
                });
 
         var contactTableName = _context.CreateTempTable(_contacts,
                ["EmailAddress", "PhoneNumber", "CustomerIdNumber", "CountryIsoCode"],
-               options =>
+               new TempTableOptions
                {
-                   options.LogTo = _output.WriteLine;
+                   LogTo = _output.WriteLine
                });
 
         string sql = $"select * from {contactTableName} contact join {customerTableName} customer on contact.\"CustomerIdNumber\" = customer.\"IdNumber\"";
@@ -310,16 +310,16 @@ public class TempTableTests : BaseTest
         // Act
         var customerTableName = _context.CreateTempTable(customers,
                ["Id", "FirstName", "LastName", "Index"],
-               options =>
+               new TempTableOptions
                {
-                   options.LogTo = _output.WriteLine;
+                   LogTo = _output.WriteLine
                });
 
         var contactTableName = _context.CreateTempTable(contacts,
                ["CustomerId", "EmailAddress", "PhoneNumber", "Index"],
-               options =>
+               new TempTableOptions
                {
-                   options.LogTo = _output.WriteLine;
+                   LogTo = _output.WriteLine
                });
 
         var tempCustomers = _context.Customers.FromSqlRaw($"select * from {customerTableName}").Where(x => x.Index > 10 && x.Index < 20);
@@ -374,12 +374,12 @@ public class TempTableTests : BaseTest
         // Act
         var tableName = _context.CreateTempTable(configurationEntries,
                ["Id", "Key", "Value"],
-               options =>
+               new TempTableOptions
                {
-                   options.LogTo = _output.WriteLine;
+                   LogTo = _output.WriteLine
                });
 
-        var configurationEntriesDb = _context.Set<ConfigurationEntry>().FromSqlRaw($"select * from {tableName}").Select(x => new { x.Id, x.Key, x.Value }).ToList();
+        var configurationEntriesDb = _context.Set<ConfigurationEntry>().FromSql($"select * from {tableName}").Select(x => new { x.Id, x.Key, x.Value }).ToList();
 
         // Assert
         Assert.Equal(configurationEntries.Count, configurationEntriesDb.Count);

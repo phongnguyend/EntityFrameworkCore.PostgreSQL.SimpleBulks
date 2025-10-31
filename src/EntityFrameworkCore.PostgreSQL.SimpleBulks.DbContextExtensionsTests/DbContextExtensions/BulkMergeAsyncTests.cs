@@ -1,7 +1,7 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Database;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
@@ -110,19 +110,19 @@ public class BulkMergeAsyncTests : BaseTest
             row => row.Id,
             row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
             row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-            options =>
+            new BulkMergeOptions
             {
-                options.LogTo = _output.WriteLine;
-                options.ReturnDbGeneratedId = true;
+                LogTo = _output.WriteLine,
+                ReturnDbGeneratedId = true
             });
 
         var result2 = await _context.BulkMergeAsync(compositeKeyRows,
             row => new { row.Id1, row.Id2 },
             row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
             row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-            options =>
+            new BulkMergeOptions
             {
-                options.LogTo = _output.WriteLine;
+                LogTo = _output.WriteLine
             });
 
         tran.Commit();
@@ -212,22 +212,22 @@ public class BulkMergeAsyncTests : BaseTest
         }
 
         var result1 = await _context.BulkMergeAsync(rows,
-            ["Id"],
-            ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-            ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-                options.ReturnDbGeneratedId = true;
-            });
+        ["Id"],
+       ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+          ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+     new BulkMergeOptions
+     {
+         LogTo = _output.WriteLine,
+         ReturnDbGeneratedId = true
+     });
         var result2 = await _context.BulkMergeAsync(compositeKeyRows,
-            ["Id1", "Id2"],
-            ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-            ["Id1", "Id2", "Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-            });
+               ["Id1", "Id2"],
+               ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+      ["Id1", "Id2", "Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+        new BulkMergeOptions
+        {
+            LogTo = _output.WriteLine
+        });
 
         tran.Commit();
 
@@ -281,10 +281,10 @@ public class BulkMergeAsyncTests : BaseTest
             });
         }
 
-        await _context.BulkInsertAsync(configurationEntries, options =>
-          {
-              options.LogTo = _output.WriteLine;
-          });
+        await _context.BulkInsertAsync(configurationEntries, new BulkInsertOptions
+        {
+            LogTo = _output.WriteLine
+        });
 
         foreach (var entry in configurationEntries)
         {
@@ -304,13 +304,13 @@ public class BulkMergeAsyncTests : BaseTest
         }
 
         var result = await _context.BulkMergeAsync(configurationEntries,
-             x => x.Id,
-             x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
-             x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
-             options =>
-             {
-                 options.LogTo = _output.WriteLine;
-             });
+  x => x.Id,
+  x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
+   x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
+     new BulkMergeOptions
+     {
+         LogTo = _output.WriteLine
+     });
 
         // Assert
         var configurationEntriesInDb = _context.Set<ConfigurationEntry>().AsNoTracking().ToList();
@@ -349,10 +349,10 @@ public class BulkMergeAsyncTests : BaseTest
             });
         }
 
-        await _context.BulkInsertAsync(configurationEntries, options =>
-          {
-              options.LogTo = _output.WriteLine;
-          });
+        await _context.BulkInsertAsync(configurationEntries, new BulkInsertOptions
+        {
+            LogTo = _output.WriteLine
+        });
 
         foreach (var entry in configurationEntries)
         {
@@ -372,13 +372,13 @@ public class BulkMergeAsyncTests : BaseTest
         }
 
         var result = await _context.BulkMergeAsync(configurationEntries,
-             x => x.Id,
-             x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
+        x => x.Id,
+ x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
              x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
-             options =>
+             new BulkMergeOptions
              {
-                 options.ReturnDbGeneratedId = false;
-                 options.LogTo = _output.WriteLine;
+                 ReturnDbGeneratedId = false,
+                 LogTo = _output.WriteLine
              });
 
         // Assert
@@ -429,10 +429,10 @@ public class BulkMergeAsyncTests : BaseTest
             });
         }
 
-        await _context.BulkInsertAsync(configurationEntries, options =>
-         {
-             options.LogTo = _output.WriteLine;
-         });
+        await _context.BulkInsertAsync(configurationEntries, new BulkInsertOptions
+        {
+            LogTo = _output.WriteLine
+        });
 
         foreach (var entry in configurationEntries)
         {
@@ -452,13 +452,13 @@ public class BulkMergeAsyncTests : BaseTest
         }
 
         var result = await _context.BulkMergeAsync(configurationEntries,
-             x => x.Id,
+  x => x.Id,
              x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
-             x => new { },
-             options =>
-             {
-                 options.LogTo = _output.WriteLine;
-             });
+       x => new { },
+       new BulkMergeOptions
+       {
+           LogTo = _output.WriteLine
+       });
 
         // Assert
         var configurationEntriesInDb = _context.Set<ConfigurationEntry>().AsNoTracking().ToList();
@@ -498,10 +498,10 @@ public class BulkMergeAsyncTests : BaseTest
             });
         }
 
-        await _context.BulkInsertAsync(configurationEntries, options =>
-         {
-             options.LogTo = _output.WriteLine;
-         });
+        await _context.BulkInsertAsync(configurationEntries, new BulkInsertOptions
+        {
+            LogTo = _output.WriteLine
+        });
 
         foreach (var entry in configurationEntries)
         {
@@ -521,13 +521,13 @@ public class BulkMergeAsyncTests : BaseTest
         }
 
         var result = await _context.BulkMergeAsync(configurationEntries,
-             x => x.Id,
-             x => new { },
+    x => x.Id,
+  x => new { },
              x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
-             options =>
-             {
-                 options.LogTo = _output.WriteLine;
-             });
+ new BulkMergeOptions
+ {
+     LogTo = _output.WriteLine
+ });
 
         // Assert
         var configurationEntriesInDb = _context.Set<ConfigurationEntry>().AsNoTracking().ToList();
@@ -577,10 +577,10 @@ public class BulkMergeAsyncTests : BaseTest
             });
         }
 
-        await _context.BulkInsertAsync(configurationEntries, options =>
-         {
-             options.LogTo = _output.WriteLine;
-         });
+        await _context.BulkInsertAsync(configurationEntries, new BulkInsertOptions
+        {
+            LogTo = _output.WriteLine
+        });
 
         foreach (var entry in configurationEntries)
         {
@@ -600,13 +600,13 @@ public class BulkMergeAsyncTests : BaseTest
         }
 
         var result = await _context.BulkMergeAsync(configurationEntries,
-             x => x.Id,
+       x => x.Id,
              x => new { },
-             x => new { },
-             options =>
-             {
-                 options.LogTo = _output.WriteLine;
-             });
+       x => new { },
+    new BulkMergeOptions
+    {
+        LogTo = _output.WriteLine
+    });
 
         // Assert
         var configurationEntriesInDb = _context.Set<ConfigurationEntry>().AsNoTracking().ToList();

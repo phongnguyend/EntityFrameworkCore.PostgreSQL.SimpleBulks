@@ -61,13 +61,9 @@ public class BulkInsertBuilder<T>
         return this;
     }
 
-    public BulkInsertBuilder<T> ConfigureBulkOptions(Action<BulkInsertOptions> configureOptions)
+    public BulkInsertBuilder<T> WithBulkOptions(BulkInsertOptions options)
     {
-        _options = new BulkInsertOptions();
-        if (configureOptions != null)
-        {
-            configureOptions(_options);
-        }
+        _options = options ?? BulkInsertOptions.DefaultOptions;
         return this;
     }
 

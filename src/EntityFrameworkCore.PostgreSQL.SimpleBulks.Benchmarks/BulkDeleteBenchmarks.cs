@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Benchmarks.Database;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkDelete;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 using Microsoft.EntityFrameworkCore;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Benchmarks;
@@ -65,10 +65,10 @@ public class BulkDeleteBenchmarks1
     public void BulkDelete()
     {
         _context.BulkDelete(_customersToDelete,
-            opt =>
-            {
-                opt.Timeout = 0;
-            });
+     new BulkDeleteOptions
+     {
+         Timeout = 0
+     });
     }
 }
 
@@ -123,9 +123,9 @@ public class BulkDeleteBenchmarks2
     public void BulkDelete()
     {
         _context.BulkDelete(_customersToDelete,
-            opt =>
-            {
-                opt.Timeout = 0;
-            });
+      new BulkDeleteOptions
+      {
+          Timeout = 0
+      });
     }
 }

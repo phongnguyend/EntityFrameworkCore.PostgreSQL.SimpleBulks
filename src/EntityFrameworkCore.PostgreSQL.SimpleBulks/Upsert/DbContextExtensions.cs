@@ -9,7 +9,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Upsert;
 
 public static class DbContextExtensions
 {
-    public static BulkMergeResult Upsert<T>(this DbContext dbContext, T data, Expression<Func<T, object>> idSelector, Expression<Func<T, object>> updateColumnNamesSelector, Expression<Func<T, object>> insertColumnNamesSelector, Action<BulkMergeOptions> configureOptions = null)
+    public static BulkMergeResult Upsert<T>(this DbContext dbContext, T data, Expression<Func<T, object>> idSelector, Expression<Func<T, object>> updateColumnNamesSelector, Expression<Func<T, object>> insertColumnNamesSelector, BulkMergeOptions options = null)
     {
         var connectionContext = dbContext.GetConnectionContext();
         var outputIdColumn = dbContext.GetOutputId(typeof(T))?.PropertyName;
@@ -20,11 +20,11 @@ public static class DbContextExtensions
              .WithInsertColumns(insertColumnNamesSelector)
              .WithOutputId(outputIdColumn)
              .ToTable(dbContext.GetTableInfor(typeof(T)))
-             .ConfigureBulkOptions(configureOptions)
+             .WithBulkOptions(options)
              .SingleMerge(data);
     }
 
-    public static BulkMergeResult Upsert<T>(this DbContext dbContext, T data, IEnumerable<string> idColumns, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, Action<BulkMergeOptions> configureOptions = null)
+    public static BulkMergeResult Upsert<T>(this DbContext dbContext, T data, IEnumerable<string> idColumns, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, BulkMergeOptions options = null)
     {
         var connectionContext = dbContext.GetConnectionContext();
         var outputIdColumn = dbContext.GetOutputId(typeof(T))?.PropertyName;
@@ -35,7 +35,7 @@ public static class DbContextExtensions
             .WithInsertColumns(insertColumnNames)
             .WithOutputId(outputIdColumn)
             .ToTable(dbContext.GetTableInfor(typeof(T)))
-            .ConfigureBulkOptions(configureOptions)
+            .WithBulkOptions(options)
             .SingleMerge(data);
     }
 }

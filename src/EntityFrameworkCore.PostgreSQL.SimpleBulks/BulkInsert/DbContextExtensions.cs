@@ -8,31 +8,31 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 
 public static class DbContextExtensions
 {
-    public static void BulkInsert<T>(this DbContext dbContext, IEnumerable<T> data, Action<BulkInsertOptions> configureOptions = null)
+    public static void BulkInsert<T>(this DbContext dbContext, IEnumerable<T> data, BulkInsertOptions options = null)
     {
         var connectionContext = dbContext.GetConnectionContext();
         var idColumn = dbContext.GetOutputId(typeof(T));
 
         new BulkInsertBuilder<T>(connectionContext)
-          .WithColumns(dbContext.GetInsertablePropertyNames(typeof(T)))
-       .ToTable(dbContext.GetTableInfor(typeof(T)))
-        .WithOutputId(idColumn?.PropertyName)
-         .WithOutputIdMode(GetOutputIdMode(idColumn))
-     .ConfigureBulkOptions(configureOptions)
-     .Execute(data);
+               .WithColumns(dbContext.GetInsertablePropertyNames(typeof(T)))
+         .ToTable(dbContext.GetTableInfor(typeof(T)))
+           .WithOutputId(idColumn?.PropertyName)
+              .WithOutputIdMode(GetOutputIdMode(idColumn))
+          .WithBulkOptions(options)
+          .Execute(data);
     }
 
-    public static void BulkInsert<T>(this DbContext dbContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, Action<BulkInsertOptions> configureOptions = null)
+    public static void BulkInsert<T>(this DbContext dbContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, BulkInsertOptions options = null)
     {
         var connectionContext = dbContext.GetConnectionContext();
         var idColumn = dbContext.GetOutputId(typeof(T));
 
         new BulkInsertBuilder<T>(connectionContext)
      .WithColumns(columnNamesSelector)
-              .ToTable(dbContext.GetTableInfor(typeof(T)))
-           .WithOutputId(idColumn?.PropertyName)
+      .ToTable(dbContext.GetTableInfor(typeof(T)))
+       .WithOutputId(idColumn?.PropertyName)
         .WithOutputIdMode(GetOutputIdMode(idColumn))
-       .ConfigureBulkOptions(configureOptions)
+       .WithBulkOptions(options)
         .Execute(data);
     }
 

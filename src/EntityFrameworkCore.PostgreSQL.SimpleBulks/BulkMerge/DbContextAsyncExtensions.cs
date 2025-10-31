@@ -10,33 +10,33 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
 
 public static class DbContextAsyncExtensions
 {
-    public static Task<BulkMergeResult> BulkMergeAsync<T>(this DbContext dbContext, IEnumerable<T> data, Expression<Func<T, object>> idSelector, Expression<Func<T, object>> updateColumnNamesSelector, Expression<Func<T, object>> insertColumnNamesSelector, Action<BulkMergeOptions> configureOptions = null, CancellationToken cancellationToken = default)
+    public static Task<BulkMergeResult> BulkMergeAsync<T>(this DbContext dbContext, IEnumerable<T> data, Expression<Func<T, object>> idSelector, Expression<Func<T, object>> updateColumnNamesSelector, Expression<Func<T, object>> insertColumnNamesSelector, BulkMergeOptions options = null, CancellationToken cancellationToken = default)
     {
         var connectionContext = dbContext.GetConnectionContext();
         var outputIdColumn = dbContext.GetOutputId(typeof(T))?.PropertyName;
 
         return new BulkMergeBuilder<T>(connectionContext)
-             .WithId(idSelector)
-             .WithUpdateColumns(updateColumnNamesSelector)
-             .WithInsertColumns(insertColumnNamesSelector)
-             .WithOutputId(outputIdColumn)
-             .ToTable(dbContext.GetTableInfor(typeof(T)))
-             .ConfigureBulkOptions(configureOptions)
-             .ExecuteAsync(data, cancellationToken);
+        .WithId(idSelector)
+         .WithUpdateColumns(updateColumnNamesSelector)
+        .WithInsertColumns(insertColumnNamesSelector)
+    .WithOutputId(outputIdColumn)
+         .ToTable(dbContext.GetTableInfor(typeof(T)))
+       .WithBulkOptions(options)
+   .ExecuteAsync(data, cancellationToken);
     }
 
-    public static Task<BulkMergeResult> BulkMergeAsync<T>(this DbContext dbContext, IEnumerable<T> data, IEnumerable<string> idColumns, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, Action<BulkMergeOptions> configureOptions = null, CancellationToken cancellationToken = default)
+    public static Task<BulkMergeResult> BulkMergeAsync<T>(this DbContext dbContext, IEnumerable<T> data, IEnumerable<string> idColumns, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, BulkMergeOptions options = null, CancellationToken cancellationToken = default)
     {
         var connectionContext = dbContext.GetConnectionContext();
         var outputIdColumn = dbContext.GetOutputId(typeof(T))?.PropertyName;
 
         return new BulkMergeBuilder<T>(connectionContext)
-            .WithId(idColumns)
-            .WithUpdateColumns(updateColumnNames)
-            .WithInsertColumns(insertColumnNames)
-            .WithOutputId(outputIdColumn)
-            .ToTable(dbContext.GetTableInfor(typeof(T)))
-            .ConfigureBulkOptions(configureOptions)
-            .ExecuteAsync(data, cancellationToken);
+           .WithId(idColumns)
+         .WithUpdateColumns(updateColumnNames)
+           .WithInsertColumns(insertColumnNames)
+         .WithOutputId(outputIdColumn)
+        .ToTable(dbContext.GetTableInfor(typeof(T)))
+            .WithBulkOptions(options)
+           .ExecuteAsync(data, cancellationToken);
     }
 }

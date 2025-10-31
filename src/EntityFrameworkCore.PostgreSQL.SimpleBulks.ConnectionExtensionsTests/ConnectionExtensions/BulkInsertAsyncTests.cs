@@ -1,6 +1,6 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.ConnectionExtensionsTests.Database;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
@@ -55,16 +55,16 @@ public class BulkInsertAsyncTests : BaseTest
                 await connectionContext.BulkInsertAsync(rows,
                       row => new { row.Column1, row.Column2, row.Column3 },
                       row => row.Id,
-                      options =>
+                      new BulkInsertOptions
                       {
-                          options.LogTo = _output.WriteLine;
+                          LogTo = _output.WriteLine
                       });
 
                 await connectionContext.BulkInsertAsync(compositeKeyRows,
                       row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 },
-                      options =>
+                      new BulkInsertOptions
                       {
-                          options.LogTo = _output.WriteLine;
+                          LogTo = _output.WriteLine
                       });
             }
             else
@@ -72,16 +72,16 @@ public class BulkInsertAsyncTests : BaseTest
                 await connectionContext.BulkInsertAsync(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
                      row => new { row.Column1, row.Column2, row.Column3 },
                      row => row.Id,
-                     options =>
+                     new BulkInsertOptions
                      {
-                         options.LogTo = _output.WriteLine;
+                         LogTo = _output.WriteLine
                      });
 
                 await connectionContext.BulkInsertAsync(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
                       row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 },
-                      options =>
+                      new BulkInsertOptions
                       {
-                          options.LogTo = _output.WriteLine;
+                          LogTo = _output.WriteLine
                       });
             }
 
@@ -93,16 +93,16 @@ public class BulkInsertAsyncTests : BaseTest
                 await connectionContext.BulkInsertAsync(rows,
                      ["Column1", "Column2", "Column3"],
                      "Id",
-                     options =>
+                     new BulkInsertOptions
                      {
-                         options.LogTo = _output.WriteLine;
+                         LogTo = _output.WriteLine
                      });
 
                 await connectionContext.BulkInsertAsync(compositeKeyRows,
                      ["Id1", "Id2", "Column1", "Column2", "Column3"],
-                     options =>
+                     new BulkInsertOptions
                      {
-                         options.LogTo = _output.WriteLine;
+                         LogTo = _output.WriteLine
                      });
             }
             else
@@ -110,16 +110,16 @@ public class BulkInsertAsyncTests : BaseTest
                 await connectionContext.BulkInsertAsync(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
                       ["Column1", "Column2", "Column3"],
                       "Id",
-                      options =>
+                      new BulkInsertOptions
                       {
-                          options.LogTo = _output.WriteLine;
+                          LogTo = _output.WriteLine
                       });
 
                 await connectionContext.BulkInsertAsync(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
                       ["Id1", "Id2", "Column1", "Column2", "Column3"],
-                      options =>
+                      new BulkInsertOptions
                       {
-                          options.LogTo = _output.WriteLine;
+                          LogTo = _output.WriteLine
                       });
             }
 

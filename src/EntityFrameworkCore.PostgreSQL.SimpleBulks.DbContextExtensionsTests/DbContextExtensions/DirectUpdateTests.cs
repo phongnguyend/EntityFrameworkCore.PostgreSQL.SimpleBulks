@@ -1,7 +1,8 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Database;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.DirectUpdate;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Database;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
@@ -79,16 +80,16 @@ public class DirectUpdateTests : BaseTest
 
         var updateResult1 = _context.DirectUpdate(row,
                 row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
-                options =>
+                new BulkUpdateOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
 
         var updateResult2 = _context.DirectUpdate(compositeKeyRow,
                 row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
-                options =>
+                new BulkUpdateOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
 
         tran.Commit();
@@ -145,17 +146,17 @@ public class DirectUpdateTests : BaseTest
 
         var updateResult1 = _context.DirectUpdate(row,
               ["Column3", "Column2", "Season", "SeasonAsString"],
-         options =>
-   {
-       options.LogTo = _output.WriteLine;
-   });
+              new BulkUpdateOptions
+              {
+                  LogTo = _output.WriteLine
+              });
 
         var updateResult2 = _context.DirectUpdate(compositeKeyRow,
             ["Column3", "Column2", "Season", "SeasonAsString"],
-  options =>
-       {
-           options.LogTo = _output.WriteLine;
-       });
+          new BulkUpdateOptions
+          {
+              LogTo = _output.WriteLine
+          });
 
         tran.Commit();
 

@@ -81,10 +81,10 @@ public class BulkMergeReturnDbGeneratedIdBenchmarks1
             x => x.Id,
             x => new { x.FirstName },
             x => new { x.FirstName, x.LastName, x.Index },
-            opt =>
+            new BulkMergeOptions
             {
-                opt.Timeout = 0;
-                opt.ReturnDbGeneratedId = true;
+                Timeout = 0,
+                ReturnDbGeneratedId = true
             });
     }
 
@@ -95,10 +95,10 @@ public class BulkMergeReturnDbGeneratedIdBenchmarks1
             x => x.Id,
             x => new { x.FirstName },
             x => new { x.FirstName, x.LastName, x.Index },
-            opt =>
+            new BulkMergeOptions
             {
-                opt.Timeout = 0;
-                opt.ReturnDbGeneratedId = false;
+                Timeout = 0,
+                ReturnDbGeneratedId = false
             });
     }
 }
@@ -178,10 +178,10 @@ public class BulkMergeReturnDbGeneratedIdBenchmarks2
             x => x.Id,
             x => new { x.FirstName },
             x => new { x.FirstName, x.LastName, x.Index },
-            opt =>
+            new BulkMergeOptions
             {
-                opt.Timeout = 0;
-                opt.ReturnDbGeneratedId = true;
+                Timeout = 0,
+                ReturnDbGeneratedId = true
             });
     }
 
@@ -192,10 +192,10 @@ public class BulkMergeReturnDbGeneratedIdBenchmarks2
             x => x.Id,
             x => new { x.FirstName },
             x => new { x.FirstName, x.LastName, x.Index },
-            opt =>
+            new BulkMergeOptions
             {
-                opt.Timeout = 0;
-                opt.ReturnDbGeneratedId = false;
+                Timeout = 0,
+                ReturnDbGeneratedId = false
             });
     }
 }

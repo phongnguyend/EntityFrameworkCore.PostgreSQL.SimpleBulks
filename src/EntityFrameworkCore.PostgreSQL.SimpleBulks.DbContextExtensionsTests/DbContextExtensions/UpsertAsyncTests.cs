@@ -4,6 +4,7 @@ using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Databa
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.DbContextExtensions;
 
@@ -14,7 +15,7 @@ public class UpsertAsyncTests : BaseTest
     {
     }
 
-    private void SeedData(int length)
+    private async Task SeedData(int length)
     {
         var tran = _context.Database.BeginTransaction();
 
@@ -44,11 +45,11 @@ public class UpsertAsyncTests : BaseTest
             });
         }
 
-        _context.BulkInsert(rows,
-                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString });
+        await _context.BulkInsertAsync(rows,
+         row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString });
 
-        _context.BulkInsert(compositeKeyRows,
-                row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString });
+        await _context.BulkInsertAsync(compositeKeyRows,
+        row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString });
 
         tran.Commit();
     }
@@ -58,7 +59,7 @@ public class UpsertAsyncTests : BaseTest
     [InlineData(100)]
     public async Task Upsert_Existing_Using_Linq_With_Transaction(int length)
     {
-        SeedData(length);
+        await SeedData(length);
 
         var tran = _context.Database.BeginTransaction();
 
@@ -81,23 +82,23 @@ public class UpsertAsyncTests : BaseTest
         existingCompositeKeyRows.SeasonAsString = Season.Spring;
 
         var result1 = await _context.UpsertAsync(existingRow,
-                row => row.Id,
+               row => row.Id,
                 row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                    options.ReturnDbGeneratedId = true;
-                });
+              row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+                      new BulkMergeOptions
+                      {
+                          LogTo = _output.WriteLine,
+                          ReturnDbGeneratedId = true
+                      });
 
         var result2 = await _context.UpsertAsync(existingCompositeKeyRows,
-                row => new { row.Id1, row.Id2 },
-                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                });
+   row => new { row.Id1, row.Id2 },
+     row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+       row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+        new BulkMergeOptions
+        {
+            LogTo = _output.WriteLine
+        });
 
         tran.Commit();
 
@@ -146,7 +147,7 @@ public class UpsertAsyncTests : BaseTest
     [InlineData(100)]
     public async Task Upsert_NonExisting_Using_Linq_With_Transaction(int length)
     {
-        SeedData(length);
+        await SeedData(length);
 
         var tran = _context.Database.BeginTransaction();
 
@@ -174,23 +175,23 @@ public class UpsertAsyncTests : BaseTest
         };
 
         var result1 = await _context.UpsertAsync(newRow,
-                row => row.Id,
-                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                    options.ReturnDbGeneratedId = true;
-                });
+            row => row.Id,
+            row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+          row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+          new BulkMergeOptions
+          {
+              LogTo = _output.WriteLine,
+              ReturnDbGeneratedId = true
+          });
 
         var result2 = await _context.UpsertAsync(newCompositeKeyRow,
-                row => new { row.Id1, row.Id2 },
-                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                });
+       row => new { row.Id1, row.Id2 },
+    row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+         row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+       new BulkMergeOptions
+       {
+           LogTo = _output.WriteLine
+       });
 
         tran.Commit();
 
@@ -236,7 +237,7 @@ public class UpsertAsyncTests : BaseTest
     [InlineData(100)]
     public async Task Upsert_Existing_Using_Dynamic_String_With_Transaction(int length)
     {
-        SeedData(length);
+        await SeedData(length);
 
         var tran = _context.Database.BeginTransaction();
 
@@ -250,7 +251,6 @@ public class UpsertAsyncTests : BaseTest
         existingRow.Season = Season.Spring;
         existingRow.SeasonAsString = Season.Spring;
 
-
         var existingCompositeKeyRows = compositeKeyRows.First();
 
         existingCompositeKeyRows.Column2 = "abc";
@@ -262,20 +262,20 @@ public class UpsertAsyncTests : BaseTest
             ["Id"],
             ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
             ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-            options =>
+            new BulkMergeOptions
             {
-                options.LogTo = _output.WriteLine;
-                options.ReturnDbGeneratedId = true;
+                LogTo = _output.WriteLine,
+                ReturnDbGeneratedId = true
             });
 
         var result2 = await _context.UpsertAsync(existingCompositeKeyRows,
             ["Id1", "Id2"],
-            ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-            ["Id1", "Id2", "Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-            });
+          ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+  ["Id1", "Id2", "Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+new BulkMergeOptions
+{
+    LogTo = _output.WriteLine
+});
 
         tran.Commit();
 
@@ -324,7 +324,7 @@ public class UpsertAsyncTests : BaseTest
     [InlineData(100)]
     public async Task Upsert_NonExisting_Using_Dynamic_String_With_Transaction(int length)
     {
-        SeedData(length);
+        await SeedData(length);
 
         var tran = _context.Database.BeginTransaction();
 
@@ -352,23 +352,23 @@ public class UpsertAsyncTests : BaseTest
         };
 
         var result1 = await _context.UpsertAsync(newRow,
-            ["Id"],
-            ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-            ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-                options.ReturnDbGeneratedId = true;
-            });
+              ["Id"],
+          ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+           ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+       new BulkMergeOptions
+       {
+           LogTo = _output.WriteLine,
+           ReturnDbGeneratedId = true
+       });
 
         var result2 = await _context.UpsertAsync(newCompositeKeyRow,
-            ["Id1", "Id2"],
+        ["Id1", "Id2"],
             ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-            ["Id1", "Id2", "Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-            });
+   ["Id1", "Id2", "Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+       new BulkMergeOptions
+       {
+           LogTo = _output.WriteLine
+       });
 
         tran.Commit();
 
@@ -428,11 +428,10 @@ public class UpsertAsyncTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
+        await _context.BulkInsertAsync(configurationEntries, new BulkInsertOptions
         {
-            options.LogTo = _output.WriteLine;
+            LogTo = _output.WriteLine
         });
-
 
         for (int i = length; i < length * 2; i++)
         {
@@ -447,13 +446,13 @@ public class UpsertAsyncTests : BaseTest
             configurationEntries.Add(row);
 
             var result = await _context.UpsertAsync(row,
-                x => x.Id,
-                x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
-                x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                });
+                 x => x.Id,
+               x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
+               x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
+                    new BulkMergeOptions
+                    {
+                        LogTo = _output.WriteLine
+                    });
 
             Assert.Equal(1, result.AffectedRows);
             Assert.Equal(1, result.InsertedRows);
@@ -495,9 +494,9 @@ public class UpsertAsyncTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
+        await _context.BulkInsertAsync(configurationEntries, new BulkInsertOptions
         {
-            options.LogTo = _output.WriteLine;
+            LogTo = _output.WriteLine
         });
 
         for (int i = length; i < length * 2; i++)
@@ -513,14 +512,14 @@ public class UpsertAsyncTests : BaseTest
             configurationEntries.Add(row);
 
             var result = await _context.UpsertAsync(row,
-                x => x.Id,
-                x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
-                x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
-                options =>
-                {
-                    options.ReturnDbGeneratedId = false;
-                    options.LogTo = _output.WriteLine;
-                });
+            x => x.Id,
+          x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
+        x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
+                    new BulkMergeOptions
+                    {
+                        ReturnDbGeneratedId = false,
+                        LogTo = _output.WriteLine
+                    });
 
             Assert.Equal(1, result.AffectedRows);
             Assert.Equal(1, result.InsertedRows);
@@ -572,9 +571,9 @@ public class UpsertAsyncTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
+        await _context.BulkInsertAsync(configurationEntries, new BulkInsertOptions
         {
-            options.LogTo = _output.WriteLine;
+            LogTo = _output.WriteLine
         });
 
         var entry = configurationEntries.First();
@@ -582,13 +581,13 @@ public class UpsertAsyncTests : BaseTest
         entry.UpdatedDateTime = DateTimeOffset.Now;
 
         var result = await _context.UpsertAsync(entry,
-             x => x.Id,
-             x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
-             x => new { },
-             options =>
-             {
-                 options.LogTo = _output.WriteLine;
-             });
+        x => x.Id,
+                   x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
+                x => new { },
+                   new BulkMergeOptions
+                   {
+                       LogTo = _output.WriteLine
+                   });
 
         // Assert
         var configurationEntriesInDb = _context.Set<ConfigurationEntry>().AsNoTracking().ToList();
@@ -630,10 +629,10 @@ public class UpsertAsyncTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
-              {
-                  options.LogTo = _output.WriteLine;
-              });
+        await _context.BulkInsertAsync(configurationEntries, new BulkInsertOptions
+        {
+            LogTo = _output.WriteLine
+        });
 
         var entry = configurationEntries.First();
         entry.Description = "Updated";
@@ -641,12 +640,12 @@ public class UpsertAsyncTests : BaseTest
 
         var result = await _context.UpsertAsync(entry,
             x => x.Id,
-            x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
-            x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-            });
+      x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
+      x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
+   new BulkMergeOptions
+   {
+       LogTo = _output.WriteLine
+   });
 
         // Assert
         var configurationEntriesInDb = _context.Set<ConfigurationEntry>().AsNoTracking().ToList();
@@ -689,10 +688,10 @@ public class UpsertAsyncTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
-     {
-         options.LogTo = _output.WriteLine;
-     });
+        await _context.BulkInsertAsync(configurationEntries, new BulkInsertOptions
+        {
+            LogTo = _output.WriteLine
+        });
 
         for (int i = length; i < length * 2; i++)
         {
@@ -707,13 +706,13 @@ public class UpsertAsyncTests : BaseTest
             configurationEntries.Add(row);
 
             var result = await _context.UpsertAsync(row,
-                x => x.Id,
-                x => new { },
-                x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                });
+        x => x.Id,
+             x => new { },
+             x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
+             new BulkMergeOptions
+             {
+                 LogTo = _output.WriteLine
+             });
 
             Assert.Equal(1, result.AffectedRows);
             Assert.Equal(1, result.InsertedRows);
@@ -755,9 +754,9 @@ public class UpsertAsyncTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
+        await _context.BulkInsertAsync(configurationEntries, new BulkInsertOptions
         {
-            options.LogTo = _output.WriteLine;
+            LogTo = _output.WriteLine
         });
 
         for (int i = length; i < length * 2; i++)
@@ -773,13 +772,13 @@ public class UpsertAsyncTests : BaseTest
             configurationEntries.Add(row);
 
             var result = await _context.UpsertAsync(row,
-                x => x.Id,
-                x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
-                x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                });
+                  x => x.Id,
+                  x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
+             x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
+             new BulkMergeOptions
+             {
+                 LogTo = _output.WriteLine
+             });
 
             Assert.Equal(1, result.AffectedRows);
             Assert.Equal(1, result.InsertedRows);
@@ -820,36 +819,36 @@ public class UpsertAsyncTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
-          {
-              options.LogTo = _output.WriteLine;
-          });
+        await _context.BulkInsertAsync(configurationEntries, new BulkInsertOptions
+        {
+            LogTo = _output.WriteLine
+        });
 
         var entry = configurationEntries.First();
         entry.Description = "Updated";
         entry.UpdatedDateTime = DateTimeOffset.Now;
 
         var result1 = await _context.UpsertAsync(entry,
-            x => x.Id,
-            x => new { },
-            x => new { },
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-            });
+               x => x.Id,
+   x => new { },
+      x => new { },
+   new BulkMergeOptions
+   {
+       LogTo = _output.WriteLine
+   });
 
         Assert.Equal(0, result1.AffectedRows);
         Assert.Equal(0, result1.InsertedRows);
         Assert.Equal(0, result1.UpdatedRows);
 
         var result2 = await _context.UpsertAsync(entry,
-            x => x.Id,
-            x => new { },
-            x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-            });
+               x => x.Id,
+      x => new { },
+      x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
+         new BulkMergeOptions
+         {
+             LogTo = _output.WriteLine
+         });
 
         Assert.Equal(0, result2.AffectedRows);
         Assert.Equal(0, result2.InsertedRows);
@@ -857,7 +856,6 @@ public class UpsertAsyncTests : BaseTest
 
         // Assert
         var configurationEntriesInDb = _context.Set<ConfigurationEntry>().AsNoTracking().ToList();
-
 
         Assert.Equal(length, configurationEntriesInDb.Count);
 
@@ -903,9 +901,9 @@ public class UpsertAsyncTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
+        await _context.BulkInsertAsync(configurationEntries, new BulkInsertOptions
         {
-            options.LogTo = _output.WriteLine;
+            LogTo = _output.WriteLine
         });
 
         var entry = new ConfigurationEntry
@@ -917,26 +915,26 @@ public class UpsertAsyncTests : BaseTest
         };
 
         var result1 = await _context.UpsertAsync(entry,
-            x => x.Id,
-            x => new { },
-            x => new { },
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-            });
+       x => x.Id,
+    x => new { },
+              x => new { },
+           new BulkMergeOptions
+           {
+               LogTo = _output.WriteLine
+           });
 
         Assert.Equal(0, result1.AffectedRows);
         Assert.Equal(0, result1.InsertedRows);
         Assert.Equal(0, result1.UpdatedRows);
 
         var result2 = await _context.UpsertAsync(entry,
-            x => x.Id,
-            x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
-            x => new { },
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-            });
+      x => x.Id,
+     x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
+     x => new { },
+               new BulkMergeOptions
+               {
+                   LogTo = _output.WriteLine
+               });
 
         Assert.Equal(0, result2.AffectedRows);
         Assert.Equal(0, result2.InsertedRows);
@@ -944,7 +942,6 @@ public class UpsertAsyncTests : BaseTest
 
         // Assert
         var configurationEntriesInDb = _context.Set<ConfigurationEntry>().AsNoTracking().ToList();
-
 
         Assert.Equal(length, configurationEntriesInDb.Count);
 

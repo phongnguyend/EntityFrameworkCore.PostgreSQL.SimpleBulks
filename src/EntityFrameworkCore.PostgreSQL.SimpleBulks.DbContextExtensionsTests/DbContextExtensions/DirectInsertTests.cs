@@ -1,6 +1,7 @@
-﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.DirectInsert;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
+﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Database;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.DirectInsert;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
@@ -38,16 +39,16 @@ public class DirectInsertTests : BaseTest
 
         _context.DirectInsert(row,
                 row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
+                new BulkInsertOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
 
         _context.DirectInsert(compositeKeyRow,
                 row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
+                new BulkInsertOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
 
 
@@ -101,16 +102,16 @@ public class DirectInsertTests : BaseTest
 
         _context.DirectInsert(row,
                 row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
+                new BulkInsertOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
 
         _context.DirectInsert(compositeKeyRow,
                 row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
+                new BulkInsertOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
 
         tran.Commit();
@@ -165,16 +166,16 @@ public class DirectInsertTests : BaseTest
 
         _context.DirectInsert(row,
                 row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
+                new BulkInsertOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
 
         _context.DirectInsert(compositeKeyRow,
                 row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
+                new BulkInsertOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
 
         tran.Rollback();
@@ -199,10 +200,10 @@ public class DirectInsertTests : BaseTest
             CreatedDateTime = DateTimeOffset.Now,
         };
 
-        _context.DirectInsert(configurationEntry, options =>
+        _context.DirectInsert(configurationEntry, new BulkInsertOptions
         {
-            options.KeepIdentity = true;
-            options.LogTo = _output.WriteLine;
+            KeepIdentity = true,
+            LogTo = _output.WriteLine
         });
 
         // Assert
@@ -226,9 +227,9 @@ public class DirectInsertTests : BaseTest
             CreatedDateTime = DateTimeOffset.Now,
         };
 
-        _context.DirectInsert(configurationEntry, options =>
+        _context.DirectInsert(configurationEntry, new BulkInsertOptions
         {
-            options.LogTo = _output.WriteLine;
+            LogTo = _output.WriteLine
         });
 
         // Assert

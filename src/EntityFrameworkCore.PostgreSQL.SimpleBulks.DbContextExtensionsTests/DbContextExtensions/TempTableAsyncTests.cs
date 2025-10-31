@@ -1,6 +1,6 @@
-﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
+﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Database;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.TempTable;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Database;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
@@ -76,9 +76,9 @@ public class TempTableAsyncTests : BaseTest
                    x.LastName,
                    x.CurrentCountryIsoCode
                },
-               options =>
+               new TempTableOptions
                {
-                   options.LogTo = _output.WriteLine;
+                   LogTo = _output.WriteLine
                });
 
         var sql = $"select * from {tableName}";
@@ -117,9 +117,9 @@ public class TempTableAsyncTests : BaseTest
                 x.LastName,
                 x.CurrentCountryIsoCode
             },
-            options =>
+            new TempTableOptions
             {
-                options.LogTo = _output.WriteLine;
+                LogTo = _output.WriteLine
             });
 
         var contactTableName = await _context.CreateTempTableAsync(_contacts,
@@ -130,9 +130,9 @@ public class TempTableAsyncTests : BaseTest
                             x.CustomerIdNumber,
                             x.CountryIsoCode
                         },
-                        options =>
+                        new TempTableOptions
                         {
-                            options.LogTo = _output.WriteLine;
+                            LogTo = _output.WriteLine
                         });
 
         var sql = $"select * from {contactTableName} contact join {customerTableName} customer on contact.\"CustomerIdNumber\" = customer.\"IdNumber\"";
@@ -184,9 +184,9 @@ public class TempTableAsyncTests : BaseTest
         // Act
         var tableName = await _context.CreateTempTableAsync(_customers,
                ["IdNumber", "FirstName", "LastName", "CurrentCountryIsoCode"],
-               options =>
+               new TempTableOptions
                {
-                   options.LogTo = _output.WriteLine;
+                   LogTo = _output.WriteLine
                });
 
         var sql = $"select * from {tableName}";
@@ -221,16 +221,16 @@ public class TempTableAsyncTests : BaseTest
         // Act
         var customerTableName = await _context.CreateTempTableAsync(_customers,
                ["IdNumber", "FirstName", "LastName", "CurrentCountryIsoCode"],
-               options =>
+               new TempTableOptions
                {
-                   options.LogTo = _output.WriteLine;
+                   LogTo = _output.WriteLine
                });
 
         var contactTableName = await _context.CreateTempTableAsync(_contacts,
                ["EmailAddress", "PhoneNumber", "CustomerIdNumber", "CountryIsoCode"],
-               options =>
+               new TempTableOptions
                {
-                   options.LogTo = _output.WriteLine;
+                   LogTo = _output.WriteLine
                });
 
         var sql = $"select * from {contactTableName} contact join {customerTableName} customer on contact.\"CustomerIdNumber\" = customer.\"IdNumber\"";
@@ -310,16 +310,16 @@ public class TempTableAsyncTests : BaseTest
         // Act
         var customerTableName = await _context.CreateTempTableAsync(customers,
                ["Id", "FirstName", "LastName", "Index"],
-               options =>
+               new TempTableOptions
                {
-                   options.LogTo = _output.WriteLine;
+                   LogTo = _output.WriteLine
                });
 
         var contactTableName = await _context.CreateTempTableAsync(contacts,
                ["CustomerId", "EmailAddress", "PhoneNumber", "Index"],
-               options =>
+               new TempTableOptions
                {
-                   options.LogTo = _output.WriteLine;
+                   LogTo = _output.WriteLine
                });
 
         var tempCustomers = _context.Customers.FromSqlRaw($"select * from {customerTableName}").Where(x => x.Index > 10 && x.Index < 20);
@@ -374,12 +374,12 @@ public class TempTableAsyncTests : BaseTest
         // Act
         var tableName = await _context.CreateTempTableAsync(configurationEntries,
                ["Id", "Key", "Value"],
-               options =>
+               new TempTableOptions
                {
-                   options.LogTo = _output.WriteLine;
+                   LogTo = _output.WriteLine
                });
 
-        var configurationEntriesDb = _context.Set<ConfigurationEntry>().FromSqlRaw($"select * from {tableName}").Select(x => new { x.Id, x.Key, x.Value }).ToList();
+        var configurationEntriesDb = _context.Set<ConfigurationEntry>().FromSql($"select * from {tableName}").Select(x => new { x.Id, x.Key, x.Value }).ToList();
 
         // Assert
         Assert.Equal(configurationEntries.Count, configurationEntriesDb.Count);

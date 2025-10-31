@@ -1,7 +1,8 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Database;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.DirectUpdate;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Database;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
@@ -79,16 +80,16 @@ public class DirectUpdateAsyncTests : BaseTest
 
         var updateResult1 = await _context.DirectUpdateAsync(row,
                 row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
-                options =>
+                new BulkUpdateOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
 
         var updateResult2 = await _context.DirectUpdateAsync(compositeKeyRow,
                 row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
-                options =>
+                new BulkUpdateOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
 
         tran.Commit();
@@ -144,18 +145,18 @@ public class DirectUpdateAsyncTests : BaseTest
         compositeKeyRow.SeasonAsString = Season.Autumn;
 
         var updateResult1 = await _context.DirectUpdateAsync(row,
-              ["Column3", "Column2", "Season", "SeasonAsString"],
-              options =>
-              {
-                  options.LogTo = _output.WriteLine;
-              });
+                ["Column3", "Column2", "Season", "SeasonAsString"],
+                new BulkUpdateOptions
+                {
+                    LogTo = _output.WriteLine
+                });
 
         var updateResult2 = await _context.DirectUpdateAsync(compositeKeyRow,
-            ["Column3", "Column2", "Season", "SeasonAsString"],
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-            });
+                ["Column3", "Column2", "Season", "SeasonAsString"],
+                new BulkUpdateOptions
+                {
+                    LogTo = _output.WriteLine
+                });
 
         tran.Commit();
 

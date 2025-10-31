@@ -59,10 +59,10 @@ public class BulkMatchMultipleColumnsBenchmarks1
         }
 
         _context.BulkInsert(_customers,
-            opt =>
-            {
-                opt.Timeout = 0;
-            });
+   new BulkInsertOptions
+   {
+       Timeout = 0
+   });
 
         foreach (var customer in _customers)
         {
@@ -75,10 +75,10 @@ public class BulkMatchMultipleColumnsBenchmarks1
         _contacts = _customers.SelectMany(x => x.Contacts).ToList();
 
         _context.BulkInsert(_contacts,
-            opt =>
-            {
-                opt.Timeout = 0;
-            });
+                 new BulkInsertOptions
+                 {
+                     Timeout = 0
+                 });
 
         _contactsToMatch = _customers.Select(x => new Contact { CustomerId = x.Id, CountryIsoCode = x.CurrentCountryIsoCode }).ToList();
     }
@@ -106,11 +106,11 @@ public class BulkMatchMultipleColumnsBenchmarks1
     public void BulkMatch()
     {
         var contacts = _context.BulkMatch(_contactsToMatch,
-            x => new { x.CustomerId, x.CountryIsoCode },
-            opt =>
-            {
-                opt.Timeout = 0;
-            });
+                  x => new { x.CustomerId, x.CountryIsoCode },
+                  new BulkMatchOptions
+                  {
+                      Timeout = 0
+                  });
 
         // Console.WriteLine(contacts.Count);
     }
@@ -169,10 +169,10 @@ public class BulkMatchMultipleColumnsBenchmarks2
         }
 
         _context.BulkInsert(_customers,
-            opt =>
-            {
-                opt.Timeout = 0;
-            });
+    new BulkInsertOptions
+    {
+        Timeout = 0
+    });
 
         foreach (var customer in _customers)
         {
@@ -185,10 +185,10 @@ public class BulkMatchMultipleColumnsBenchmarks2
         _contacts = _customers.SelectMany(x => x.Contacts).ToList();
 
         _context.BulkInsert(_contacts,
-            opt =>
-            {
-                opt.Timeout = 0;
-            });
+         new BulkInsertOptions
+         {
+             Timeout = 0
+         });
 
         _contactsToMatch = _customers.Select(x => new Contact { CustomerId = x.Id, CountryIsoCode = x.CurrentCountryIsoCode }).ToList();
     }
@@ -203,11 +203,11 @@ public class BulkMatchMultipleColumnsBenchmarks2
     public void BulkMatch()
     {
         var contacts = _context.BulkMatch(_contactsToMatch,
-            x => new { x.CustomerId, x.CountryIsoCode },
-            opt =>
-            {
-                opt.Timeout = 0;
-            });
+        x => new { x.CustomerId, x.CountryIsoCode },
+                   new BulkMatchOptions
+                   {
+                       Timeout = 0
+                   });
 
         // Console.WriteLine(contacts.Count);
     }

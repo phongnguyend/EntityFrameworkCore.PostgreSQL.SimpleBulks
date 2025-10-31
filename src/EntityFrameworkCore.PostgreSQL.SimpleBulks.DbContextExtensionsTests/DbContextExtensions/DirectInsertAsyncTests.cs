@@ -1,6 +1,7 @@
-﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.DirectInsert;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
+﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Database;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.DirectInsert;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
@@ -37,18 +38,18 @@ public class DirectInsertAsyncTests : BaseTest
         };
 
         await _context.DirectInsertAsync(row,
-                  row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                  options =>
-                  {
-                      options.LogTo = _output.WriteLine;
-                  });
+    row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+    new BulkInsertOptions
+    {
+        LogTo = _output.WriteLine
+    });
 
         await _context.DirectInsertAsync(compositeKeyRow,
-                  row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                  options =>
-                  {
-                      options.LogTo = _output.WriteLine;
-                  });
+          row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+        new BulkInsertOptions
+        {
+            LogTo = _output.WriteLine
+        });
 
 
         // Assert
@@ -100,18 +101,18 @@ public class DirectInsertAsyncTests : BaseTest
         };
 
         await _context.DirectInsertAsync(row,
-                 row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                 options =>
-                 {
-                     options.LogTo = _output.WriteLine;
-                 });
+       row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+        new BulkInsertOptions
+        {
+            LogTo = _output.WriteLine
+        });
 
         await _context.DirectInsertAsync(compositeKeyRow,
                  row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                 options =>
-                 {
-                     options.LogTo = _output.WriteLine;
-                 });
+  new BulkInsertOptions
+  {
+      LogTo = _output.WriteLine
+  });
 
         tran.Commit();
 
@@ -136,7 +137,7 @@ public class DirectInsertAsyncTests : BaseTest
         Assert.Equal(compositeKeyRow.Column3.TruncateToMicroseconds(), dbCompositeKeyRows[0].Column3);
         Assert.Equal(compositeKeyRow.Season, dbCompositeKeyRows[0].Season);
         Assert.Equal(compositeKeyRow.SeasonAsString, dbCompositeKeyRows[0].SeasonAsString);
-}
+    }
 
     [Fact]
     public async Task Direct_Insert_Using_Linq_With_Transaction_RolledBack()
@@ -164,18 +165,18 @@ public class DirectInsertAsyncTests : BaseTest
         };
 
         await _context.DirectInsertAsync(row,
- row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-          options =>
-      {
-     options.LogTo = _output.WriteLine;
-       });
+     row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+        new BulkInsertOptions
+        {
+            LogTo = _output.WriteLine
+        });
 
-  await _context.DirectInsertAsync(compositeKeyRow,
-       row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-         options =>
-   {
-    options.LogTo = _output.WriteLine;
-      });
+        await _context.DirectInsertAsync(compositeKeyRow,
+             row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+               new BulkInsertOptions
+               {
+                   LogTo = _output.WriteLine
+               });
 
         tran.Rollback();
 
@@ -184,7 +185,7 @@ public class DirectInsertAsyncTests : BaseTest
         var dbCompositeKeyRows = _context.CompositeKeyRows.AsNoTracking().ToList();
 
         Assert.Empty(dbRows);
-     Assert.Empty(dbCompositeKeyRows);
+        Assert.Empty(dbCompositeKeyRows);
     }
 
     [Fact]
@@ -199,11 +200,11 @@ public class DirectInsertAsyncTests : BaseTest
             CreatedDateTime = DateTimeOffset.Now,
         };
 
-        await _context.DirectInsertAsync(configurationEntry, options =>
-          {
-              options.KeepIdentity = true;
-              options.LogTo = _output.WriteLine;
-          });
+        await _context.DirectInsertAsync(configurationEntry, new BulkInsertOptions
+        {
+            KeepIdentity = true,
+            LogTo = _output.WriteLine
+        });
 
         // Assert
         var configurationEntriesInDb = _context.Set<ConfigurationEntry>().AsNoTracking().ToList();
@@ -226,10 +227,10 @@ public class DirectInsertAsyncTests : BaseTest
             CreatedDateTime = DateTimeOffset.Now,
         };
 
-        await _context.DirectInsertAsync(configurationEntry, options =>
-          {
-              options.LogTo = _output.WriteLine;
-          });
+        await _context.DirectInsertAsync(configurationEntry, new BulkInsertOptions
+        {
+            LogTo = _output.WriteLine
+        });
 
         // Assert
         var configurationEntriesInDb = _context.Set<ConfigurationEntry>().AsNoTracking().ToList();

@@ -1,8 +1,8 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Database;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
@@ -83,18 +83,18 @@ public class BulkUpdateAsyncTests : BaseTest
         }
 
         var updateResult1 = await _context.BulkUpdateAsync(rows,
-                row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                });
+ row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
+      new BulkUpdateOptions
+      {
+          LogTo = _output.WriteLine
+      });
 
         var updateResult2 = await _context.BulkUpdateAsync(compositeKeyRows,
-                row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                });
+ row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
+     new BulkUpdateOptions
+     {
+         LogTo = _output.WriteLine
+     });
 
         rows.Add(new SingleKeyRow<int>
         {
@@ -120,22 +120,22 @@ public class BulkUpdateAsyncTests : BaseTest
         });
 
         await _context.BulkMergeAsync(rows,
-                 row => row.Id,
-                 row => new { row.Column1, row.Column2, row.Season, row.SeasonAsString },
-                 row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                 options =>
+       row => row.Id,
+          row => new { row.Column1, row.Column2, row.Season, row.SeasonAsString },
+    row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+                 new BulkMergeOptions
                  {
-                     options.LogTo = _output.WriteLine;
+                     LogTo = _output.WriteLine
                  });
 
         await _context.BulkMergeAsync(compositeKeyRows,
-                 row => new { row.Id1, row.Id2 },
-                 row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                 row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                 options =>
-                 {
-                     options.LogTo = _output.WriteLine;
-                 });
+       row => new { row.Id1, row.Id2 },
+        row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+       row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+             new BulkMergeOptions
+             {
+                 LogTo = _output.WriteLine
+             });
 
         tran.Commit();
 
@@ -195,17 +195,17 @@ public class BulkUpdateAsyncTests : BaseTest
 
         var updateResult1 = await _context.BulkUpdateAsync(rows,
                  ["Column3", "Column2", "Season", "SeasonAsString"],
-                options =>
-         {
-             options.LogTo = _output.WriteLine;
-         });
+ new BulkUpdateOptions
+ {
+     LogTo = _output.WriteLine
+ });
 
         var updateResult2 = await _context.BulkUpdateAsync(compositeKeyRows,
             ["Column3", "Column2", "Season", "SeasonAsString"],
-  options =>
-            {
-                options.LogTo = _output.WriteLine;
-            });
+     new BulkUpdateOptions
+     {
+         LogTo = _output.WriteLine
+     });
 
         rows.Add(new SingleKeyRow<int>
         {
@@ -231,22 +231,22 @@ public class BulkUpdateAsyncTests : BaseTest
         });
 
         await _context.BulkMergeAsync(rows,
-            ["Id"],
-          ["Column1", "Column2", "Season", "SeasonAsString"],
-  ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-             options =>
-  {
-      options.LogTo = _output.WriteLine;
-  });
+     ["Id"],
+ ["Column1", "Column2", "Season", "SeasonAsString"],
+          ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+       new BulkMergeOptions
+       {
+           LogTo = _output.WriteLine
+       });
 
         await _context.BulkMergeAsync(compositeKeyRows,
     ["Id1", "Id2"],
-    ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-         ["Id1", "Id2", "Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-             options =>
-      {
-          options.LogTo = _output.WriteLine;
-      });
+  ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+   ["Id1", "Id2", "Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+       new BulkMergeOptions
+       {
+           LogTo = _output.WriteLine
+       });
 
         tran.Commit();
 

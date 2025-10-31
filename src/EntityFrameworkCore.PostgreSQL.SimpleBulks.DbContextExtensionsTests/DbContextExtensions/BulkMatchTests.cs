@@ -78,10 +78,10 @@ public class BulkMatchTests : BaseTest
         // Act
         var customersFromDb = _context.BulkMatch(matchedCustommers,
             x => x.Id,
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-            });
+  new BulkMatchOptions
+  {
+      LogTo = _output.WriteLine
+  });
 
         // Assert
         Assert.Equal(customers.Count, customersFromDb.Count);
@@ -106,12 +106,12 @@ public class BulkMatchTests : BaseTest
 
         // Act
         var customersFromDb = _context.BulkMatch(matchedCustommers,
-            x => x.Id,
-            x => new { x.Id, x.FirstName },
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-            });
+      x => x.Id,
+    x => new { x.Id, x.FirstName },
+      new BulkMatchOptions
+      {
+          LogTo = _output.WriteLine
+      });
 
         // Assert
         Assert.Equal(customers.Count, customersFromDb.Count);
@@ -136,12 +136,12 @@ public class BulkMatchTests : BaseTest
 
         // Act
         var contactsFromDb = _context.BulkMatch(matchedContacts,
-            x => x.CustomerId,
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-            })
-            .OrderBy(x => x.Id).ToList();
+              x => x.CustomerId,
+     new BulkMatchOptions
+     {
+         LogTo = _output.WriteLine
+     })
+                .OrderBy(x => x.Id).ToList();
 
         var contactsInMemory = _contacts.Where(x => customerIds.Contains(x.CustomerId)).OrderBy(x => x.Id).ToList();
 
@@ -170,13 +170,13 @@ public class BulkMatchTests : BaseTest
 
         // Act
         var contactsFromDb = _context.BulkMatch(matchedContacts,
-            x => x.CustomerId,
+    x => x.CustomerId,
             x => new { x.Id, x.PhoneNumber },
-            options =>
+            new BulkMatchOptions
             {
-                options.LogTo = _output.WriteLine;
+                LogTo = _output.WriteLine
             })
-            .OrderBy(x => x.Id).ToList();
+      .OrderBy(x => x.Id).ToList();
 
         var contactsInMemory = _contacts.Where(x => customerIds.Contains(x.CustomerId)).OrderBy(x => x.Id).ToList();
 
@@ -204,11 +204,11 @@ public class BulkMatchTests : BaseTest
         // Act
         var contactsFromDb = _context.BulkMatch(matchedContacts,
             x => new { x.CustomerId, x.CountryIsoCode },
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-            })
-            .OrderBy(x => x.Id).ToList();
+   new BulkMatchOptions
+   {
+       LogTo = _output.WriteLine
+   })
+        .OrderBy(x => x.Id).ToList();
 
         var contactsInMemory = _contacts.Where(x => customers.Any(y => y.Id == x.CustomerId && y.CurrentCountryIsoCode == x.CountryIsoCode)).OrderBy(x => x.Id).ToList();
 
@@ -236,13 +236,13 @@ public class BulkMatchTests : BaseTest
 
         // Act
         var contactsFromDb = _context.BulkMatch(matchedContacts,
-            x => new { x.CustomerId, x.CountryIsoCode },
-            x => new { x.Id, x.PhoneNumber },
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-            })
-            .OrderBy(x => x.Id).ToList();
+          x => new { x.CustomerId, x.CountryIsoCode },
+                 x => new { x.Id, x.PhoneNumber },
+                 new BulkMatchOptions
+                 {
+                     LogTo = _output.WriteLine
+                 })
+                 .OrderBy(x => x.Id).ToList();
 
         var contactsInMemory = _contacts.Where(x => customers.Any(y => y.Id == x.CustomerId && y.CurrentCountryIsoCode == x.CountryIsoCode)).OrderBy(x => x.Id).ToList();
 

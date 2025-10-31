@@ -8,7 +8,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMatch;
 
 public static class DbContextExtensions
 {
-    public static List<T> BulkMatch<T>(this DbContext dbContext, IEnumerable<T> machedValues, Expression<Func<T, object>> matchedColumnsSelector, Action<BulkMatchOptions> configureOptions = null)
+    public static List<T> BulkMatch<T>(this DbContext dbContext, IEnumerable<T> machedValues, Expression<Func<T, object>> matchedColumnsSelector, BulkMatchOptions options = null)
     {
         var connectionContext = dbContext.GetConnectionContext();
 
@@ -16,11 +16,11 @@ public static class DbContextExtensions
              .WithReturnedColumns(dbContext.GetAllPropertyNames(typeof(T)))
              .WithTable(dbContext.GetTableInfor(typeof(T)))
              .WithMatchedColumns(matchedColumnsSelector)
-             .ConfigureBulkOptions(configureOptions)
+             .WithBulkOptions(options)
              .Execute(machedValues);
     }
 
-    public static List<T> BulkMatch<T>(this DbContext dbContext, IEnumerable<T> machedValues, Expression<Func<T, object>> matchedColumnsSelector, Expression<Func<T, object>> returnedColumnsSelector, Action<BulkMatchOptions> configureOptions = null)
+    public static List<T> BulkMatch<T>(this DbContext dbContext, IEnumerable<T> machedValues, Expression<Func<T, object>> matchedColumnsSelector, Expression<Func<T, object>> returnedColumnsSelector, BulkMatchOptions options = null)
     {
         var connectionContext = dbContext.GetConnectionContext();
 
@@ -28,7 +28,7 @@ public static class DbContextExtensions
              .WithReturnedColumns(returnedColumnsSelector)
              .WithTable(dbContext.GetTableInfor(typeof(T)))
              .WithMatchedColumns(matchedColumnsSelector)
-             .ConfigureBulkOptions(configureOptions)
+             .WithBulkOptions(options)
              .Execute(machedValues);
     }
 }

@@ -62,27 +62,27 @@ public class BulkDeleteTests : BaseTest
             if (omitTableName)
             {
                 connectionContext.BulkDelete(rows, row => row.Id,
-                options =>
+                new BulkDeleteOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
                 connectionContext.BulkDelete(compositeKeyRows, row => new { row.Id1, row.Id2 },
-                options =>
+                new BulkDeleteOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
             }
             else
             {
                 connectionContext.BulkDelete(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"), row => row.Id,
-                options =>
+                new BulkDeleteOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
                 connectionContext.BulkDelete(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"), row => new { row.Id1, row.Id2 },
-                options =>
+                new BulkDeleteOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
             }
         }
@@ -91,27 +91,27 @@ public class BulkDeleteTests : BaseTest
             if (omitTableName)
             {
                 connectionContext.BulkDelete(rows, ["Id"],
-                options =>
+                new BulkDeleteOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
                 connectionContext.BulkDelete(compositeKeyRows, ["Id1", "Id2"],
-                options =>
+                new BulkDeleteOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
             }
             else
             {
                 connectionContext.BulkDelete(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"), ["Id"],
-                options =>
+                new BulkDeleteOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
                 connectionContext.BulkDelete(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"), ["Id1", "Id2"],
-                options =>
+                new BulkDeleteOptions
                 {
-                    options.LogTo = _output.WriteLine;
+                    LogTo = _output.WriteLine
                 });
             }
         }

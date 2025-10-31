@@ -1,9 +1,10 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.Upsert;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.Database;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.Upsert;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.DbContextExtensionsTests.DbContextExtensions;
 
@@ -45,10 +46,10 @@ public class UpsertTests : BaseTest
         }
 
         _context.BulkInsert(rows,
-                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString });
+       row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString });
 
         _context.BulkInsert(compositeKeyRows,
-                row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString });
+         row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString });
 
         tran.Commit();
     }
@@ -81,23 +82,23 @@ public class UpsertTests : BaseTest
         existingCompositeKeyRows.SeasonAsString = Season.Spring;
 
         var result1 = _context.Upsert(existingRow,
-                row => row.Id,
+       row => row.Id,
+    row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
                 row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                    options.ReturnDbGeneratedId = true;
-                });
+     new BulkMergeOptions
+     {
+         LogTo = _output.WriteLine,
+         ReturnDbGeneratedId = true
+     });
 
         var result2 = _context.Upsert(existingCompositeKeyRows,
-                row => new { row.Id1, row.Id2 },
-                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                });
+             row => new { row.Id1, row.Id2 },
+                     row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+          row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+                     new BulkMergeOptions
+                     {
+                         LogTo = _output.WriteLine
+                     });
 
         tran.Commit();
 
@@ -174,23 +175,23 @@ public class UpsertTests : BaseTest
         };
 
         var result1 = _context.Upsert(newRow,
-                row => row.Id,
-                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                    options.ReturnDbGeneratedId = true;
-                });
+       row => row.Id,
+    row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+      row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+       new BulkMergeOptions
+       {
+           LogTo = _output.WriteLine,
+           ReturnDbGeneratedId = true
+       });
 
         var result2 = _context.Upsert(newCompositeKeyRow,
-                row => new { row.Id1, row.Id2 },
-                row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                });
+              row => new { row.Id1, row.Id2 },
+               row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+                  row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+                       new BulkMergeOptions
+                       {
+                           LogTo = _output.WriteLine
+                       });
 
         tran.Commit();
 
@@ -262,20 +263,20 @@ public class UpsertTests : BaseTest
             ["Id"],
             ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
             ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-            options =>
+            new BulkMergeOptions
             {
-                options.LogTo = _output.WriteLine;
-                options.ReturnDbGeneratedId = true;
+                LogTo = _output.WriteLine,
+                ReturnDbGeneratedId = true
             });
 
         var result2 = _context.Upsert(existingCompositeKeyRows,
-            ["Id1", "Id2"],
-            ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-            ["Id1", "Id2", "Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-            });
+       ["Id1", "Id2"],
+    ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+   ["Id1", "Id2", "Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+      new BulkMergeOptions
+      {
+          LogTo = _output.WriteLine
+      });
 
         tran.Commit();
 
@@ -352,23 +353,23 @@ public class UpsertTests : BaseTest
         };
 
         var result1 = _context.Upsert(newRow,
-            ["Id"],
+  ["Id"],
             ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
             ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-                options.ReturnDbGeneratedId = true;
-            });
+      new BulkMergeOptions
+      {
+          LogTo = _output.WriteLine,
+          ReturnDbGeneratedId = true
+      });
 
         var result2 = _context.Upsert(newCompositeKeyRow,
-            ["Id1", "Id2"],
-            ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-            ["Id1", "Id2", "Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-            options =>
-            {
-                options.LogTo = _output.WriteLine;
-            });
+                  ["Id1", "Id2"],
+                  ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+             ["Id1", "Id2", "Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+                new BulkMergeOptions
+                {
+                    LogTo = _output.WriteLine
+                });
 
         tran.Commit();
 
@@ -428,11 +429,10 @@ public class UpsertTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
+        _context.BulkInsert(configurationEntries, new BulkInsertOptions
         {
-            options.LogTo = _output.WriteLine;
+            LogTo = _output.WriteLine
         });
-
 
         for (int i = length; i < length * 2; i++)
         {
@@ -447,13 +447,13 @@ public class UpsertTests : BaseTest
             configurationEntries.Add(row);
 
             var result = _context.Upsert(row,
-                x => x.Id,
-                x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
-                x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                });
+                  x => x.Id,
+        x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
+       x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
+      new BulkMergeOptions
+      {
+          LogTo = _output.WriteLine
+      });
 
             Assert.Equal(1, result.AffectedRows);
             Assert.Equal(1, result.InsertedRows);
@@ -495,9 +495,9 @@ public class UpsertTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
+        _context.BulkInsert(configurationEntries, new BulkInsertOptions
         {
-            options.LogTo = _output.WriteLine;
+            LogTo = _output.WriteLine
         });
 
         for (int i = length; i < length * 2; i++)
@@ -513,14 +513,14 @@ public class UpsertTests : BaseTest
             configurationEntries.Add(row);
 
             var result = _context.Upsert(row,
-                x => x.Id,
+                    x => x.Id,
                 x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
                 x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
-                options =>
-                {
-                    options.ReturnDbGeneratedId = false;
-                    options.LogTo = _output.WriteLine;
-                });
+             new BulkMergeOptions
+             {
+                 ReturnDbGeneratedId = false,
+                 LogTo = _output.WriteLine
+             });
 
             Assert.Equal(1, result.AffectedRows);
             Assert.Equal(1, result.InsertedRows);
@@ -572,9 +572,9 @@ public class UpsertTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
+        _context.BulkInsert(configurationEntries, new BulkInsertOptions
         {
-            options.LogTo = _output.WriteLine;
+            LogTo = _output.WriteLine
         });
 
         var entry = configurationEntries.First();
@@ -582,13 +582,13 @@ public class UpsertTests : BaseTest
         entry.UpdatedDateTime = DateTimeOffset.Now;
 
         var result = _context.Upsert(entry,
-             x => x.Id,
-             x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
-             x => new { },
-             options =>
-             {
-                 options.LogTo = _output.WriteLine;
-             });
+    x => x.Id,
+    x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
+           x => new { },
+       new BulkMergeOptions
+       {
+           LogTo = _output.WriteLine
+       });
 
         // Assert
         var configurationEntriesInDb = _context.Set<ConfigurationEntry>().AsNoTracking().ToList();
@@ -630,9 +630,9 @@ public class UpsertTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
+        _context.BulkInsert(configurationEntries, new BulkInsertOptions
         {
-            options.LogTo = _output.WriteLine;
+            LogTo = _output.WriteLine
         });
 
         var entry = configurationEntries.First();
@@ -641,12 +641,12 @@ public class UpsertTests : BaseTest
 
         var result = _context.Upsert(entry,
              x => x.Id,
-             x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
+           x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
              x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
-             options =>
-             {
-                 options.LogTo = _output.WriteLine;
-             });
+           new BulkMergeOptions
+           {
+               LogTo = _output.WriteLine
+           });
 
         // Assert
         var configurationEntriesInDb = _context.Set<ConfigurationEntry>().AsNoTracking().ToList();
@@ -689,9 +689,9 @@ public class UpsertTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
+        _context.BulkInsert(configurationEntries, new BulkInsertOptions
         {
-            options.LogTo = _output.WriteLine;
+            LogTo = _output.WriteLine
         });
 
         for (int i = length; i < length * 2; i++)
@@ -707,13 +707,13 @@ public class UpsertTests : BaseTest
             configurationEntries.Add(row);
 
             var result = _context.Upsert(row,
-                x => x.Id,
-                x => new { },
-                x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                });
+                   x => x.Id,
+                  x => new { },
+                            x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
+                     new BulkMergeOptions
+                     {
+                         LogTo = _output.WriteLine
+                     });
 
             Assert.Equal(1, result.AffectedRows);
             Assert.Equal(1, result.InsertedRows);
@@ -755,9 +755,9 @@ public class UpsertTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
+        _context.BulkInsert(configurationEntries, new BulkInsertOptions
         {
-            options.LogTo = _output.WriteLine;
+            LogTo = _output.WriteLine
         });
 
         for (int i = length; i < length * 2; i++)
@@ -773,13 +773,13 @@ public class UpsertTests : BaseTest
             configurationEntries.Add(row);
 
             var result = _context.Upsert(row,
-                x => x.Id,
-                x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
-                x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
-                options =>
-                {
-                    options.LogTo = _output.WriteLine;
-                });
+             x => x.Id,
+         x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
+             x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
+          new BulkMergeOptions
+          {
+              LogTo = _output.WriteLine
+          });
 
             Assert.Equal(1, result.AffectedRows);
             Assert.Equal(1, result.InsertedRows);
@@ -820,9 +820,9 @@ public class UpsertTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
+        _context.BulkInsert(configurationEntries, new BulkInsertOptions
         {
-            options.LogTo = _output.WriteLine;
+            LogTo = _output.WriteLine
         });
 
         var entry = configurationEntries.First();
@@ -830,26 +830,26 @@ public class UpsertTests : BaseTest
         entry.UpdatedDateTime = DateTimeOffset.Now;
 
         var result1 = _context.Upsert(entry,
-             x => x.Id,
-             x => new { },
-             x => new { },
-             options =>
-             {
-                 options.LogTo = _output.WriteLine;
-             });
+          x => x.Id,
+   x => new { },
+        x => new { },
+ new BulkMergeOptions
+ {
+     LogTo = _output.WriteLine
+ });
 
         Assert.Equal(0, result1.AffectedRows);
         Assert.Equal(0, result1.InsertedRows);
         Assert.Equal(0, result1.UpdatedRows);
 
         var result2 = _context.Upsert(entry,
-             x => x.Id,
-             x => new { },
-             x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
-             options =>
-             {
-                 options.LogTo = _output.WriteLine;
-             });
+      x => x.Id,
+            x => new { },
+       x => new { x.Key, x.Value, x.Description, x.IsSensitive, x.CreatedDateTime },
+                new BulkMergeOptions
+                {
+                    LogTo = _output.WriteLine
+                });
 
         Assert.Equal(0, result2.AffectedRows);
         Assert.Equal(0, result2.InsertedRows);
@@ -903,9 +903,9 @@ public class UpsertTests : BaseTest
             });
         }
 
-        _context.BulkInsert(configurationEntries, options =>
+        _context.BulkInsert(configurationEntries, new BulkInsertOptions
         {
-            options.LogTo = _output.WriteLine;
+            LogTo = _output.WriteLine
         });
 
         var entry = new ConfigurationEntry
@@ -917,12 +917,12 @@ public class UpsertTests : BaseTest
         };
 
         var result1 = _context.Upsert(entry,
-             x => x.Id,
+      x => x.Id,
              x => new { },
-             x => new { },
-             options =>
+           x => new { },
+             new BulkMergeOptions
              {
-                 options.LogTo = _output.WriteLine;
+                 LogTo = _output.WriteLine
              });
 
         Assert.Equal(0, result1.AffectedRows);
@@ -930,13 +930,13 @@ public class UpsertTests : BaseTest
         Assert.Equal(0, result1.UpdatedRows);
 
         var result2 = _context.Upsert(entry,
-             x => x.Id,
-             x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
-             x => new { },
-             options =>
-             {
-                 options.LogTo = _output.WriteLine;
-             });
+     x => x.Id,
+         x => new { x.Key, x.Value, x.Description, x.UpdatedDateTime },
+                 x => new { },
+            new BulkMergeOptions
+            {
+                LogTo = _output.WriteLine
+            });
 
         Assert.Equal(0, result2.AffectedRows);
         Assert.Equal(0, result2.InsertedRows);
