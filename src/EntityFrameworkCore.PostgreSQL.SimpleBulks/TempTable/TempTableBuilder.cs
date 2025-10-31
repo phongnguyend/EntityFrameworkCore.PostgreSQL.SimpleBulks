@@ -79,7 +79,7 @@ public class TempTableBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {tempTableName}");
 
-        data.SqlBulkCopy(tempTableName, _columnNames, _mappingContext.ColumnNameMappings, false, _connectionContext, valueConverters: _mappingContext.ValueConverters);
+        _connectionContext.SqlBulkCopy(data, tempTableName, _columnNames, _mappingContext.ColumnNameMappings, false, valueConverters: _mappingContext.ValueConverters);
 
         Log("End executing SqlBulkCopy.");
 
@@ -108,7 +108,7 @@ public class TempTableBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {tempTableName}");
 
-        await data.SqlBulkCopyAsync(tempTableName, _columnNames, _mappingContext.ColumnNameMappings, false, _connectionContext, valueConverters: _mappingContext.ValueConverters, cancellationToken: cancellationToken);
+        await _connectionContext.SqlBulkCopyAsync(data, tempTableName, _columnNames, _mappingContext.ColumnNameMappings, false, valueConverters: _mappingContext.ValueConverters, cancellationToken: cancellationToken);
 
         Log("End executing SqlBulkCopy.");
 

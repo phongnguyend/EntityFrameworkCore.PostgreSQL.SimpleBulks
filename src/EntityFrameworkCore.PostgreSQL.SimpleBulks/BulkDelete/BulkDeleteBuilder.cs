@@ -93,7 +93,7 @@ public class BulkDeleteBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        data.SqlBulkCopy(temptableName, _idColumns, null, false, _connectionContext, _options, valueConverters: _table.ValueConverters);
+        _connectionContext.SqlBulkCopy(data, temptableName, _idColumns, null, false, _options, valueConverters: _table.ValueConverters);
 
         Log("End executing SqlBulkCopy.");
 
@@ -176,7 +176,7 @@ public class BulkDeleteBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        await data.SqlBulkCopyAsync(temptableName, _idColumns, null, false, _connectionContext, _options, valueConverters: _table.ValueConverters, cancellationToken: cancellationToken);
+        await _connectionContext.SqlBulkCopyAsync(data, temptableName, _idColumns, null, false, _options, valueConverters: _table.ValueConverters, cancellationToken: cancellationToken);
 
         Log("End executing SqlBulkCopy.");
 

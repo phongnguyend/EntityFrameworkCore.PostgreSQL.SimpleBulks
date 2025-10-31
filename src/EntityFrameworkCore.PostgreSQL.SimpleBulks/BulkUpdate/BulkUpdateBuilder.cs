@@ -111,7 +111,7 @@ public class BulkUpdateBuilder<T>
         Log("End creating temp table.");
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
-        data.SqlBulkCopy(temptableName, propertyNamesIncludeId, null, false, _connectionContext, _options, valueConverters: _table.ValueConverters);
+        _connectionContext.SqlBulkCopy(data, temptableName, propertyNamesIncludeId, null, false, _options, valueConverters: _table.ValueConverters);
         Log("End executing SqlBulkCopy.");
 
         var sqlUpdateStatement = updateStatementBuilder.ToString();
@@ -236,7 +236,7 @@ public class BulkUpdateBuilder<T>
         Log("End creating temp table.");
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
-        await data.SqlBulkCopyAsync(temptableName, propertyNamesIncludeId, null, false, _connectionContext, _options, valueConverters: _table.ValueConverters, cancellationToken: cancellationToken);
+        await _connectionContext.SqlBulkCopyAsync(data, temptableName, propertyNamesIncludeId, null, false, _options, valueConverters: _table.ValueConverters, cancellationToken: cancellationToken);
         Log("End executing SqlBulkCopy.");
 
         var sqlUpdateStatement = updateStatementBuilder.ToString();
