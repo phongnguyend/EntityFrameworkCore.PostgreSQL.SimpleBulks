@@ -271,7 +271,7 @@ await _context.DirectUpdateAsync(row,
     row => new { row.Column3, row.Column2 },
     new BulkUpdateOptions
     {
-        Timeout = 30;
+        Timeout = 30,
         LogTo = Console.WriteLine
     });
 ```
@@ -280,7 +280,7 @@ await _context.DirectUpdateAsync(row,
 await _context.DirectDeleteAsync(row,
     new BulkDeleteOptions
     {
-        Timeout = 30;
+        Timeout = 30,
         LogTo = Console.WriteLine
     });
 ```
