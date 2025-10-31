@@ -13,8 +13,8 @@ public class BulkDeleteTests : BaseTest
 
     public BulkDeleteTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkDeleteTest")
     {
-        TableMapper.Register(typeof(SingleKeyRow<int>), _schema, "SingleKeyRows");
-        TableMapper.Register(typeof(CompositeKeyRow<int, int>), _schema, "CompositeKeyRows");
+        TableMapper.Register(typeof(SingleKeyRow<int>), new NpgsqlTableInfor(_schema, "SingleKeyRows"));
+        TableMapper.Register(typeof(CompositeKeyRow<int, int>), new NpgsqlTableInfor(_schema, "CompositeKeyRows"));
 
         var rows = new List<SingleKeyRow<int>>();
         var compositeKeyRows = new List<CompositeKeyRow<int, int>>();

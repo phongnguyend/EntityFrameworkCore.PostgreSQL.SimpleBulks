@@ -108,8 +108,8 @@ using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
 
 // Register Type - Table Name globaly
-TableMapper.Register(typeof(Row), "Rows");
-TableMapper.Register(typeof(CompositeKeyRow), "CompositeKeyRows");
+TableMapper.Register(typeof(Row), new NpgsqlTableInfor("Rows"));
+TableMapper.Register(typeof(CompositeKeyRow), new NpgsqlTableInfor("CompositeKeyRows"));
 
 await connection.BulkInsertAsync(rows,
            row => new { row.Column1, row.Column2, row.Column3 });
