@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 
-public static class NpgsqlConnectionAsyncExtensions
+public static class ConnectionContextAsyncExtensions
 {
     public static Task BulkInsertAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, Action<BulkInsertOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
@@ -25,10 +25,10 @@ public static class NpgsqlConnectionAsyncExtensions
 
         return new BulkInsertBuilder<T>(connectionContext)
  .WithColumns(columnNamesSelector)
-       .ToTable(table)
-      .WithOutputId(idSelector)
+    .ToTable(table)
+  .WithOutputId(idSelector)
       .ConfigureBulkOptions(configureOptions)
-       .ExecuteAsync(data, cancellationToken);
+ .ExecuteAsync(data, cancellationToken);
     }
 
     public static Task BulkInsertAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, IEnumerable<string> columnNames, Action<BulkInsertOptions> configureOptions = null, CancellationToken cancellationToken = default)
@@ -37,9 +37,9 @@ public static class NpgsqlConnectionAsyncExtensions
 
         return new BulkInsertBuilder<T>(connectionContext)
    .WithColumns(columnNames)
-    .ToTable(table)
+  .ToTable(table)
      .ConfigureBulkOptions(configureOptions)
-      .ExecuteAsync(data, cancellationToken);
+ .ExecuteAsync(data, cancellationToken);
     }
 
     public static Task BulkInsertAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, IEnumerable<string> columnNames, string idColumnName, Action<BulkInsertOptions> configureOptions = null, CancellationToken cancellationToken = default)
@@ -48,7 +48,7 @@ public static class NpgsqlConnectionAsyncExtensions
 
         return new BulkInsertBuilder<T>(connectionContext)
   .WithColumns(columnNames)
-     .ToTable(table)
+   .ToTable(table)
    .WithOutputId(idColumnName)
     .ConfigureBulkOptions(configureOptions)
      .ExecuteAsync(data, cancellationToken);
@@ -57,27 +57,27 @@ public static class NpgsqlConnectionAsyncExtensions
     public static Task BulkInsertAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, TableInfor table, Expression<Func<T, object>> columnNamesSelector, Action<BulkInsertOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
         return new BulkInsertBuilder<T>(connectionContext)
-    .WithColumns(columnNamesSelector)
+       .WithColumns(columnNamesSelector)
          .ToTable(table)
-    .ConfigureBulkOptions(configureOptions)
-        .ExecuteAsync(data, cancellationToken);
+       .ConfigureBulkOptions(configureOptions)
+           .ExecuteAsync(data, cancellationToken);
     }
 
     public static Task BulkInsertAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, TableInfor table, Expression<Func<T, object>> columnNamesSelector, Expression<Func<T, object>> idSelector, Action<BulkInsertOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
         return new BulkInsertBuilder<T>(connectionContext)
-             .WithColumns(columnNamesSelector)
-         .ToTable(table)
-            .WithOutputId(idSelector)
-            .ConfigureBulkOptions(configureOptions)
-         .ExecuteAsync(data, cancellationToken);
+         .WithColumns(columnNamesSelector)
+           .ToTable(table)
+              .WithOutputId(idSelector)
+              .ConfigureBulkOptions(configureOptions)
+           .ExecuteAsync(data, cancellationToken);
     }
 
     public static Task BulkInsertAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, TableInfor table, IEnumerable<string> columnNames, Action<BulkInsertOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
         return new BulkInsertBuilder<T>(connectionContext)
  .WithColumns(columnNames)
-       .ToTable(table)
+   .ToTable(table)
        .ConfigureBulkOptions(configureOptions)
        .ExecuteAsync(data, cancellationToken);
     }
@@ -87,8 +87,8 @@ public static class NpgsqlConnectionAsyncExtensions
         return new BulkInsertBuilder<T>(connectionContext)
       .WithColumns(columnNames)
       .ToTable(table)
-         .WithOutputId(idColumnName)
+    .WithOutputId(idColumnName)
       .ConfigureBulkOptions(configureOptions)
-        .ExecuteAsync(data, cancellationToken);
+      .ExecuteAsync(data, cancellationToken);
     }
 }

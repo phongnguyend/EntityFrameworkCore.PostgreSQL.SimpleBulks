@@ -4,18 +4,18 @@ using System.Linq.Expressions;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMatch;
 
-public static class NpgsqlConnectionExtensions
+public static class ConnectionContextExtensions
 {
     public static List<T> BulkMatch<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, Expression<Func<T, object>> matchedColumnsSelector, Expression<Func<T, object>> returnedColumnsSelector, Action<BulkMatchOptions> configureOptions = null)
     {
         var table = TableMapper.Resolve(typeof(T));
 
         return new BulkMatchBuilder<T>(connectionContext)
-             .WithReturnedColumns(returnedColumnsSelector)
-             .WithTable(table)
-             .WithMatchedColumns(matchedColumnsSelector)
-             .ConfigureBulkOptions(configureOptions)
-             .Execute(machedValues);
+        .WithReturnedColumns(returnedColumnsSelector)
+                .WithTable(table)
+        .WithMatchedColumns(matchedColumnsSelector)
+         .ConfigureBulkOptions(configureOptions)
+       .Execute(machedValues);
     }
 
     public static List<T> BulkMatch<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, string matchedColumn, IEnumerable<string> returnedColumns, Action<BulkMatchOptions> configureOptions = null)
@@ -23,11 +23,11 @@ public static class NpgsqlConnectionExtensions
         var table = TableMapper.Resolve(typeof(T));
 
         return new BulkMatchBuilder<T>(connectionContext)
-            .WithReturnedColumns(returnedColumns)
-            .WithTable(table)
-            .WithMatchedColumn(matchedColumn)
-            .ConfigureBulkOptions(configureOptions)
-            .Execute(machedValues);
+              .WithReturnedColumns(returnedColumns)
+      .WithTable(table)
+  .WithMatchedColumn(matchedColumn)
+              .ConfigureBulkOptions(configureOptions)
+        .Execute(machedValues);
     }
 
     public static List<T> BulkMatch<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, IEnumerable<string> matchedColumns, IEnumerable<string> returnedColumns, Action<BulkMatchOptions> configureOptions = null)
@@ -35,18 +35,18 @@ public static class NpgsqlConnectionExtensions
         var table = TableMapper.Resolve(typeof(T));
 
         return new BulkMatchBuilder<T>(connectionContext)
-            .WithReturnedColumns(returnedColumns)
-            .WithTable(table)
-            .WithMatchedColumns(matchedColumns)
-            .ConfigureBulkOptions(configureOptions)
+  .WithReturnedColumns(returnedColumns)
+    .WithTable(table)
+       .WithMatchedColumns(matchedColumns)
+       .ConfigureBulkOptions(configureOptions)
             .Execute(machedValues);
     }
 
     public static List<T> BulkMatch<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, TableInfor table, Expression<Func<T, object>> matchedColumnsSelector, Expression<Func<T, object>> returnedColumnsSelector, Action<BulkMatchOptions> configureOptions = null)
     {
         return new BulkMatchBuilder<T>(connectionContext)
-             .WithReturnedColumns(returnedColumnsSelector)
-             .WithTable(table)
+    .WithReturnedColumns(returnedColumnsSelector)
+  .WithTable(table)
              .WithMatchedColumns(matchedColumnsSelector)
              .ConfigureBulkOptions(configureOptions)
              .Execute(machedValues);
@@ -55,20 +55,20 @@ public static class NpgsqlConnectionExtensions
     public static List<T> BulkMatch<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, TableInfor table, string matchedColumns, IEnumerable<string> returnedColumns, Action<BulkMatchOptions> configureOptions = null)
     {
         return new BulkMatchBuilder<T>(connectionContext)
-            .WithReturnedColumns(returnedColumns)
-            .WithTable(table)
+         .WithReturnedColumns(returnedColumns)
+        .WithTable(table)
             .WithMatchedColumn(matchedColumns)
-            .ConfigureBulkOptions(configureOptions)
-            .Execute(machedValues);
+          .ConfigureBulkOptions(configureOptions)
+        .Execute(machedValues);
     }
 
     public static List<T> BulkMatch<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, TableInfor table, IEnumerable<string> matchedColumns, IEnumerable<string> returnedColumns, Action<BulkMatchOptions> configureOptions = null)
     {
         return new BulkMatchBuilder<T>(connectionContext)
-            .WithReturnedColumns(returnedColumns)
-            .WithTable(table)
+         .WithReturnedColumns(returnedColumns)
+   .WithTable(table)
             .WithMatchedColumns(matchedColumns)
-            .ConfigureBulkOptions(configureOptions)
-            .Execute(machedValues);
+ .ConfigureBulkOptions(configureOptions)
+         .Execute(machedValues);
     }
 }

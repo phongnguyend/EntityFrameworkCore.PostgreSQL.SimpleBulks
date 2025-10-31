@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
 
-public static class NpgsqlConnectionAsyncExtensions
+public static class ConnectionContextAsyncExtensions
 {
     public static Task<BulkUpdateResult> BulkUpdateAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, Expression<Func<T, object>> idSelector, Expression<Func<T, object>> columnNamesSelector, Action<BulkUpdateOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
         var table = TableMapper.Resolve(typeof(T));
 
         return new BulkUpdateBuilder<T>(connectionContext)
-            .WithId(idSelector)
-            .WithColumns(columnNamesSelector)
-            .ToTable(table)
-            .ConfigureBulkOptions(configureOptions)
+              .WithId(idSelector)
+              .WithColumns(columnNamesSelector)
+          .ToTable(table)
+              .ConfigureBulkOptions(configureOptions)
             .ExecuteAsync(data, cancellationToken);
     }
 
@@ -25,30 +25,30 @@ public static class NpgsqlConnectionAsyncExtensions
         var table = TableMapper.Resolve(typeof(T));
 
         return new BulkUpdateBuilder<T>(connectionContext)
-            .WithId(idColumns)
-            .WithColumns(columnNames)
-            .ToTable(table)
-            .ConfigureBulkOptions(configureOptions)
-            .ExecuteAsync(data, cancellationToken);
+   .WithId(idColumns)
+        .WithColumns(columnNames)
+         .ToTable(table)
+       .ConfigureBulkOptions(configureOptions)
+         .ExecuteAsync(data, cancellationToken);
     }
 
     public static Task<BulkUpdateResult> BulkUpdateAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, TableInfor table, Expression<Func<T, object>> idSelector, Expression<Func<T, object>> columnNamesSelector, Action<BulkUpdateOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
         return new BulkUpdateBuilder<T>(connectionContext)
-            .WithId(idSelector)
-            .WithColumns(columnNamesSelector)
-            .ToTable(table)
-            .ConfigureBulkOptions(configureOptions)
-            .ExecuteAsync(data, cancellationToken);
+       .WithId(idSelector)
+  .WithColumns(columnNamesSelector)
+       .ToTable(table)
+     .ConfigureBulkOptions(configureOptions)
+    .ExecuteAsync(data, cancellationToken);
     }
 
     public static Task<BulkUpdateResult> BulkUpdateAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, TableInfor table, IEnumerable<string> idColumns, IEnumerable<string> columnNames, Action<BulkUpdateOptions> configureOptions = null, CancellationToken cancellationToken = default)
     {
         return new BulkUpdateBuilder<T>(connectionContext)
-            .WithId(idColumns)
-            .WithColumns(columnNames)
-            .ToTable(table)
-            .ConfigureBulkOptions(configureOptions)
-            .ExecuteAsync(data, cancellationToken);
+       .WithId(idColumns)
+        .WithColumns(columnNames)
+      .ToTable(table)
+         .ConfigureBulkOptions(configureOptions)
+ .ExecuteAsync(data, cancellationToken);
     }
 }
