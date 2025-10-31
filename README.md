@@ -3,7 +3,7 @@ A very simple .net core library that can help to sync a large number of records 
  
 ## Overview
 This library provides extension methods so that you can use with your EntityFrameworkCore **DbContext** instance **DbContextExtensions.cs**
-or you can use **NpgsqlConnectionExtensions.cs** to work directly with a **NpgsqlConnection** instance without using EntityFrameworkCore.
+or you can use **ConnectionContextExtensions.cs** to work directly with a **NpgsqlConnection** instance without using EntityFrameworkCore.
 
 ## Nuget
 | Database | Package | GitHub |
@@ -99,7 +99,7 @@ await new BulkInsertBuilder<Row>(dbct.GetNpgsqlConnection())
 	.ExecuteAsync(rows);
 ```
 
-## NpgsqlConnectionExtensions
+## ConnectionContextExtensions
 ### Using Lambda Expression
 ```c#
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkDelete;
