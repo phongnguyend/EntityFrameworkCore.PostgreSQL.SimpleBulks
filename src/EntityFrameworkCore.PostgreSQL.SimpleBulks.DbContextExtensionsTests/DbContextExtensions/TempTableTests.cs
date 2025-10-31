@@ -379,7 +379,7 @@ public class TempTableTests : BaseTest
                    LogTo = _output.WriteLine
                });
 
-        var configurationEntriesDb = _context.Set<ConfigurationEntry>().FromSql($"select * from {tableName}").Select(x => new { x.Id, x.Key, x.Value }).ToList();
+        var configurationEntriesDb = _context.Set<ConfigurationEntry>().FromSqlRaw($"select * from {tableName}").Select(x => new { x.Id, x.Key, x.Value }).ToList();
 
         // Assert
         Assert.Equal(configurationEntries.Count, configurationEntriesDb.Count);
