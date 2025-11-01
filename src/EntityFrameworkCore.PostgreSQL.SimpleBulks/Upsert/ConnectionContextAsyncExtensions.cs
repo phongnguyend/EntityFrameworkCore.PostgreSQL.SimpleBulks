@@ -11,27 +11,23 @@ public static class ConnectionContextAsyncExtensions
 {
     public static Task<BulkMergeResult> UpsertAsync<T>(this ConnectionContext connectionContext, T data, Expression<Func<T, object>> idSelector, Expression<Func<T, object>> updateColumnNamesSelector, Expression<Func<T, object>> insertColumnNamesSelector, BulkMergeOptions options = null, CancellationToken cancellationToken = default)
     {
-        var table = TableMapper.Resolve(typeof(T));
-
         return new BulkMergeBuilder<T>(connectionContext)
      .WithId(idSelector)
        .WithUpdateColumns(updateColumnNamesSelector)
-            .WithInsertColumns(insertColumnNamesSelector)
-       .ToTable(table)
-           .WithBulkOptions(options)
-         .SingleMergeAsync(data, cancellationToken);
+        .WithInsertColumns(insertColumnNamesSelector)
+   .ToTable(TableMapper.Resolve(typeof(T)))
+        .WithBulkOptions(options)
+    .SingleMergeAsync(data, cancellationToken);
     }
 
     public static Task<BulkMergeResult> UpsertAsync<T>(this ConnectionContext connectionContext, T data, IEnumerable<string> idColumns, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, BulkMergeOptions options = null, CancellationToken cancellationToken = default)
     {
-        var table = TableMapper.Resolve(typeof(T));
-
-        return new BulkMergeBuilder<T>(connectionContext)
+   return new BulkMergeBuilder<T>(connectionContext)
        .WithId(idColumns)
-         .WithUpdateColumns(updateColumnNames)
-            .WithInsertColumns(insertColumnNames)
-      .ToTable(table)
-          .WithBulkOptions(options)
+      .WithUpdateColumns(updateColumnNames)
+  .WithInsertColumns(insertColumnNames)
+      .ToTable(TableMapper.Resolve(typeof(T)))
+      .WithBulkOptions(options)
      .SingleMergeAsync(data, cancellationToken);
     }
 
@@ -39,21 +35,21 @@ public static class ConnectionContextAsyncExtensions
     {
         return new BulkMergeBuilder<T>(connectionContext)
            .WithId(idSelector)
-       .WithUpdateColumns(updateColumnNamesSelector)
-          .WithInsertColumns(insertColumnNamesSelector)
-             .ToTable(table)
+     .WithUpdateColumns(updateColumnNamesSelector)
+.WithInsertColumns(insertColumnNamesSelector)
+    .ToTable(table)
          .WithBulkOptions(options)
           .SingleMergeAsync(data, cancellationToken);
     }
 
     public static Task<BulkMergeResult> UpsertAsync<T>(this ConnectionContext connectionContext, T data, TableInfor table, IEnumerable<string> idColumns, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, BulkMergeOptions options = null, CancellationToken cancellationToken = default)
     {
-        return new BulkMergeBuilder<T>(connectionContext)
+  return new BulkMergeBuilder<T>(connectionContext)
   .WithId(idColumns)
   .WithUpdateColumns(updateColumnNames)
      .WithInsertColumns(insertColumnNames)
  .ToTable(table)
   .WithBulkOptions(options)
-        .SingleMergeAsync(data, cancellationToken);
+  .SingleMergeAsync(data, cancellationToken);
     }
 }

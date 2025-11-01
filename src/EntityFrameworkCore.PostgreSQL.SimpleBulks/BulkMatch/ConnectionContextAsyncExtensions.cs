@@ -10,35 +10,29 @@ public static class ConnectionContextAsyncExtensions
 {
     public static Task<List<T>> BulkMatchAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, Expression<Func<T, object>> matchedColumnsSelector, Expression<Func<T, object>> returnedColumnsSelector, BulkMatchOptions options = null, CancellationToken cancellationToken = default)
     {
-        var table = TableMapper.Resolve(typeof(T));
-
         return new BulkMatchBuilder<T>(connectionContext)
             .WithReturnedColumns(returnedColumnsSelector)
-         .WithTable(table)
+     .WithTable(TableMapper.Resolve(typeof(T)))
          .WithMatchedColumns(matchedColumnsSelector)
-        .WithBulkOptions(options)
+    .WithBulkOptions(options)
          .ExecuteAsync(machedValues, cancellationToken);
     }
 
-    public static Task<List<T>> BulkMatchAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, string matchedColumn, IEnumerable<string> returnedColumns, BulkMatchOptions options = null, CancellationToken cancellationToken = default)
+ public static Task<List<T>> BulkMatchAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, string matchedColumn, IEnumerable<string> returnedColumns, BulkMatchOptions options = null, CancellationToken cancellationToken = default)
     {
-        var table = TableMapper.Resolve(typeof(T));
-
         return new BulkMatchBuilder<T>(connectionContext)
-              .WithReturnedColumns(returnedColumns)
-                .WithTable(table)
-        .WithMatchedColumn(matchedColumn)
-              .WithBulkOptions(options)
-               .ExecuteAsync(machedValues, cancellationToken);
+          .WithReturnedColumns(returnedColumns)
+          .WithTable(TableMapper.Resolve(typeof(T)))
+     .WithMatchedColumn(matchedColumn)
+     .WithBulkOptions(options)
+      .ExecuteAsync(machedValues, cancellationToken);
     }
 
     public static Task<List<T>> BulkMatchAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, IEnumerable<string> matchedColumns, IEnumerable<string> returnedColumns, BulkMatchOptions options = null, CancellationToken cancellationToken = default)
     {
-        var table = TableMapper.Resolve(typeof(T));
-
-        return new BulkMatchBuilder<T>(connectionContext)
+ return new BulkMatchBuilder<T>(connectionContext)
   .WithReturnedColumns(returnedColumns)
-     .WithTable(table)
+     .WithTable(TableMapper.Resolve(typeof(T)))
      .WithMatchedColumns(matchedColumns)
      .WithBulkOptions(options)
  .ExecuteAsync(machedValues, cancellationToken);
@@ -57,10 +51,10 @@ public static class ConnectionContextAsyncExtensions
     public static Task<List<T>> BulkMatchAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, TableInfor table, string matchedColumns, IEnumerable<string> returnedColumns, BulkMatchOptions options = null, CancellationToken cancellationToken = default)
     {
         return new BulkMatchBuilder<T>(connectionContext)
-              .WithReturnedColumns(returnedColumns)
-              .WithTable(table)
-       .WithMatchedColumn(matchedColumns)
-                .WithBulkOptions(options)
+     .WithReturnedColumns(returnedColumns)
+  .WithTable(table)
+  .WithMatchedColumn(matchedColumns)
+         .WithBulkOptions(options)
           .ExecuteAsync(machedValues, cancellationToken);
     }
 
