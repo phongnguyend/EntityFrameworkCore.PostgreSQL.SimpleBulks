@@ -110,6 +110,8 @@ using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
 TableMapper.Register(typeof(Row), new NpgsqlTableInfor("Rows"));
 TableMapper.Register(typeof(CompositeKeyRow), new NpgsqlTableInfor("CompositeKeyRows"));
 
+var connection = new ConnectionContext(new NpgsqlConnection(connectionString), null);
+
 await connection.BulkInsertAsync(rows,
            row => new { row.Column1, row.Column2, row.Column3 });
 await connection.BulkInsertAsync(compositeKeyRows,
@@ -140,6 +142,8 @@ using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkDelete;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
+
+var connection = new ConnectionContext(new NpgsqlConnection(connectionString), null);
 
 await connection.BulkInsertAsync(rows,
            [ "Column1", "Column2", "Column3" ]);
