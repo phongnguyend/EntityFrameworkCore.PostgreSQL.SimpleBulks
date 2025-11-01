@@ -1,4 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkDelete;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMatch;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.TempTable;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -199,5 +205,35 @@ public static class ConnectionContextExtensions
         var value = type.IsEnum && tempValue != null ? (int)tempValue : tempValue;
 
         return value;
+    }
+
+    public static BulkInsertBuilder<T> CreateBulkInsertBuilder<T>(this ConnectionContext connectionContext)
+    {
+        return new BulkInsertBuilder<T>(connectionContext);
+    }
+
+    public static BulkUpdateBuilder<T> CreateBulkUpdateBuilder<T>(this ConnectionContext connectionContext)
+    {
+        return new BulkUpdateBuilder<T>(connectionContext);
+    }
+
+    public static BulkDeleteBuilder<T> CreateBulkDeleteBuilder<T>(this ConnectionContext connectionContext)
+    {
+        return new BulkDeleteBuilder<T>(connectionContext);
+    }
+
+    public static BulkMergeBuilder<T> CreateBulkMergeBuilder<T>(this ConnectionContext connectionContext)
+    {
+        return new BulkMergeBuilder<T>(connectionContext);
+    }
+
+    public static BulkMatchBuilder<T> CreateBulkMatchBuilder<T>(this ConnectionContext connectionContext)
+    {
+        return new BulkMatchBuilder<T>(connectionContext);
+    }
+
+    public static TempTableBuilder<T> CreateTempTableBuilder<T>(this ConnectionContext connectionContext)
+    {
+        return new TempTableBuilder<T>(connectionContext);
     }
 }

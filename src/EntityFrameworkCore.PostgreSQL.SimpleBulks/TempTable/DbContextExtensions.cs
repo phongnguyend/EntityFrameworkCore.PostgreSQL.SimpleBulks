@@ -10,19 +10,15 @@ public static class DbContextExtensions
 {
     public static string CreateTempTable<T>(this DbContext dbContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, TempTableOptions options = null)
     {
-        var connectionContext = dbContext.GetConnectionContext();
-
-        return new TempTableBuilder<T>(connectionContext)
-        .WithColumns(columnNamesSelector)
-    .WithMappingContext(dbContext.GetMappingContext(typeof(T)))
-        .WithTempTableOptions(options)
-          .Execute(data);
+        return new TempTableBuilder<T>(dbContext.GetConnectionContext())
+      .WithColumns(columnNamesSelector)
+        .WithMappingContext(dbContext.GetMappingContext(typeof(T)))
+ .WithTempTableOptions(options)
+    .Execute(data);
     }
 
     public static string CreateTempTable<T>(this DbContext dbContext, IEnumerable<T> data, IEnumerable<string> columnNames, TempTableOptions options = null)
     {
-        var connectionContext = dbContext.GetConnectionContext();
-
         var isEntityType = dbContext.IsEntityType(typeof(T));
 
         if (isEntityType)
@@ -30,10 +26,10 @@ public static class DbContextExtensions
             columnNames = dbContext.GetAllPropertyNamesWithoutRowVersions(typeof(T));
         }
 
-        return new TempTableBuilder<T>(connectionContext)
-          .WithColumns(columnNames)
-         .WithMappingContext(dbContext.GetMappingContext(typeof(T)))
-           .WithTempTableOptions(options)
-         .Execute(data);
+        return new TempTableBuilder<T>(dbContext.GetConnectionContext())
+      .WithColumns(columnNames)
+   .WithMappingContext(dbContext.GetMappingContext(typeof(T)))
+         .WithTempTableOptions(options)
+     .Execute(data);
     }
 }

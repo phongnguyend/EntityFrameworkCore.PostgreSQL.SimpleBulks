@@ -10,25 +10,21 @@ public static class DbContextExtensions
 {
     public static BulkUpdateResult BulkUpdate<T>(this DbContext dbContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, BulkUpdateOptions options = null)
     {
-        var connectionContext = dbContext.GetConnectionContext();
-
-        return new BulkUpdateBuilder<T>(connectionContext)
-             .WithId(dbContext.GetPrimaryKeys(typeof(T)))
-             .WithColumns(columnNamesSelector)
-             .ToTable(dbContext.GetTableInfor(typeof(T)))
-             .WithBulkOptions(options)
-             .Execute(data);
+        return new BulkUpdateBuilder<T>(dbContext.GetConnectionContext())
+          .WithId(dbContext.GetPrimaryKeys(typeof(T)))
+       .WithColumns(columnNamesSelector)
+      .ToTable(dbContext.GetTableInfor(typeof(T)))
+     .WithBulkOptions(options)
+    .Execute(data);
     }
 
     public static BulkUpdateResult BulkUpdate<T>(this DbContext dbContext, IEnumerable<T> data, IEnumerable<string> columnNames, BulkUpdateOptions options = null)
     {
-        var connectionContext = dbContext.GetConnectionContext();
-
-        return new BulkUpdateBuilder<T>(connectionContext)
-            .WithId(dbContext.GetPrimaryKeys(typeof(T)))
-            .WithColumns(columnNames)
-            .ToTable(dbContext.GetTableInfor(typeof(T)))
-            .WithBulkOptions(options)
-            .Execute(data);
+        return new BulkUpdateBuilder<T>(dbContext.GetConnectionContext())
+         .WithId(dbContext.GetPrimaryKeys(typeof(T)))
+.WithColumns(columnNames)
+      .ToTable(dbContext.GetTableInfor(typeof(T)))
+         .WithBulkOptions(options)
+        .Execute(data);
     }
 }

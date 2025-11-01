@@ -12,9 +12,7 @@ public static class DbContextAsyncExtensions
 {
     public static Task<string> CreateTempTableAsync<T>(this DbContext dbContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, TempTableOptions options = null, CancellationToken cancellationToken = default)
     {
-        var connectionContext = dbContext.GetConnectionContext();
-
-        return new TempTableBuilder<T>(connectionContext)
+        return new TempTableBuilder<T>(dbContext.GetConnectionContext())
          .WithColumns(columnNamesSelector)
          .WithMappingContext(dbContext.GetMappingContext(typeof(T)))
           .WithTempTableOptions(options)
@@ -23,8 +21,6 @@ public static class DbContextAsyncExtensions
 
     public static Task<string> CreateTempTableAsync<T>(this DbContext dbContext, IEnumerable<T> data, IEnumerable<string> columnNames, TempTableOptions options = null, CancellationToken cancellationToken = default)
     {
-        var connectionContext = dbContext.GetConnectionContext();
-
         var isEntityType = dbContext.IsEntityType(typeof(T));
 
         if (isEntityType)
@@ -32,10 +28,10 @@ public static class DbContextAsyncExtensions
             columnNames = dbContext.GetAllPropertyNamesWithoutRowVersions(typeof(T));
         }
 
-        return new TempTableBuilder<T>(connectionContext)
-   .WithColumns(columnNames)
- .WithMappingContext(dbContext.GetMappingContext(typeof(T)))
-      .WithTempTableOptions(options)
-          .ExecuteAsync(data, cancellationToken);
+        return new TempTableBuilder<T>(dbContext.GetConnectionContext())
+ .WithColumns(columnNames)
+  .WithMappingContext(dbContext.GetMappingContext(typeof(T)))
+  .WithTempTableOptions(options)
+           .ExecuteAsync(data, cancellationToken);
     }
 }

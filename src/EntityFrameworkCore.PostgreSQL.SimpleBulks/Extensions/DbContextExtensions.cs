@@ -1,4 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkDelete;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMatch;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.TempTable;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -213,5 +219,35 @@ public static class DbContextExtensions
             && property.ClrType == typeof(uint)
             && string.Equals(property.GetColumnName(), "xmin", StringComparison.OrdinalIgnoreCase)
             && string.Equals(property.GetColumnType(), "xid", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static BulkInsertBuilder<T> CreateBulkInsertBuilder<T>(this DbContext dbContext)
+    {
+        return new BulkInsertBuilder<T>(dbContext.GetConnectionContext());
+    }
+
+    public static BulkUpdateBuilder<T> CreateBulkUpdateBuilder<T>(this DbContext dbContext)
+    {
+        return new BulkUpdateBuilder<T>(dbContext.GetConnectionContext());
+    }
+
+    public static BulkDeleteBuilder<T> CreateBulkDeleteBuilder<T>(this DbContext dbContext)
+    {
+        return new BulkDeleteBuilder<T>(dbContext.GetConnectionContext());
+    }
+
+    public static BulkMergeBuilder<T> CreateBulkMergeBuilder<T>(this DbContext dbContext)
+    {
+        return new BulkMergeBuilder<T>(dbContext.GetConnectionContext());
+    }
+
+    public static BulkMatchBuilder<T> CreateBulkMatchBuilder<T>(this DbContext dbContext)
+    {
+        return new BulkMatchBuilder<T>(dbContext.GetConnectionContext());
+    }
+
+    public static TempTableBuilder<T> CreateTempTableBuilder<T>(this DbContext dbContext)
+    {
+        return new TempTableBuilder<T>(dbContext.GetConnectionContext());
     }
 }
