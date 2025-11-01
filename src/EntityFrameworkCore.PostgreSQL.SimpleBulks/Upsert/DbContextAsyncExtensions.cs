@@ -15,13 +15,13 @@ public static class DbContextAsyncExtensions
     {
         var outputIdColumn = dbContext.GetOutputId(typeof(T))?.PropertyName;
 
-        return new BulkMergeBuilder<T>(dbContext.GetConnectionContext())
+        return dbContext.CreateBulkMergeBuilder<T>()
  .WithId(idSelector)
-     .WithUpdateColumns(updateColumnNamesSelector)
+   .WithUpdateColumns(updateColumnNamesSelector)
   .WithInsertColumns(insertColumnNamesSelector)
-       .WithOutputId(outputIdColumn)
-   .ToTable(dbContext.GetTableInfor(typeof(T)))
-    .WithBulkOptions(options)
+      .WithOutputId(outputIdColumn)
+    .ToTable(dbContext.GetTableInfor(typeof(T)))
+      .WithBulkOptions(options)
  .SingleMergeAsync(data, cancellationToken);
     }
 
@@ -29,13 +29,13 @@ public static class DbContextAsyncExtensions
     {
         var outputIdColumn = dbContext.GetOutputId(typeof(T))?.PropertyName;
 
-        return new BulkMergeBuilder<T>(dbContext.GetConnectionContext())
-         .WithId(idColumns)
-           .WithUpdateColumns(updateColumnNames)
-     .WithInsertColumns(insertColumnNames)
-           .WithOutputId(outputIdColumn)
-            .ToTable(dbContext.GetTableInfor(typeof(T)))
-      .WithBulkOptions(options)
+        return dbContext.CreateBulkMergeBuilder<T>()
+               .WithId(idColumns)
+            .WithUpdateColumns(updateColumnNames)
+             .WithInsertColumns(insertColumnNames)
+             .WithOutputId(outputIdColumn)
+             .ToTable(dbContext.GetTableInfor(typeof(T)))
+              .WithBulkOptions(options)
              .SingleMergeAsync(data, cancellationToken);
     }
 }

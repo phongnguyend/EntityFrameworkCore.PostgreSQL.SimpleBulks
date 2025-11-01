@@ -12,26 +12,26 @@ public static class DbContextExtensions
     {
         var idColumn = dbContext.GetOutputId(typeof(T));
 
-        new BulkInsertBuilder<T>(dbContext.GetConnectionContext())
-               .WithColumns(dbContext.GetInsertablePropertyNames(typeof(T)))
-         .ToTable(dbContext.GetTableInfor(typeof(T)))
-           .WithOutputId(idColumn?.PropertyName)
-              .WithOutputIdMode(GetOutputIdMode(idColumn))
+        dbContext.CreateBulkInsertBuilder<T>()
+       .WithColumns(dbContext.GetInsertablePropertyNames(typeof(T)))
+           .ToTable(dbContext.GetTableInfor(typeof(T)))
+      .WithOutputId(idColumn?.PropertyName)
+           .WithOutputIdMode(GetOutputIdMode(idColumn))
           .WithBulkOptions(options)
-          .Execute(data);
+            .Execute(data);
     }
 
     public static void BulkInsert<T>(this DbContext dbContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, BulkInsertOptions options = null)
     {
         var idColumn = dbContext.GetOutputId(typeof(T));
 
-        new BulkInsertBuilder<T>(dbContext.GetConnectionContext())
+        dbContext.CreateBulkInsertBuilder<T>()
      .WithColumns(columnNamesSelector)
       .ToTable(dbContext.GetTableInfor(typeof(T)))
-       .WithOutputId(idColumn?.PropertyName)
-        .WithOutputIdMode(GetOutputIdMode(idColumn))
+     .WithOutputId(idColumn?.PropertyName)
+ .WithOutputIdMode(GetOutputIdMode(idColumn))
        .WithBulkOptions(options)
-        .Execute(data);
+      .Execute(data);
     }
 
     private static OutputIdMode GetOutputIdMode(ColumnInfor columnInfor)

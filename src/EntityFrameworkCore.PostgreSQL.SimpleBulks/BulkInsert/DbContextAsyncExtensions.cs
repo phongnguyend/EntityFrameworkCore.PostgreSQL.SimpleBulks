@@ -14,26 +14,26 @@ public static class DbContextAsyncExtensions
     {
         var idColumn = dbContext.GetOutputId(typeof(T));
 
-        return new BulkInsertBuilder<T>(dbContext.GetConnectionContext())
-                .WithColumns(dbContext.GetInsertablePropertyNames(typeof(T)))
-                .ToTable(dbContext.GetTableInfor(typeof(T)))
-                .WithOutputId(idColumn?.PropertyName)
-                .WithOutputIdMode(GetOutputIdMode(idColumn))
-                .WithBulkOptions(options)
-                .ExecuteAsync(data, cancellationToken);
+        return dbContext.CreateBulkInsertBuilder<T>()
+      .WithColumns(dbContext.GetInsertablePropertyNames(typeof(T)))
+ .ToTable(dbContext.GetTableInfor(typeof(T)))
+         .WithOutputId(idColumn?.PropertyName)
+       .WithOutputIdMode(GetOutputIdMode(idColumn))
+       .WithBulkOptions(options)
+              .ExecuteAsync(data, cancellationToken);
     }
 
     public static Task BulkInsertAsync<T>(this DbContext dbContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, BulkInsertOptions options = null, CancellationToken cancellationToken = default)
     {
         var idColumn = dbContext.GetOutputId(typeof(T));
 
-        return new BulkInsertBuilder<T>(dbContext.GetConnectionContext())
-           .WithColumns(columnNamesSelector)
-            .ToTable(dbContext.GetTableInfor(typeof(T)))
-       .WithOutputId(idColumn?.PropertyName)
-                       .WithOutputIdMode(GetOutputIdMode(idColumn))
-                       .WithBulkOptions(options)
-             .ExecuteAsync(data, cancellationToken);
+        return dbContext.CreateBulkInsertBuilder<T>()
+    .WithColumns(columnNamesSelector)
+      .ToTable(dbContext.GetTableInfor(typeof(T)))
+   .WithOutputId(idColumn?.PropertyName)
+       .WithOutputIdMode(GetOutputIdMode(idColumn))
+   .WithBulkOptions(options)
+       .ExecuteAsync(data, cancellationToken);
     }
 
     private static OutputIdMode GetOutputIdMode(ColumnInfor columnInfor)

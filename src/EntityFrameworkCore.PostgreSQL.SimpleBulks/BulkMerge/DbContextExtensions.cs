@@ -12,27 +12,27 @@ public static class DbContextExtensions
     {
         var outputIdColumn = dbContext.GetOutputId(typeof(T))?.PropertyName;
 
-        return new BulkMergeBuilder<T>(dbContext.GetConnectionContext())
-             .WithId(idSelector)
-             .WithUpdateColumns(updateColumnNamesSelector)
+        return dbContext.CreateBulkMergeBuilder<T>()
+     .WithId(idSelector)
+      .WithUpdateColumns(updateColumnNamesSelector)
              .WithInsertColumns(insertColumnNamesSelector)
-             .WithOutputId(outputIdColumn)
-             .ToTable(dbContext.GetTableInfor(typeof(T)))
-             .WithBulkOptions(options)
-             .Execute(data);
+      .WithOutputId(outputIdColumn)
+   .ToTable(dbContext.GetTableInfor(typeof(T)))
+    .WithBulkOptions(options)
+        .Execute(data);
     }
 
     public static BulkMergeResult BulkMerge<T>(this DbContext dbContext, IEnumerable<T> data, IEnumerable<string> idColumns, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, BulkMergeOptions options = null)
     {
         var outputIdColumn = dbContext.GetOutputId(typeof(T))?.PropertyName;
 
-        return new BulkMergeBuilder<T>(dbContext.GetConnectionContext())
-      .WithId(idColumns)
+        return dbContext.CreateBulkMergeBuilder<T>()
+   .WithId(idColumns)
         .WithUpdateColumns(updateColumnNames)
-               .WithInsertColumns(insertColumnNames)
+      .WithInsertColumns(insertColumnNames)
      .WithOutputId(outputIdColumn)
-       .ToTable(dbContext.GetTableInfor(typeof(T)))
-            .WithBulkOptions(options)
-               .Execute(data);
+ .ToTable(dbContext.GetTableInfor(typeof(T)))
+     .WithBulkOptions(options)
+   .Execute(data);
     }
 }
