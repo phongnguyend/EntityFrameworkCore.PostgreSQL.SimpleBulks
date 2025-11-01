@@ -89,13 +89,12 @@ await dbct.BulkMergeAsync(compositeKeyRows,
 ```
 ### Using Builder Approach in case you need to mix both Dynamic & Lambda Expression
 ```c#
-await new BulkInsertBuilder<Row>(dbct.GetNpgsqlConnection())
+await new BulkInsertBuilder<Row>(dbct.GetConnectionContext())
 	.WithColumns(row => new { row.Column1, row.Column2, row.Column3 })
 	// or .WithColumns([ "Column1", "Column2", "Column3" ])
 	.WithOutputId(row => row.Id)
 	// or .WithOutputId("Id")
-	.ToTable(dbct.GetTableName(typeof(Row)))
-	// or .ToTable("Rows")
+	.ToTable(dbct.GetTableInfor(typeof(Row)))
 	.ExecuteAsync(rows);
 ```
 
@@ -142,31 +141,29 @@ using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
 
-await connection.BulkInsertAsync(rows, "Rows",
+await connection.BulkInsertAsync(rows,
            [ "Column1", "Column2", "Column3" ]);
-await connection.BulkInsertAsync(rows.Take(1000), "Rows",
-           typeof(Row).GetDbColumnNames("Id"));
-await connection.BulkInsertAsync(compositeKeyRows, "CompositeKeyRows",
+await connection.BulkInsertAsync(compositeKeyRows,
            [ "Id1", "Id2", "Column1", "Column2", "Column3" ]);
 
-await connection.BulkUpdateAsync(rows, "Rows",
+await connection.BulkUpdateAsync(rows,
            ["Id"],
            [ "Column3", "Column2" ]);
-await connection.BulkUpdateAsync(compositeKeyRows, "CompositeKeyRows",
+await connection.BulkUpdateAsync(compositeKeyRows,
            [ "Id1", "Id2" ],
            [ "Column3", "Column2" ]);
 
-await connection.BulkMergeAsync(rows, "Rows",
+await connection.BulkMergeAsync(rows,
            ["Id"],
            [ "Column1", "Column2" ],
            [ "Column1", "Column2", "Column3" ]);
-await connection.BulkMergeAsync(compositeKeyRows, "CompositeKeyRows",
+await connection.BulkMergeAsync(compositeKeyRows,
            [ "Id1", "Id2" ],
            [ "Column1", "Column2", "Column3" ],
            [ "Id1", "Id2", "Column1", "Column2", "Column3" ]);
 
-await connection.BulkDeleteAsync(rows, "Rows", ["Id"]);
-await connection.BulkDeleteAsync(compositeKeyRows, "CompositeKeyRows", [ "Id1", "Id2" ]);
+await connection.BulkDeleteAsync(rows, ["Id"]);
+await connection.BulkDeleteAsync(compositeKeyRows, [ "Id1", "Id2" ]);
 ```
 ### Using Builder Approach in case you need to mix both Dynamic & Lambda Expression
 ```c#
@@ -175,7 +172,7 @@ await new BulkInsertBuilder<Row>(connection)
 	// or .WithColumns([ "Column1", "Column2", "Column3" ])
 	.WithOutputId(row => row.Id)
 	// or .WithOutputId("Id")
-	.ToTable("Rows")
+	.ToTable(new NpgsqlTableInfor("Rows"))
 	.ExecuteAsync(rows);
 ```
 
