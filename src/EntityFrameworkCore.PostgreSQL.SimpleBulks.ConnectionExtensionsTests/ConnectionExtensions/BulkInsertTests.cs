@@ -13,8 +13,8 @@ public class BulkInsertTests : BaseTest
 
     public BulkInsertTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkInsertTest")
     {
-        TableMapper.Register(typeof(SingleKeyRow<int>), new NpgsqlTableInfor(_schema, "SingleKeyRows"));
-        TableMapper.Register(typeof(CompositeKeyRow<int, int>), new NpgsqlTableInfor(_schema, "CompositeKeyRows"));
+        TableMapper.Register<SingleKeyRow<int>>(new NpgsqlTableInfor(_schema, "SingleKeyRows"));
+        TableMapper.Register<CompositeKeyRow<int, int>>(new NpgsqlTableInfor(_schema, "CompositeKeyRows"));
     }
 
     [Theory]

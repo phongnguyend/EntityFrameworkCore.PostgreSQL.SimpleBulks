@@ -15,8 +15,8 @@ public class BulkUpdateTests : BaseTest
 
     public BulkUpdateTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkUpdateTest")
     {
-        TableMapper.Register(typeof(SingleKeyRow<int>), new NpgsqlTableInfor(_schema, "SingleKeyRows"));
-        TableMapper.Register(typeof(CompositeKeyRow<int, int>), new NpgsqlTableInfor(_schema, "CompositeKeyRows"));
+        TableMapper.Register<SingleKeyRow<int>>(new NpgsqlTableInfor(_schema, "SingleKeyRows"));
+        TableMapper.Register<CompositeKeyRow<int, int>>(new NpgsqlTableInfor(_schema, "CompositeKeyRows"));
 
         var tran = _context.Database.BeginTransaction();
 
