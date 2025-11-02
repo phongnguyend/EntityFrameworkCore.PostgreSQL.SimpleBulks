@@ -7,79 +7,41 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 
 public static class ConnectionContextExtensions
 {
-    public static void BulkInsert<T>(this ConnectionContext connectionContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, BulkInsertOptions options = null)
+    public static void BulkInsert<T>(this ConnectionContext connectionContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, NpgsqlTableInfor table = null, BulkInsertOptions options = null)
     {
         connectionContext.CreateBulkInsertBuilder<T>()
         .WithColumns(columnNamesSelector)
-          .ToTable(TableMapper.Resolve<T>())
+          .ToTable(table ?? TableMapper.Resolve<T>())
        .WithBulkOptions(options)
      .Execute(data);
     }
 
-    public static void BulkInsert<T>(this ConnectionContext connectionContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, Expression<Func<T, object>> idSelector, BulkInsertOptions options = null)
+    public static void BulkInsert<T>(this ConnectionContext connectionContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, Expression<Func<T, object>> idSelector, NpgsqlTableInfor table = null, BulkInsertOptions options = null)
     {
         connectionContext.CreateBulkInsertBuilder<T>()
       .WithColumns(columnNamesSelector)
-      .ToTable(TableMapper.Resolve<T>())
+      .ToTable(table ?? TableMapper.Resolve<T>())
          .WithOutputId(idSelector)
   .WithBulkOptions(options)
      .Execute(data);
     }
 
-    public static void BulkInsert<T>(this ConnectionContext connectionContext, IEnumerable<T> data, IEnumerable<string> columnNames, BulkInsertOptions options = null)
+    public static void BulkInsert<T>(this ConnectionContext connectionContext, IEnumerable<T> data, IEnumerable<string> columnNames, NpgsqlTableInfor table = null, BulkInsertOptions options = null)
     {
         connectionContext.CreateBulkInsertBuilder<T>()
          .WithColumns(columnNames)
-         .ToTable(TableMapper.Resolve<T>())
+         .ToTable(table ?? TableMapper.Resolve<T>())
               .WithBulkOptions(options)
          .Execute(data);
     }
 
-    public static void BulkInsert<T>(this ConnectionContext connectionContext, IEnumerable<T> data, IEnumerable<string> columnNames, string idColumnName, BulkInsertOptions options = null)
+    public static void BulkInsert<T>(this ConnectionContext connectionContext, IEnumerable<T> data, IEnumerable<string> columnNames, string idColumnName, NpgsqlTableInfor table = null, BulkInsertOptions options = null)
     {
         connectionContext.CreateBulkInsertBuilder<T>()
         .WithColumns(columnNames)
-      .ToTable(TableMapper.Resolve<T>())
+      .ToTable(table ?? TableMapper.Resolve<T>())
     .WithOutputId(idColumnName)
    .WithBulkOptions(options)
       .Execute(data);
-    }
-
-    public static void BulkInsert<T>(this ConnectionContext connectionContext, IEnumerable<T> data, TableInfor table, Expression<Func<T, object>> columnNamesSelector, BulkInsertOptions options = null)
-    {
-        connectionContext.CreateBulkInsertBuilder<T>()
-        .WithColumns(columnNamesSelector)
-        .ToTable(table)
-     .WithBulkOptions(options)
-  .Execute(data);
-    }
-
-    public static void BulkInsert<T>(this ConnectionContext connectionContext, IEnumerable<T> data, TableInfor table, Expression<Func<T, object>> columnNamesSelector, Expression<Func<T, object>> idSelector, BulkInsertOptions options = null)
-    {
-        connectionContext.CreateBulkInsertBuilder<T>()
-          .WithColumns(columnNamesSelector)
-          .ToTable(table)
-                .WithOutputId(idSelector)
-           .WithBulkOptions(options)
-        .Execute(data);
-    }
-
-    public static void BulkInsert<T>(this ConnectionContext connectionContext, IEnumerable<T> data, TableInfor table, IEnumerable<string> columnNames, BulkInsertOptions options = null)
-    {
-        connectionContext.CreateBulkInsertBuilder<T>()
-                 .WithColumns(columnNames)
-              .ToTable(table)
-              .WithBulkOptions(options)
-                  .Execute(data);
-    }
-
-    public static void BulkInsert<T>(this ConnectionContext connectionContext, IEnumerable<T> data, TableInfor table, IEnumerable<string> columnNames, string idColumnName, BulkInsertOptions options = null)
-    {
-        connectionContext.CreateBulkInsertBuilder<T>()
-     .WithColumns(columnNames)
-  .ToTable(table)
-       .WithOutputId(idColumnName)
-      .WithBulkOptions(options)
-  .Execute(data);
     }
 }

@@ -62,25 +62,27 @@ public class BulkDeleteAsyncTests : BaseTest
             if (omitTableName)
             {
                 await connectionContext.BulkDeleteAsync(rows, row => row.Id,
-                  new BulkDeleteOptions
-                  {
-                      LogTo = _output.WriteLine
-                  });
+                 options: new BulkDeleteOptions
+                 {
+                     LogTo = _output.WriteLine
+                 });
                 await connectionContext.BulkDeleteAsync(compositeKeyRows, row => new { row.Id1, row.Id2 },
-                  new BulkDeleteOptions
+                  options: new BulkDeleteOptions
                   {
                       LogTo = _output.WriteLine
                   });
             }
             else
             {
-                await connectionContext.BulkDeleteAsync(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"), row => row.Id,
-                  new BulkDeleteOptions
-                  {
-                      LogTo = _output.WriteLine
-                  });
-                await connectionContext.BulkDeleteAsync(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"), row => new { row.Id1, row.Id2 },
-                  new BulkDeleteOptions
+                await connectionContext.BulkDeleteAsync(rows, row => row.Id,
+                    new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                 options: new BulkDeleteOptions
+                 {
+                     LogTo = _output.WriteLine
+                 });
+                await connectionContext.BulkDeleteAsync(compositeKeyRows, row => new { row.Id1, row.Id2 },
+                    new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                  options: new BulkDeleteOptions
                   {
                       LogTo = _output.WriteLine
                   });
@@ -91,25 +93,27 @@ public class BulkDeleteAsyncTests : BaseTest
             if (omitTableName)
             {
                 await connectionContext.BulkDeleteAsync(rows, ["Id"],
-                  new BulkDeleteOptions
+                  options: new BulkDeleteOptions
                   {
                       LogTo = _output.WriteLine
                   });
                 await connectionContext.BulkDeleteAsync(compositeKeyRows, ["Id1", "Id2"],
-                  new BulkDeleteOptions
+                  options: new BulkDeleteOptions
                   {
                       LogTo = _output.WriteLine
                   });
             }
             else
             {
-                connectionContext.BulkDelete(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"), ["Id"],
-                  new BulkDeleteOptions
+                connectionContext.BulkDelete(rows, ["Id"],
+                    new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                  options: new BulkDeleteOptions
                   {
                       LogTo = _output.WriteLine
                   });
-                connectionContext.BulkDelete(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"), ["Id1", "Id2"],
-                  new BulkDeleteOptions
+                connectionContext.BulkDelete(compositeKeyRows, ["Id1", "Id2"],
+                    new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                  options: new BulkDeleteOptions
                   {
                       LogTo = _output.WriteLine
                   });

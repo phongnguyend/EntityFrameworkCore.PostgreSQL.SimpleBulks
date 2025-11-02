@@ -82,7 +82,7 @@ public class BulkUpdateAsyncTests : BaseTest
                 await connectionContext.BulkUpdateAsync(rows,
                      row => row.Id,
                      row => new { row.Column3, row.Column2 },
-                     new BulkUpdateOptions
+                     options: new BulkUpdateOptions
                      {
                          LogTo = _output.WriteLine
                      });
@@ -90,25 +90,27 @@ public class BulkUpdateAsyncTests : BaseTest
                 await connectionContext.BulkUpdateAsync(compositeKeyRows,
                      row => new { row.Id1, row.Id2 },
                      row => new { row.Column3, row.Column2 },
-                     new BulkUpdateOptions
+                     options: new BulkUpdateOptions
                      {
                          LogTo = _output.WriteLine
                      });
             }
             else
             {
-                await connectionContext.BulkUpdateAsync(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                await connectionContext.BulkUpdateAsync(rows, 
                       row => row.Id,
                       row => new { row.Column3, row.Column2 },
-                      new BulkUpdateOptions
+                      new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                      options: new BulkUpdateOptions
                       {
                           LogTo = _output.WriteLine
                       });
 
-                await connectionContext.BulkUpdateAsync(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                await connectionContext.BulkUpdateAsync(compositeKeyRows,
                        row => new { row.Id1, row.Id2 },
                        row => new { row.Column3, row.Column2 },
-                       new BulkUpdateOptions
+                       new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                       options: new BulkUpdateOptions
                        {
                            LogTo = _output.WriteLine
                        });
@@ -142,7 +144,7 @@ public class BulkUpdateAsyncTests : BaseTest
                       row => row.Id,
                       row => new { row.Column1, row.Column2 },
                       row => new { row.Column1, row.Column2, row.Column3 },
-                      new BulkMergeOptions
+                      options: new BulkMergeOptions
                       {
                           LogTo = _output.WriteLine
                       });
@@ -151,27 +153,29 @@ public class BulkUpdateAsyncTests : BaseTest
                      row => new { row.Id1, row.Id2 },
                      row => new { row.Column1, row.Column2, row.Column3 },
                      row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 },
-                     new BulkMergeOptions
+                     options: new BulkMergeOptions
                      {
                          LogTo = _output.WriteLine
                      });
             }
             else
             {
-                await connectionContext.BulkMergeAsync(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                await connectionContext.BulkMergeAsync(rows,
                      row => row.Id,
                      row => new { row.Column1, row.Column2 },
                      row => new { row.Column1, row.Column2, row.Column3 },
-                     new BulkMergeOptions
+                     new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                     options: new BulkMergeOptions
                      {
                          LogTo = _output.WriteLine
                      });
 
-                await connectionContext.BulkMergeAsync(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                await connectionContext.BulkMergeAsync(compositeKeyRows,
                      row => new { row.Id1, row.Id2 },
                      row => new { row.Column1, row.Column2, row.Column3 },
                      row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 },
-                     new BulkMergeOptions
+                     new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                     options: new BulkMergeOptions
                      {
                          LogTo = _output.WriteLine
                      });
@@ -185,7 +189,7 @@ public class BulkUpdateAsyncTests : BaseTest
                 await connectionContext.BulkUpdateAsync(rows,
                      ["Id"],
                      ["Column3", "Column2"],
-                     new BulkUpdateOptions
+                     options: new BulkUpdateOptions
                      {
                          LogTo = _output.WriteLine
                      });
@@ -193,25 +197,27 @@ public class BulkUpdateAsyncTests : BaseTest
                 await connectionContext.BulkUpdateAsync(compositeKeyRows,
                       ["Id1", "Id2"],
                       ["Column3", "Column2"],
-                      new BulkUpdateOptions
+                      options: new BulkUpdateOptions
                       {
                           LogTo = _output.WriteLine
                       });
             }
             else
             {
-                await connectionContext.BulkUpdateAsync(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                await connectionContext.BulkUpdateAsync(rows,
                       ["Id"],
                       ["Column3", "Column2"],
-                      new BulkUpdateOptions
+                      new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                      options: new BulkUpdateOptions
                       {
                           LogTo = _output.WriteLine
                       });
 
-                await connectionContext.BulkUpdateAsync(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                await connectionContext.BulkUpdateAsync(compositeKeyRows, 
                       ["Id1", "Id2"],
                       ["Column3", "Column2"],
-                      new BulkUpdateOptions
+                      new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                      options: new BulkUpdateOptions
                       {
                           LogTo = _output.WriteLine
                       });
@@ -245,7 +251,7 @@ public class BulkUpdateAsyncTests : BaseTest
                       ["Id"],
                       ["Column1", "Column2"],
                       ["Column1", "Column2", "Column3"],
-                      new BulkMergeOptions
+                      options: new BulkMergeOptions
                       {
                           LogTo = _output.WriteLine
                       });
@@ -254,27 +260,29 @@ public class BulkUpdateAsyncTests : BaseTest
                       ["Id1", "Id2"],
                       ["Column1", "Column2", "Column3"],
                       ["Id1", "Id2", "Column1", "Column2", "Column3"],
-                      new BulkMergeOptions
+                      options: new BulkMergeOptions
                       {
                           LogTo = _output.WriteLine
                       });
             }
             else
             {
-                await connectionContext.BulkMergeAsync(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                await connectionContext.BulkMergeAsync(rows, 
                       ["Id"],
                       ["Column1", "Column2"],
                       ["Column1", "Column2", "Column3"],
-                      new BulkMergeOptions
+                      new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                      options: new BulkMergeOptions
                       {
                           LogTo = _output.WriteLine
                       });
 
-                await connectionContext.BulkMergeAsync(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                await connectionContext.BulkMergeAsync(compositeKeyRows,
                      ["Id1", "Id2"],
                      ["Column1", "Column2", "Column3"],
                      ["Id1", "Id2", "Column1", "Column2", "Column3"],
-                     new BulkMergeOptions
+                     new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                     options: new BulkMergeOptions
                      {
                          LogTo = _output.WriteLine
                      });

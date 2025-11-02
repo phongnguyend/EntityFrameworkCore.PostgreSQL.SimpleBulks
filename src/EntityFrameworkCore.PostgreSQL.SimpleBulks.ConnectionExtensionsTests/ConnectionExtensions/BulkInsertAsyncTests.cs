@@ -55,31 +55,33 @@ public class BulkInsertAsyncTests : BaseTest
                 await connectionContext.BulkInsertAsync(rows,
                       row => new { row.Column1, row.Column2, row.Column3 },
                       row => row.Id,
-                      new BulkInsertOptions
+                      options: new BulkInsertOptions
                       {
                           LogTo = _output.WriteLine
                       });
 
                 await connectionContext.BulkInsertAsync(compositeKeyRows,
                       row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 },
-                      new BulkInsertOptions
+                      options: new BulkInsertOptions
                       {
                           LogTo = _output.WriteLine
                       });
             }
             else
             {
-                await connectionContext.BulkInsertAsync(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                await connectionContext.BulkInsertAsync(rows,
                      row => new { row.Column1, row.Column2, row.Column3 },
                      row => row.Id,
-                     new BulkInsertOptions
+                     new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                     options: new BulkInsertOptions
                      {
                          LogTo = _output.WriteLine
                      });
 
-                await connectionContext.BulkInsertAsync(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                await connectionContext.BulkInsertAsync(compositeKeyRows,
                       row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 },
-                      new BulkInsertOptions
+                      new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                      options: new BulkInsertOptions
                       {
                           LogTo = _output.WriteLine
                       });
@@ -93,31 +95,33 @@ public class BulkInsertAsyncTests : BaseTest
                 await connectionContext.BulkInsertAsync(rows,
                      ["Column1", "Column2", "Column3"],
                      "Id",
-                     new BulkInsertOptions
+                     options: new BulkInsertOptions
                      {
                          LogTo = _output.WriteLine
                      });
 
                 await connectionContext.BulkInsertAsync(compositeKeyRows,
                      ["Id1", "Id2", "Column1", "Column2", "Column3"],
-                     new BulkInsertOptions
+                     options: new BulkInsertOptions
                      {
                          LogTo = _output.WriteLine
                      });
             }
             else
             {
-                await connectionContext.BulkInsertAsync(rows, new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                await connectionContext.BulkInsertAsync(rows,
                       ["Column1", "Column2", "Column3"],
                       "Id",
-                      new BulkInsertOptions
+                      new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                      options: new BulkInsertOptions
                       {
                           LogTo = _output.WriteLine
                       });
 
-                await connectionContext.BulkInsertAsync(compositeKeyRows, new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                await connectionContext.BulkInsertAsync(compositeKeyRows,
                       ["Id1", "Id2", "Column1", "Column2", "Column3"],
-                      new BulkInsertOptions
+                       new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                      options: new BulkInsertOptions
                       {
                           LogTo = _output.WriteLine
                       });
