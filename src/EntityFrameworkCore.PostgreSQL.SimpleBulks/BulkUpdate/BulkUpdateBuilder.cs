@@ -72,12 +72,11 @@ public class BulkUpdateBuilder<T>
         var propertyNamesIncludeId = _columnNames.Select(RemoveOperator).ToList();
         propertyNamesIncludeId.AddRange(_idColumns);
 
-        var clrTypes = typeof(T).GetProviderClrTypes(propertyNamesIncludeId, _table.ValueConverters);
         var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNamesIncludeId, null, _table.ColumnTypeMappings);
 
         var joinCondition = string.Join(" and ", _idColumns.Select(x =>
         {
-            string collation = !string.IsNullOrEmpty(_options.Collation) && clrTypes[x] == typeof(string) ?
+            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
             $" COLLATE \"{_options.Collation}\"" : string.Empty;
             return $"a.\"{_table.GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
         }));
@@ -197,12 +196,11 @@ public class BulkUpdateBuilder<T>
         var propertyNamesIncludeId = _columnNames.Select(RemoveOperator).ToList();
         propertyNamesIncludeId.AddRange(_idColumns);
 
-        var clrTypes = typeof(T).GetProviderClrTypes(propertyNamesIncludeId, _table.ValueConverters);
         var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNamesIncludeId, null, _table.ColumnTypeMappings);
 
         var joinCondition = string.Join(" and ", _idColumns.Select(x =>
         {
-            string collation = !string.IsNullOrEmpty(_options.Collation) && clrTypes[x] == typeof(string) ?
+            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
             $" COLLATE \"{_options.Collation}\"" : string.Empty;
             return $"a.\"{_table.GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
         }));

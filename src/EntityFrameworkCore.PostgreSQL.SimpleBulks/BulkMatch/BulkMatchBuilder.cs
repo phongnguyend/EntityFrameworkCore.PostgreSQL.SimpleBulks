@@ -73,12 +73,11 @@ public class BulkMatchBuilder<T>
     {
         var temptableName = $"\"{Guid.NewGuid()}\"";
 
-        var clrTypes = typeof(T).GetProviderClrTypes(_matchedColumns, _table.ValueConverters);
         var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, _matchedColumns, null, _table.ColumnTypeMappings);
 
         var joinCondition = string.Join(" AND ", _matchedColumns.Select(x =>
         {
-            string collation = !string.IsNullOrEmpty(_options.Collation) && clrTypes[x] == typeof(string) ?
+            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
             $" COLLATE \"{_options.Collation}\"" : string.Empty;
             return $"a.\"{_table.GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
         }));
@@ -149,12 +148,11 @@ public class BulkMatchBuilder<T>
     {
         var temptableName = $"\"{Guid.NewGuid()}\"";
 
-        var clrTypes = typeof(T).GetProviderClrTypes(_matchedColumns, _table.ValueConverters);
         var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, _matchedColumns, null, _table.ColumnTypeMappings);
 
         var joinCondition = string.Join(" AND ", _matchedColumns.Select(x =>
         {
-            string collation = !string.IsNullOrEmpty(_options.Collation) && clrTypes[x] == typeof(string) ?
+            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
             $" COLLATE \"{_options.Collation}\"" : string.Empty;
             return $"a.\"{_table.GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
         }));
