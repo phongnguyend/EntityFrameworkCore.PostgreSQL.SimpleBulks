@@ -57,7 +57,7 @@ public class BulkDeleteBuilder<T>
 
         var joinCondition = string.Join(" AND ", _idColumns.Select(x =>
         {
-            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
+            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType<T>(x) == typeof(string) ?
             $" COLLATE \"{_options.Collation}\"" : string.Empty;
             return $"a.\"{_table.GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
         }));
@@ -140,7 +140,7 @@ public class BulkDeleteBuilder<T>
 
         var joinCondition = string.Join(" AND ", _idColumns.Select(x =>
         {
-            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
+            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType<T>(x) == typeof(string) ?
             $" COLLATE \"{_options.Collation}\"" : string.Empty;
             return $"a.\"{_table.GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
         }));
