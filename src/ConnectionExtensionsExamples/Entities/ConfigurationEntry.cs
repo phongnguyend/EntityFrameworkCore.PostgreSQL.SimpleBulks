@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo.Entities;
+namespace ConnectionExtensionsExamples.Entities;
 
 public class ConfigurationEntry
 {

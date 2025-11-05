@@ -1,12 +1,16 @@
-﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo.Entities;
+﻿using ConnectionExtensionsExamples.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
 
-namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo;
+namespace ConnectionExtensionsExamples;
 
 public class DemoDbContext : DbContext
 {
-    private const string _connectionString = "Host=127.0.0.1;Database=EFCoreSimpleBulks;Username=postgres;Password=postgres";
+    private string _connectionString;
+
+    public DemoDbContext(string connectionString)
+    {
+        _connectionString = connectionString;
+    }
 
     public DbSet<Row> Rows { get; set; }
 
@@ -27,9 +31,6 @@ public class DemoDbContext : DbContext
 
         modelBuilder.Entity<CompositeKeyRow>().HasKey(x => new { x.Id1, x.Id2 });
         modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Id).HasDefaultValueSql("uuid_generate_v1mc()");
-        modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Key).HasColumnName("Key1");
-        modelBuilder.Entity<ConfigurationEntry>().Property(x => x.Id).HasColumnName("Id1");
-        modelBuilder.Entity<ConfigurationEntry>().Property(x => x.SeasonAsString).HasConversion(v => v.ToString(), v => (Season)Enum.Parse(typeof(Season), v));
 
         base.OnModelCreating(modelBuilder);
     }

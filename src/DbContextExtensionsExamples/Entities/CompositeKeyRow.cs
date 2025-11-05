@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo.Entities;
+namespace DbContextExtensionsExamples.Entities;
 
 public class CompositeKeyRow
 {

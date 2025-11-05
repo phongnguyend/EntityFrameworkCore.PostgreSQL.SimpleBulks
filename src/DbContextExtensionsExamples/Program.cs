@@ -2,8 +2,8 @@
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo;
-using EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo.Entities;
+using DbContextExtensionsExamples;
+using DbContextExtensionsExamples.Entities;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.DirectDelete;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.DirectInsert;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.DirectUpdate;
@@ -12,10 +12,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+const string connectionString = "Host=127.0.0.1;Database=DbContextExtensionsExamples;Username=postgres;Password=postgres";
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-using (var dbct = new DemoDbContext())
+using (var dbct = new DemoDbContext(connectionString))
 {
     dbct.Database.Migrate();
 

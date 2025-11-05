@@ -4,7 +4,7 @@ using System;
 
 #nullable disable
 
-namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo.Migrations;
+namespace DbContextExtensionsExamples.Migrations;
 
 /// <inheritdoc />
 public partial class Init : Migration

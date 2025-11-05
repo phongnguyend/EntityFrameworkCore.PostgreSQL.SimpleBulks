@@ -3,7 +3,8 @@
     <Project Path="EntityFrameworkCore.PostgreSQL.SimpleBulks.Benchmarks/EntityFrameworkCore.PostgreSQL.SimpleBulks.Benchmarks.csproj" />
   </Folder>
   <Folder Name="/examples/">
-    <Project Path="EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo/EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo.csproj" />
+    <Project Path="ConnectionExtensionsExamples/ConnectionExtensionsExamples.csproj" Id="6f4b495a-897e-4967-99f5-00b667f87a28" />
+    <Project Path="DbContextExtensionsExamples/DbContextExtensionsExamples.csproj" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="EntityFrameworkCore.PostgreSQL.SimpleBulks/EntityFrameworkCore.PostgreSQL.SimpleBulks.csproj" />
