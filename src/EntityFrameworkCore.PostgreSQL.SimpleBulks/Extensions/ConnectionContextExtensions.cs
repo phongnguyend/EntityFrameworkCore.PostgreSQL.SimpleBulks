@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -69,16 +69,7 @@ public static class ConnectionContextExtensions
     {
         options ??= DefaultBulkOptions;
 
-        var properties = TypeDescriptor.GetProperties(typeof(T));
-
-        var updatablePros = new List<PropertyDescriptor>();
-        foreach (PropertyDescriptor prop in properties)
-        {
-            if (propertyNames.Contains(prop.Name))
-            {
-                updatablePros.Add(prop);
-            }
-        }
+        var properties = typeof(T).GetProperties();
 
         var columnNamesToInsert = propertyNames.ToList();
 
@@ -99,7 +90,7 @@ public static class ConnectionContextExtensions
 
             foreach (var name in columnNamesToInsert)
             {
-                var prop = updatablePros.FirstOrDefault(x => x.Name == name);
+                var prop = properties.FirstOrDefault(x => x.Name == name);
 
                 if (prop == null)
                 {
@@ -126,16 +117,7 @@ public static class ConnectionContextExtensions
     {
         options ??= DefaultBulkOptions;
 
-        var properties = TypeDescriptor.GetProperties(typeof(T));
-
-        var updatablePros = new List<PropertyDescriptor>();
-        foreach (PropertyDescriptor prop in properties)
-        {
-            if (propertyNames.Contains(prop.Name))
-            {
-                updatablePros.Add(prop);
-            }
-        }
+        var properties = typeof(T).GetProperties();
 
         var columnNamesToInsert = propertyNames.ToList();
 
@@ -160,7 +142,7 @@ public static class ConnectionContextExtensions
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var prop = updatablePros.FirstOrDefault(x => x.Name == name);
+                var prop = properties.FirstOrDefault(x => x.Name == name);
 
                 if (prop == null)
                 {
@@ -193,7 +175,7 @@ public static class ConnectionContextExtensions
         return columnNameMappings.TryGetValue(columName, out string value) ? value : columName;
     }
 
-    private static object GetProviderValue<T>(PropertyDescriptor property, T item, IReadOnlyDictionary<string, ValueConverter> valueConverters)
+    private static object GetProviderValue<T>(PropertyInfo property, T item, IReadOnlyDictionary<string, ValueConverter> valueConverters)
     {
         if (valueConverters != null && valueConverters.TryGetValue(property.Name, out var converter))
         {

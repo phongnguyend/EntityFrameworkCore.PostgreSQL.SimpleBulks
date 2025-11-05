@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -39,20 +38,16 @@ public static class TypeExtensions
         IReadOnlyDictionary<string, string> columnTypeMappings,
         bool addIndexNumberColumn = false)
     {
-        var properties = TypeDescriptor.GetProperties(type);
-
-        var updatablePros = new List<PropertyDescriptor>();
-        foreach (PropertyDescriptor prop in properties)
-        {
-            if (propertyNames.Contains(prop.Name))
-            {
-                updatablePros.Add(prop);
-            }
-        }
+        var properties = type.GetProperties();
 
         var table = new Dictionary<string, Type>();
-        foreach (PropertyDescriptor prop in updatablePros)
+        foreach (var prop in properties)
         {
+            if (!propertyNames.Contains(prop.Name))
+            {
+                continue;
+            }
+
             table.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
         }
 
