@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks;
 
@@ -88,23 +88,19 @@ public class DbContextTableInfor : TableInfor
 
     public override List<NpgsqlParameter> CreateSqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames)
     {
-        var properties = TypeDescriptor.GetProperties(typeof(T));
-
-        var updatablePros = new List<PropertyDescriptor>();
-        foreach (PropertyDescriptor prop in properties)
-        {
-            if (propertyNames.Contains(prop.Name))
-            {
-                updatablePros.Add(prop);
-            }
-        }
+        var properties = typeof(T).GetProperties();
 
         var parameters = new List<NpgsqlParameter>();
 
         var mappingSource = _dbContext.GetService<IRelationalTypeMappingSource>();
 
-        foreach (PropertyDescriptor prop in updatablePros)
+        foreach (var prop in properties)
         {
+            if (!propertyNames.Contains(prop.Name))
+            {
+                continue;
+            }
+
             if (ColumnTypeMappings != null && ColumnTypeMappings.TryGetValue(prop.Name, out var columnType))
             {
                 var mapping = mappingSource.FindMapping(columnType);
@@ -117,7 +113,7 @@ public class DbContextTableInfor : TableInfor
 
     }
 
-    private object GetProviderValue<T>(PropertyDescriptor property, T item)
+    private object GetProviderValue<T>(PropertyInfo property, T item)
     {
         if (ValueConverters != null && ValueConverters.TryGetValue(property.Name, out var converter))
         {
@@ -144,21 +140,17 @@ public class NpgsqlTableInfor : TableInfor
 
     public override List<NpgsqlParameter> CreateSqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames)
     {
-        var properties = TypeDescriptor.GetProperties(typeof(T));
-
-        var updatablePros = new List<PropertyDescriptor>();
-        foreach (PropertyDescriptor prop in properties)
-        {
-            if (propertyNames.Contains(prop.Name))
-            {
-                updatablePros.Add(prop);
-            }
-        }
+        var properties = typeof(T).GetProperties();
 
         var parameters = new List<NpgsqlParameter>();
 
-        foreach (PropertyDescriptor prop in updatablePros)
+        foreach (var prop in properties)
         {
+            if (!propertyNames.Contains(prop.Name))
+            {
+                continue;
+            }
+
             var value = GetProviderValue(prop, data);
 
             var para = new NpgsqlParameter($"@{prop.Name}", value ?? DBNull.Value);
@@ -181,7 +173,7 @@ public class NpgsqlTableInfor : TableInfor
 
     }
 
-    private static object GetProviderValue<T>(PropertyDescriptor property, T item)
+    private static object GetProviderValue<T>(PropertyInfo property, T item)
     {
         var type = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
         var tempValue = property.GetValue(item);
