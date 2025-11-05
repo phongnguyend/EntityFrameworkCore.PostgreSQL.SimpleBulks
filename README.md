@@ -22,6 +22,7 @@ or you can use **ConnectionContextExtensions.cs** to work directly with a **Npgs
 - Direct Insert
 - Direct Update
 - Direct Delete
+- Upsert
 
 ## Examples
 [EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo](/src/EntityFrameworkCore.PostgreSQL.SimpleBulks.Demo/Program.cs)
