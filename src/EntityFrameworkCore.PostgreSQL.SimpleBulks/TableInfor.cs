@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -71,7 +72,7 @@ public abstract class TableInfor
         throw new ArgumentException($"Property '{propertyName}' not found.");
     }
 
-    public abstract List<NpgsqlParameter> CreateSqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames);
+    public abstract List<NpgsqlParameter> CreateNpgsqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames);
 }
 
 public class DbContextTableInfor : TableInfor
@@ -88,7 +89,7 @@ public class DbContextTableInfor : TableInfor
         _dbContext = dbContext;
     }
 
-    public override List<NpgsqlParameter> CreateSqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames)
+    public override List<NpgsqlParameter> CreateNpgsqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames)
     {
         var properties = typeof(T).GetProperties();
 
@@ -140,7 +141,7 @@ public class NpgsqlTableInfor : TableInfor
     {
     }
 
-    public override List<NpgsqlParameter> CreateSqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames)
+    public override List<NpgsqlParameter> CreateNpgsqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames)
     {
         var properties = typeof(T).GetProperties();
 
@@ -159,45 +160,13 @@ public class NpgsqlTableInfor : TableInfor
 
             var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
 
-            if (type == typeof(bool))
+            if (ColumnTypeMappings != null && ColumnTypeMappings.TryGetValue(prop.Name, out var columnType))
             {
-                para.DbType = System.Data.DbType.Boolean;
+                para.DataTypeName = columnType;
             }
-            else if (type == typeof(DateTime))
+            else
             {
-                para.DbType = System.Data.DbType.DateTime2;
-            }
-            else if (type == typeof(DateTimeOffset))
-            {
-                para.DbType = System.Data.DbType.DateTimeOffset;
-            }
-            else if (type == typeof(decimal))
-            {
-                para.DbType = System.Data.DbType.Decimal;
-            }
-            else if (type == typeof(double))
-            {
-                para.DbType = System.Data.DbType.Double;
-            }
-            else if (type == typeof(Guid))
-            {
-                para.DbType = System.Data.DbType.Guid;
-            }
-            else if (type == typeof(short))
-            {
-                para.DbType = System.Data.DbType.Int16;
-            }
-            else if (type == typeof(int) || type.IsEnum)
-            {
-                para.DbType = System.Data.DbType.Int32;
-            }
-            else if (type == typeof(long))
-            {
-                para.DbType = System.Data.DbType.Int64;
-            }
-            else if (type == typeof(float))
-            {
-                para.DbType = System.Data.DbType.Single;
+                para.DataTypeName = type.ToPostgreSQLType();
             }
 
             parameters.Add(para);

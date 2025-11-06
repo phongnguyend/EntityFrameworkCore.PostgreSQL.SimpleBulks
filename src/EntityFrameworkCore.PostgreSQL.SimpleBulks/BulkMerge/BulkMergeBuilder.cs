@@ -441,7 +441,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
 
         using (var updateCommand = _connectionContext.CreateTextCommand(sqlMergeStatement, _options))
         {
-            _table.CreateSqlParameters(updateCommand, data, propertyNames)
+            _table.CreateNpgsqlParameters(updateCommand, data, propertyNames)
  .ForEach(x => updateCommand.Parameters.Add(x));
 
             using var reader = updateCommand.ExecuteReader();
@@ -545,7 +545,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
 
         using (var updateCommand = _connectionContext.CreateTextCommand(sqlMergeStatement, _options))
         {
-            _table.CreateSqlParameters(updateCommand, data, propertyNames)
+            _table.CreateNpgsqlParameters(updateCommand, data, propertyNames)
        .ForEach(x => updateCommand.Parameters.Add(x));
 
             using var reader = await updateCommand.ExecuteReaderAsync(cancellationToken);

@@ -133,7 +133,7 @@ public class BulkUpdateBuilder<T>
 
         using var updateCommand = _connectionContext.CreateTextCommand(sqlUpdateStatement, _options);
 
-        _table.CreateSqlParameters(updateCommand, dataToUpdate, propertyNamesIncludeId).ForEach(x => updateCommand.Parameters.Add(x));
+        _table.CreateNpgsqlParameters(updateCommand, dataToUpdate, propertyNamesIncludeId).ForEach(x => updateCommand.Parameters.Add(x));
 
         _connectionContext.EnsureOpen();
 
@@ -257,7 +257,7 @@ public class BulkUpdateBuilder<T>
 
         using var updateCommand = _connectionContext.CreateTextCommand(sqlUpdateStatement, _options);
 
-        _table.CreateSqlParameters(updateCommand, dataToUpdate, propertyNamesIncludeId).ForEach(x => updateCommand.Parameters.Add(x));
+        _table.CreateNpgsqlParameters(updateCommand, dataToUpdate, propertyNamesIncludeId).ForEach(x => updateCommand.Parameters.Add(x));
 
         await _connectionContext.EnsureOpenAsync(cancellationToken);
 

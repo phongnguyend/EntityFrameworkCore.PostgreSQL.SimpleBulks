@@ -221,7 +221,7 @@ public class BulkInsertBuilder<T>
 
         using var insertCommand = _connectionContext.CreateTextCommand(insertStatement, _options);
 
-        _table.CreateSqlParameters(insertCommand, dataToInsert, columnsToInsert).ForEach(x => insertCommand.Parameters.Add(x));
+        _table.CreateNpgsqlParameters(insertCommand, dataToInsert, columnsToInsert).ForEach(x => insertCommand.Parameters.Add(x));
 
         Log($"Begin inserting: {Environment.NewLine}{insertStatement}");
 
@@ -411,7 +411,7 @@ public class BulkInsertBuilder<T>
         var insertStatement = insertStatementBuilder.ToString();
 
         using var insertCommand = _connectionContext.CreateTextCommand(insertStatement, _options);
-        _table.CreateSqlParameters(insertCommand, dataToInsert, columnsToInsert).ForEach(x => insertCommand.Parameters.Add(x));
+        _table.CreateNpgsqlParameters(insertCommand, dataToInsert, columnsToInsert).ForEach(x => insertCommand.Parameters.Add(x));
 
         Log($"Begin inserting: {Environment.NewLine}{insertStatement}");
 
