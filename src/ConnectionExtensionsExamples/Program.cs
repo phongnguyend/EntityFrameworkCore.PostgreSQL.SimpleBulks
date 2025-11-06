@@ -14,8 +14,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-const string connectionString = "Host=127.0.0.1;Database=ConnectionExtensionsExamples;Username=postgres;Password=postgres";
-
 TableMapper.Register<ConfigurationEntry>(new NpgsqlTableInfor("ConfigurationEntries")
 {
     OutputId = new OutputId
@@ -30,14 +28,14 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 var existingConfigurationEntries = new List<ConfigurationEntry>();
 
 // Use DbContext to create the database and apply migrations only.
-using (var dbct = new DemoDbContext(connectionString))
+using (var dbct = new DemoDbContext())
 {
     dbct.Database.Migrate();
 
     existingConfigurationEntries = dbct.Set<ConfigurationEntry>().AsNoTracking().ToList();
 }
 
-var connection = new ConnectionContext(new NpgsqlConnection(connectionString), null);
+var connection = new ConnectionContext(new NpgsqlConnection(ConnectionStrings.PostgreSQLConnectionString), null);
 
 var deleteResult = await connection.BulkDeleteAsync(existingConfigurationEntries,
     x => x.Id,

@@ -5,12 +5,7 @@ namespace ConnectionExtensionsExamples;
 
 public class DemoDbContext : DbContext
 {
-    private string _connectionString;
-
-    public DemoDbContext(string connectionString)
-    {
-        _connectionString = connectionString;
-    }
+    private string _connectionString = ConnectionStrings.PostgreSQLConnectionString;
 
     public DbSet<Row> Rows { get; set; }
 

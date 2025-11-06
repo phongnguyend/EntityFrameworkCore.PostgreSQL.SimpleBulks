@@ -26,17 +26,11 @@ or you can use **ConnectionContextExtensions.cs** to work directly with a **Npgs
 
 ## Examples
 [DbContextExtensionsExamples](/src/DbContextExtensionsExamples/Program.cs)
-- Update the connection string:
-  ```c#
-  const string connectionString = "Host=127.0.0.1;Database=DbContextExtensionsExamples;Username=postgres;Password=postgres";
-  ```
+- Update the connection string ConnectionStrings.PostgreSQLConnectionString.
 - Build and run.
 
 [ConnectionExtensionsExamples](/src/ConnectionExtensionsExamples/Program.cs)
-- Update the connection string:
-  ```c#
-  const string connectionString = "Host=127.0.0.1;Database=ConnectionExtensionsExamples;Username=postgres;Password=postgres";
-  ```
+- Update the connection string ConnectionStrings.PostgreSQLConnectionString.
 - Build and run.
 
 ## DbContextExtensions
