@@ -16,7 +16,14 @@ using System.Linq;
 
 const string connectionString = "Host=127.0.0.1;Database=ConnectionExtensionsExamples;Username=postgres;Password=postgres";
 
-TableMapper.Register<ConfigurationEntry>(new NpgsqlTableInfor("ConfigurationEntries"));
+TableMapper.Register<ConfigurationEntry>(new NpgsqlTableInfor("ConfigurationEntries")
+{
+    OutputId = new OutputId
+    {
+        Name = "Id",
+        Mode = OutputIdMode.ServerGenerated,
+    }
+});
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
@@ -57,7 +64,6 @@ for (int i = 0; i < 1000; i++)
 
 await connection.BulkInsertAsync(configurationEntries,
     x => new { x.Key, x.Value, x.CreatedDateTime, x.UpdatedDateTime, x.IsSensitive, x.Description, x.SeasonAsInt, x.SeasonAsString },
-    x => x.Id,
     options: new BulkInsertOptions
     {
         LogTo = Console.WriteLine
@@ -116,7 +122,6 @@ var configurationEntry = new ConfigurationEntry
 
 await connection.DirectInsertAsync(configurationEntry,
     x => new { x.Key, x.Value, x.CreatedDateTime, x.UpdatedDateTime, x.IsSensitive, x.Description, x.SeasonAsInt, x.SeasonAsString },
-    x => x.Id,
     options: new BulkInsertOptions
     {
         LogTo = Console.WriteLine
