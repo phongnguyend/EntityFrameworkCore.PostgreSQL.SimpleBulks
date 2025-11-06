@@ -159,13 +159,45 @@ public class NpgsqlTableInfor : TableInfor
 
             var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
 
-            if (type == typeof(DateTime))
+            if (type == typeof(bool))
+            {
+                para.DbType = System.Data.DbType.Boolean;
+            }
+            else if (type == typeof(DateTime))
             {
                 para.DbType = System.Data.DbType.DateTime2;
             }
             else if (type == typeof(DateTimeOffset))
             {
                 para.DbType = System.Data.DbType.DateTimeOffset;
+            }
+            else if (type == typeof(decimal))
+            {
+                para.DbType = System.Data.DbType.Decimal;
+            }
+            else if (type == typeof(double))
+            {
+                para.DbType = System.Data.DbType.Double;
+            }
+            else if (type == typeof(Guid))
+            {
+                para.DbType = System.Data.DbType.Guid;
+            }
+            else if (type == typeof(short))
+            {
+                para.DbType = System.Data.DbType.Int16;
+            }
+            else if (type == typeof(int) || type.IsEnum)
+            {
+                para.DbType = System.Data.DbType.Int32;
+            }
+            else if (type == typeof(long))
+            {
+                para.DbType = System.Data.DbType.Int64;
+            }
+            else if (type == typeof(float))
+            {
+                para.DbType = System.Data.DbType.Single;
             }
 
             parameters.Add(para);
