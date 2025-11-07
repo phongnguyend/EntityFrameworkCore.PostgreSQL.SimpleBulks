@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,20 +8,32 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 
 public static class TypeExtensions
 {
-    private static Dictionary<Type, string> _mappings = new Dictionary<Type, string>
-        {
-            {typeof(bool), "bool"},
-            {typeof(DateTime), "timestamp"},
-            {typeof(DateTimeOffset), "timestamptz"},
-            {typeof(decimal), "numeric(38, 20)"},
-            {typeof(double), "float8"},
-            {typeof(Guid), "uuid"},
-            {typeof(short), "int2"},
-            {typeof(int), "int4"},
-            {typeof(long), "int8"},
-            {typeof(float), "float4"},
-            {typeof(string), "text"},
-        };
+    private static readonly ConcurrentDictionary<Type, string> _mappings = new ConcurrentDictionary<Type, string>();
+
+    static TypeExtensions()
+    {
+        ConfigurePostgreSQLTypeMapping<bool>("bool");
+        ConfigurePostgreSQLTypeMapping<DateTime>("timestamp");
+        ConfigurePostgreSQLTypeMapping<DateTimeOffset>("timestamptz");
+        ConfigurePostgreSQLTypeMapping<decimal>("numeric(38, 20)");
+        ConfigurePostgreSQLTypeMapping<double>("float8");
+        ConfigurePostgreSQLTypeMapping<Guid>("uuid");
+        ConfigurePostgreSQLTypeMapping<short>("int2");
+        ConfigurePostgreSQLTypeMapping<int>("int4");
+        ConfigurePostgreSQLTypeMapping<long>("int8");
+        ConfigurePostgreSQLTypeMapping<float>("float4");
+        ConfigurePostgreSQLTypeMapping<string>("text");
+    }
+
+    public static void ConfigurePostgreSQLTypeMapping<T>(string postgreSqlType)
+    {
+        ConfigurePostgreSQLTypeMapping(typeof(T), postgreSqlType);
+    }
+
+    public static void ConfigurePostgreSQLTypeMapping(Type type, string postgreSqlType)
+    {
+        _mappings[type] = postgreSqlType;
+    }
 
     public static string ToPostgreSQLType(this Type type)
     {
