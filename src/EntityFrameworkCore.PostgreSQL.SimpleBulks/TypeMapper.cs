@@ -4,33 +4,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
+namespace EntityFrameworkCore.PostgreSQL.SimpleBulks;
 
-public static class TypeExtensions
+public static class TypeMapper
 {
     private static readonly ConcurrentDictionary<Type, string> _mappings = new ConcurrentDictionary<Type, string>();
 
-    static TypeExtensions()
+    static TypeMapper()
     {
-        ConfigurePostgreSQLTypeMapping<bool>("bool");
-        ConfigurePostgreSQLTypeMapping<DateTime>("timestamp");
-        ConfigurePostgreSQLTypeMapping<DateTimeOffset>("timestamptz");
-        ConfigurePostgreSQLTypeMapping<decimal>("numeric(38, 20)");
-        ConfigurePostgreSQLTypeMapping<double>("float8");
-        ConfigurePostgreSQLTypeMapping<Guid>("uuid");
-        ConfigurePostgreSQLTypeMapping<short>("int2");
-        ConfigurePostgreSQLTypeMapping<int>("int4");
-        ConfigurePostgreSQLTypeMapping<long>("int8");
-        ConfigurePostgreSQLTypeMapping<float>("float4");
-        ConfigurePostgreSQLTypeMapping<string>("text");
+        ConfigurePostgreSQLType<bool>("bool");
+        ConfigurePostgreSQLType<DateTime>("timestamp");
+        ConfigurePostgreSQLType<DateTimeOffset>("timestamptz");
+        ConfigurePostgreSQLType<decimal>("numeric(38, 20)");
+        ConfigurePostgreSQLType<double>("float8");
+        ConfigurePostgreSQLType<Guid>("uuid");
+        ConfigurePostgreSQLType<short>("int2");
+        ConfigurePostgreSQLType<int>("int4");
+        ConfigurePostgreSQLType<long>("int8");
+        ConfigurePostgreSQLType<float>("float4");
+        ConfigurePostgreSQLType<string>("text");
     }
 
-    public static void ConfigurePostgreSQLTypeMapping<T>(string postgreSqlType)
+    public static void ConfigurePostgreSQLType<T>(string postgreSqlType)
     {
-        ConfigurePostgreSQLTypeMapping(typeof(T), postgreSqlType);
+        ConfigurePostgreSQLType(typeof(T), postgreSqlType);
     }
 
-    public static void ConfigurePostgreSQLTypeMapping(Type type, string postgreSqlType)
+    public static void ConfigurePostgreSQLType(Type type, string postgreSqlType)
     {
         _mappings[type] = postgreSqlType;
     }
@@ -42,7 +42,7 @@ public static class TypeExtensions
             return "int4";
         }
 
-        var sqlType = _mappings.TryGetValue(type, out string value) ? value : "text";
+        var sqlType = _mappings.TryGetValue(type, out var value) ? value : "text";
         return sqlType;
     }
 
@@ -73,7 +73,7 @@ public static class TypeExtensions
 
         sql.AppendFormat("CREATE TEMPORARY TABLE {0} (", tableName);
 
-        int i = 0;
+        var i = 0;
         foreach (var name in table)
         {
             if (i > 0)
@@ -101,7 +101,7 @@ public static class TypeExtensions
             return columName;
         }
 
-        return columnNameMappings.TryGetValue(columName, out string value) ? value : columName;
+        return columnNameMappings.TryGetValue(columName, out var value) ? value : columName;
     }
 
     private static string GetDbColumnType(string name, Type type, IReadOnlyDictionary<string, string> columnTypeMappings)
@@ -111,6 +111,6 @@ public static class TypeExtensions
             return type.ToPostgreSQLType();
         }
 
-        return columnTypeMappings.TryGetValue(name, out string value) ? value : type.ToPostgreSQLType();
+        return columnTypeMappings.TryGetValue(name, out var value) ? value : type.ToPostgreSQLType();
     }
 }
