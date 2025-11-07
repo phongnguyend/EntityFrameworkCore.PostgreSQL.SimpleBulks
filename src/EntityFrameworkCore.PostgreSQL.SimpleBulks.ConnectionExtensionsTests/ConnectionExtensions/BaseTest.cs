@@ -21,6 +21,24 @@ public abstract class BaseTest : IDisposable
         _context = GetDbContext(connectionString, schema);
         _context.Database.EnsureCreated();
         _connection = new NpgsqlConnection(connectionString);
+
+        TableMapper.Register<SingleKeyRow<int>>(new NpgsqlTableInfor(schema, "SingleKeyRows")
+        {
+            OutputId = new OutputId
+            {
+                Name = "Id",
+                Mode = OutputIdMode.ServerGenerated,
+            }
+        });
+        TableMapper.Register<CompositeKeyRow<int, int>>(new NpgsqlTableInfor(schema, "CompositeKeyRows"));
+        TableMapper.Register<ConfigurationEntry>(new NpgsqlTableInfor(schema, "ConfigurationEntry")
+        {
+            OutputId = new OutputId
+            {
+                Name = "Id",
+                Mode = OutputIdMode.ServerGenerated,
+            }
+        });
     }
 
     public void Dispose()

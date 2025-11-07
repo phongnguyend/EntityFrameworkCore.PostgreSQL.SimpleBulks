@@ -15,9 +15,6 @@ public class BulkUpdateAsyncTests : BaseTest
 
     public BulkUpdateAsyncTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkUpdateTest")
     {
-        TableMapper.Register<SingleKeyRow<int>>(new NpgsqlTableInfor(_schema, "SingleKeyRows"));
-        TableMapper.Register<CompositeKeyRow<int, int>>(new NpgsqlTableInfor(_schema, "CompositeKeyRows"));
-
         var tran = _context.Database.BeginTransaction();
 
         var rows = new List<SingleKeyRow<int>>();

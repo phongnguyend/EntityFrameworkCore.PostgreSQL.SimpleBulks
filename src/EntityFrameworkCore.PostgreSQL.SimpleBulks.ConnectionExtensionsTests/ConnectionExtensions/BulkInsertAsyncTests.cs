@@ -13,15 +13,6 @@ public class BulkInsertAsyncTests : BaseTest
 
     public BulkInsertAsyncTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkInsertTest")
     {
-        TableMapper.Register<SingleKeyRow<int>>(new NpgsqlTableInfor(_schema, "SingleKeyRows")
-        {
-            OutputId = new OutputId
-            {
-                Name = "Id",
-                Mode = OutputIdMode.ServerGenerated,
-            }
-        });
-        TableMapper.Register<CompositeKeyRow<int, int>>(new NpgsqlTableInfor(_schema, "CompositeKeyRows"));
     }
 
     [Theory]

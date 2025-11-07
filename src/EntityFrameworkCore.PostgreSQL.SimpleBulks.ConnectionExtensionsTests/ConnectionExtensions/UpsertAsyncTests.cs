@@ -11,27 +11,8 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.ConnectionExtensionsTests.C
 [Collection("PostgreSqlCollection")]
 public class UpsertAsyncTests : BaseTest
 {
-    private string _schema = "";
-
     public UpsertAsyncTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkMergeTest")
     {
-        TableMapper.Register<SingleKeyRow<int>>(new NpgsqlTableInfor(_schema, "SingleKeyRows")
-        {
-            OutputId = new OutputId
-            {
-                Name = "Id",
-                Mode = OutputIdMode.ServerGenerated,
-            }
-        });
-        TableMapper.Register<CompositeKeyRow<int, int>>(new NpgsqlTableInfor(_schema, "CompositeKeyRows"));
-        TableMapper.Register<ConfigurationEntry>(new NpgsqlTableInfor(_schema, "ConfigurationEntry")
-        {
-            OutputId = new OutputId
-            {
-                Name = "Id",
-                Mode = OutputIdMode.ServerGenerated,
-            }
-        });
     }
 
     private async Task SeedData(int length)
