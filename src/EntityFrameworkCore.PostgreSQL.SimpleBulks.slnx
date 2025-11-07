@@ -6,6 +6,11 @@
     <Project Path="ConnectionExtensionsExamples/ConnectionExtensionsExamples.csproj" Id="6f4b495a-897e-4967-99f5-00b667f87a28" />
     <Project Path="DbContextExtensionsExamples/DbContextExtensionsExamples.csproj" />
   </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="global.json" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="EntityFrameworkCore.PostgreSQL.SimpleBulks/EntityFrameworkCore.PostgreSQL.SimpleBulks.csproj" />
   </Folder>
