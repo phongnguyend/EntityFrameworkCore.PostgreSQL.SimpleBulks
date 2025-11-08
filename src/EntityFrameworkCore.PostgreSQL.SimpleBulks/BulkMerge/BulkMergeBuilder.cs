@@ -194,7 +194,7 @@ public class BulkMergeBuilder<T>
 
         if (returnDbGeneratedId)
         {
-            var idProperty = typeof(T).GetProperty(_outputIdColumn);
+            var idProperty = PropertiesCache<T>.GetProperty(_outputIdColumn);
 
             long idx = 0;
             foreach (var row in data)
@@ -353,7 +353,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
 
         if (returnDbGeneratedId)
         {
-            var idProperty = typeof(T).GetProperty(_outputIdColumn);
+            var idProperty = PropertiesCache<T>.GetProperty(_outputIdColumn);
 
             long idx = 0;
             foreach (var row in data)
@@ -454,7 +454,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
                 {
                     if (returnDbGeneratedId)
                     {
-                        var idProperty = typeof(T).GetProperty(_outputIdColumn);
+                        var idProperty = PropertiesCache<T>.GetProperty(_outputIdColumn);
                         idProperty.SetValue(data, reader[outputIdDbColumnName]);
                     }
 
@@ -558,7 +558,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
                 {
                     if (returnDbGeneratedId)
                     {
-                        var idProperty = typeof(T).GetProperty(_outputIdColumn);
+                        var idProperty = PropertiesCache<T>.GetProperty(_outputIdColumn);
                         idProperty.SetValue(data, reader[outputIdDbColumnName]);
                     }
 

@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks;
@@ -62,7 +61,7 @@ public abstract class TableInfor
             return Nullable.GetUnderlyingType(type) ?? type;
         }
 
-        var property = typeof(T).GetProperties().FirstOrDefault(x => x.Name == propertyName);
+        var property = PropertiesCache<T>.GetProperty(propertyName);
         if (property != null)
         {
             return Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
@@ -90,15 +89,14 @@ public class DbContextTableInfor : TableInfor
 
     public override List<NpgsqlParameter> CreateNpgsqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames)
     {
-        var properties = typeof(T).GetProperties();
-
         var parameters = new List<NpgsqlParameter>();
 
         var mappingSource = _dbContext.GetService<IRelationalTypeMappingSource>();
 
-        foreach (var prop in properties)
+        foreach (var propName in propertyNames)
         {
-            if (!propertyNames.Contains(prop.Name))
+            var prop = PropertiesCache<T>.GetProperty(propName);
+            if (prop == null)
             {
                 continue;
             }
@@ -142,13 +140,12 @@ public class NpgsqlTableInfor : TableInfor
 
     public override List<NpgsqlParameter> CreateNpgsqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames)
     {
-        var properties = typeof(T).GetProperties();
-
         var parameters = new List<NpgsqlParameter>();
 
-        foreach (var prop in properties)
+        foreach (var propName in propertyNames)
         {
-            if (!propertyNames.Contains(prop.Name))
+            var prop = PropertiesCache<T>.GetProperty(propName);
+            if (prop == null)
             {
                 continue;
             }

@@ -69,8 +69,6 @@ public static class ConnectionContextExtensions
     {
         options ??= DefaultBulkOptions;
 
-        var properties = typeof(T).GetProperties();
-
         var columnNamesToInsert = propertyNames.ToList();
 
         if (addIndexNumberColumn)
@@ -90,7 +88,7 @@ public static class ConnectionContextExtensions
 
             foreach (var name in columnNamesToInsert)
             {
-                var prop = properties.FirstOrDefault(x => x.Name == name);
+                var prop = PropertiesCache<T>.GetProperty(name);
 
                 if (prop == null)
                 {
@@ -117,8 +115,6 @@ public static class ConnectionContextExtensions
     {
         options ??= DefaultBulkOptions;
 
-        var properties = typeof(T).GetProperties();
-
         var columnNamesToInsert = propertyNames.ToList();
 
         if (addIndexNumberColumn)
@@ -142,7 +138,7 @@ public static class ConnectionContextExtensions
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var prop = properties.FirstOrDefault(x => x.Name == name);
+                var prop = PropertiesCache<T>.GetProperty(name);
 
                 if (prop == null)
                 {
