@@ -19,13 +19,6 @@ public static class DbContextExtensions
 
     public static string CreateTempTable<T>(this DbContext dbContext, IEnumerable<T> data, IEnumerable<string> columnNames, TempTableOptions options = null)
     {
-        var isEntityType = dbContext.IsEntityType(typeof(T));
-
-        if (isEntityType)
-        {
-            columnNames = dbContext.GetAllPropertyNamesWithoutRowVersions(typeof(T));
-        }
-
         return dbContext.CreateTempTableBuilder<T>()
       .WithColumns(columnNames)
    .WithMappingContext(dbContext.GetMappingContext(typeof(T)))

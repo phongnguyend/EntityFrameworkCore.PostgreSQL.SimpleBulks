@@ -21,13 +21,6 @@ public static class DbContextAsyncExtensions
 
     public static Task<string> CreateTempTableAsync<T>(this DbContext dbContext, IEnumerable<T> data, IEnumerable<string> columnNames, TempTableOptions options = null, CancellationToken cancellationToken = default)
     {
-        var isEntityType = dbContext.IsEntityType(typeof(T));
-
-        if (isEntityType)
-        {
-            columnNames = dbContext.GetAllPropertyNamesWithoutRowVersions(typeof(T));
-        }
-
         return dbContext.CreateTempTableBuilder<T>()
  .WithColumns(columnNames)
   .WithMappingContext(dbContext.GetMappingContext(typeof(T)))
