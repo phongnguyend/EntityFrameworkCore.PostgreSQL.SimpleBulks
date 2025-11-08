@@ -17,6 +17,8 @@ public abstract class TableInfor
 
     public string SchemaQualifiedTableName { get; private set; }
 
+    public string[] PrimaryKeys { get; init; }
+
     public IReadOnlyDictionary<string, Type> PropertyTypes { get; init; }
 
     public IReadOnlyDictionary<string, string> ColumnNameMappings { get; init; }
