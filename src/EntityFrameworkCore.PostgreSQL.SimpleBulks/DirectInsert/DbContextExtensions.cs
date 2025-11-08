@@ -10,11 +10,13 @@ public static class DbContextExtensions
 {
     public static void DirectInsert<T>(this DbContext dbContext, T data, BulkInsertOptions options = null)
     {
+        var table = dbContext.GetTableInfor(typeof(T));
+
         dbContext.CreateBulkInsertBuilder<T>()
-       .WithColumns(dbContext.GetInsertablePropertyNames(typeof(T)))
-    .ToTable(dbContext.GetTableInfor(typeof(T)))
-         .WithBulkOptions(options)
-            .SingleInsert(data);
+       .WithColumns(table.InsertablePropertyNames)
+       .ToTable(table)
+       .WithBulkOptions(options)
+       .SingleInsert(data);
     }
 
     public static void DirectInsert<T>(this DbContext dbContext, T data, Expression<Func<T, object>> columnNamesSelector, BulkInsertOptions options = null)
