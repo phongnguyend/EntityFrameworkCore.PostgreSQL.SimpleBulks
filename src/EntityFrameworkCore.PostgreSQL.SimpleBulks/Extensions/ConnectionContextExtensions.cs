@@ -86,14 +86,9 @@ public static class ConnectionContextExtensions
         {
             writer.StartRow();
 
-            foreach (var name in columnNamesToInsert)
+            foreach (var name in propertyNames)
             {
                 var prop = PropertiesCache<T>.GetProperty(name);
-
-                if (prop == null)
-                {
-                    continue;
-                }
 
                 var value = GetProviderValue(prop, item, valueConverters);
 
@@ -134,16 +129,11 @@ public static class ConnectionContextExtensions
 
             await writer.StartRowAsync(cancellationToken);
 
-            foreach (var name in columnNamesToInsert)
+            foreach (var name in propertyNames)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var prop = PropertiesCache<T>.GetProperty(name);
-
-                if (prop == null)
-                {
-                    continue;
-                }
 
                 var value = GetProviderValue(prop, item, valueConverters);
 

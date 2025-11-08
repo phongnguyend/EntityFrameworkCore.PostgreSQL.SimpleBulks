@@ -23,6 +23,16 @@ public class PropertiesCache
     {
         return GetProperties(typeof(T));
     }
+
+    public static PropertyInfo GetProperty(Type type, string name)
+    {
+        return GetProperties(type).TryGetValue(name, out var property) ? property : null;
+    }
+
+    public static PropertyInfo GetProperty<T>(string name)
+    {
+        return GetProperty(typeof(T), name);
+    }
 }
 
 public class PropertiesCache<T>

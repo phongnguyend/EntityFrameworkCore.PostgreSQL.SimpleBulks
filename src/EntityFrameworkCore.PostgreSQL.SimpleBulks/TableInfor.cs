@@ -96,10 +96,6 @@ public class DbContextTableInfor : TableInfor
         foreach (var propName in propertyNames)
         {
             var prop = PropertiesCache<T>.GetProperty(propName);
-            if (prop == null)
-            {
-                continue;
-            }
 
             if (ColumnTypeMappings != null && ColumnTypeMappings.TryGetValue(prop.Name, out var columnType))
             {
@@ -145,10 +141,6 @@ public class NpgsqlTableInfor : TableInfor
         foreach (var propName in propertyNames)
         {
             var prop = PropertiesCache<T>.GetProperty(propName);
-            if (prop == null)
-            {
-                continue;
-            }
 
             var value = GetProviderValue(prop, data);
 
