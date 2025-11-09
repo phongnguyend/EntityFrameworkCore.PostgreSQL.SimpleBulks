@@ -211,8 +211,8 @@ public static class DbContextExtensions
 
     public static void ExecuteReader(this DbContext dbContext, string commandText, Action<IDataReader> action, BulkOptions options = null)
     {
-        using var updateCommand = dbContext.CreateTextCommand(commandText, options);
-        using var reader = updateCommand.ExecuteReader();
+        using var command = dbContext.CreateTextCommand(commandText, options);
+        using var reader = command.ExecuteReader();
 
         while (reader.Read())
         {

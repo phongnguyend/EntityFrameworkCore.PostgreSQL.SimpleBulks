@@ -175,6 +175,17 @@ public static class ConnectionContextExtensions
         return value;
     }
 
+    public static void ExecuteReader(this ConnectionContext connectionContext, string commandText, Action<IDataReader> action, BulkOptions options = null)
+    {
+        using var command = connectionContext.CreateTextCommand(commandText, options);
+        using var reader = command.ExecuteReader();
+
+        while (reader.Read())
+        {
+            action(reader);
+        }
+    }
+
     public static BulkInsertBuilder<T> CreateBulkInsertBuilder<T>(this ConnectionContext connectionContext)
     {
         return new BulkInsertBuilder<T>(connectionContext);
