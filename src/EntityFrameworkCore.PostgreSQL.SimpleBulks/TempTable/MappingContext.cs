@@ -5,6 +5,8 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.TempTable;
 
 public class MappingContext
 {
+    public static readonly MappingContext Default = new MappingContext();
+
     public IReadOnlyDictionary<string, string> ColumnNameMappings { get; init; }
 
     public IReadOnlyDictionary<string, string> ColumnTypeMappings { get; init; }
