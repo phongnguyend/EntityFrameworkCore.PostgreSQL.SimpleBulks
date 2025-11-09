@@ -30,7 +30,9 @@ public abstract class BaseTest : IDisposable
                 Mode = OutputIdMode.ServerGenerated,
             }
         });
+
         TableMapper.Register<CompositeKeyRow<int, int>>(new NpgsqlTableInfor(schema, "CompositeKeyRows"));
+
         TableMapper.Register<ConfigurationEntry>(new NpgsqlTableInfor(schema, "ConfigurationEntry")
         {
             OutputId = new OutputId
@@ -38,6 +40,16 @@ public abstract class BaseTest : IDisposable
                 Name = "Id",
                 Mode = OutputIdMode.ServerGenerated,
             }
+        });
+
+        TableMapper.Register<Customer>(new NpgsqlTableInfor(schema, "Customers")
+        {
+            PropertyNames = ["Id", "FirstName", "LastName", "CurrentCountryIsoCode", "Index", "Season", "SeasonAsString"]
+        });
+
+        TableMapper.Register<Contact>(new NpgsqlTableInfor(schema, "Contacts")
+        {
+            PropertyNames = ["Id", "EmailAddress", "PhoneNumber", "CountryIsoCode", "Index", "Season", "SeasonAsString", "CustomerId"]
         });
     }
 
