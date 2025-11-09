@@ -24,6 +24,7 @@ public abstract class BaseTest : IDisposable
 
         TableMapper.Register<SingleKeyRow<int>>(new NpgsqlTableInfor(schema, "SingleKeyRows")
         {
+            PrimaryKeys = ["Id"],
             OutputId = new OutputId
             {
                 Name = "Id",
@@ -31,10 +32,14 @@ public abstract class BaseTest : IDisposable
             }
         });
 
-        TableMapper.Register<CompositeKeyRow<int, int>>(new NpgsqlTableInfor(schema, "CompositeKeyRows"));
+        TableMapper.Register<CompositeKeyRow<int, int>>(new NpgsqlTableInfor(schema, "CompositeKeyRows")
+        {
+            PrimaryKeys = ["Id1", "Id2"],
+        });
 
         TableMapper.Register<ConfigurationEntry>(new NpgsqlTableInfor(schema, "ConfigurationEntry")
         {
+            PrimaryKeys = ["Id"],
             OutputId = new OutputId
             {
                 Name = "Id",

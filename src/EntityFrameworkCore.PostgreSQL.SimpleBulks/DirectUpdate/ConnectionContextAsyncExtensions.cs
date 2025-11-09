@@ -10,22 +10,26 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.DirectUpdate;
 
 public static class ConnectionContextAsyncExtensions
 {
-    public static Task<BulkUpdateResult> DirectUpdateAsync<T>(this ConnectionContext connectionContext, T data, Expression<Func<T, object>> idSelector, Expression<Func<T, object>> columnNamesSelector, NpgsqlTableInfor table = null, BulkUpdateOptions options = null, CancellationToken cancellationToken = default)
+    public static Task<BulkUpdateResult> DirectUpdateAsync<T>(this ConnectionContext connectionContext, T data, Expression<Func<T, object>> columnNamesSelector, NpgsqlTableInfor table = null, BulkUpdateOptions options = null, CancellationToken cancellationToken = default)
     {
+        var temp = table ?? TableMapper.Resolve<T>();
+
         return connectionContext.CreateBulkUpdateBuilder<T>()
-    .WithId(idSelector)
+    .WithId(temp.PrimaryKeys)
 .WithColumns(columnNamesSelector)
-    .ToTable(table ?? TableMapper.Resolve<T>())
+    .ToTable(temp)
  .WithBulkOptions(options)
    .SingleUpdateAsync(data, cancellationToken);
     }
 
-    public static Task<BulkUpdateResult> DirectUpdateAsync<T>(this ConnectionContext connectionContext, T data, IEnumerable<string> idColumns, IEnumerable<string> columnNames, NpgsqlTableInfor table = null, BulkUpdateOptions options = null, CancellationToken cancellationToken = default)
+    public static Task<BulkUpdateResult> DirectUpdateAsync<T>(this ConnectionContext connectionContext, T data, IEnumerable<string> columnNames, NpgsqlTableInfor table = null, BulkUpdateOptions options = null, CancellationToken cancellationToken = default)
     {
+        var temp = table ?? TableMapper.Resolve<T>();
+
         return connectionContext.CreateBulkUpdateBuilder<T>()
-     .WithId(idColumns)
+     .WithId(temp.PrimaryKeys)
     .WithColumns(columnNames)
- .ToTable(table ?? TableMapper.Resolve<T>())
+ .ToTable(temp)
      .WithBulkOptions(options)
         .SingleUpdateAsync(data, cancellationToken);
     }
