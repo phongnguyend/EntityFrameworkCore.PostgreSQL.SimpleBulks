@@ -7,22 +7,26 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
 
 public static class ConnectionContextExtensions
 {
-    public static BulkUpdateResult BulkUpdate<T>(this ConnectionContext connectionContext, IEnumerable<T> data, Expression<Func<T, object>> idSelector, Expression<Func<T, object>> columnNamesSelector, NpgsqlTableInfor table = null, BulkUpdateOptions options = null)
+    public static BulkUpdateResult BulkUpdate<T>(this ConnectionContext connectionContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, NpgsqlTableInfor table = null, BulkUpdateOptions options = null)
     {
+        var temp = table ?? TableMapper.Resolve<T>();
+
         return connectionContext.CreateBulkUpdateBuilder<T>()
-  .WithId(idSelector)
+  .WithId(temp.PrimaryKeys)
    .WithColumns(columnNamesSelector)
-      .ToTable(table ?? TableMapper.Resolve<T>())
+      .ToTable(temp)
   .WithBulkOptions(options)
   .Execute(data);
     }
 
-    public static BulkUpdateResult BulkUpdate<T>(this ConnectionContext connectionContext, IEnumerable<T> data, IEnumerable<string> idColumns, IEnumerable<string> columnNames, NpgsqlTableInfor table = null, BulkUpdateOptions options = null)
+    public static BulkUpdateResult BulkUpdate<T>(this ConnectionContext connectionContext, IEnumerable<T> data, IEnumerable<string> columnNames, NpgsqlTableInfor table = null, BulkUpdateOptions options = null)
     {
+        var temp = table ?? TableMapper.Resolve<T>();
+
         return connectionContext.CreateBulkUpdateBuilder<T>()
-       .WithId(idColumns)
+       .WithId(temp.PrimaryKeys)
             .WithColumns(columnNames)
-       .ToTable(table ?? TableMapper.Resolve<T>())
+       .ToTable(temp)
            .WithBulkOptions(options)
           .Execute(data);
     }

@@ -39,7 +39,6 @@ using (var dbct = new DemoDbContext())
 var connection = new ConnectionContext(new NpgsqlConnection(ConnectionStrings.PostgreSQLConnectionString), null);
 
 var deleteResult = await connection.BulkDeleteAsync(existingConfigurationEntries,
-    x => x.Id,
     options: new BulkDeleteOptions
     {
         LogTo = Console.WriteLine
@@ -79,7 +78,6 @@ foreach (var row in configurationEntries)
 }
 
 var updateResult = await connection.BulkUpdateAsync(configurationEntries,
-    x => x.Id,
     x => new { x.Key, x.UpdatedDateTime, x.IsSensitive, x.Description, x.SeasonAsInt, x.SeasonAsString },
     options: new BulkUpdateOptions
     {

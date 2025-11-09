@@ -87,27 +87,29 @@ public class BulkUpdateTests : BaseTest
             if (omitTableName)
             {
                 connectionContext.BulkUpdate(rows,
-                    row => row.Id,
-                    row => new { row.Column3, row.Column2 },
+                       row => new { row.Column3, row.Column2 },
                     options: updateOptions);
 
                 connectionContext.BulkUpdate(compositeKeyRows,
-                    row => new { row.Id1, row.Id2 },
                     row => new { row.Column3, row.Column2 },
                     options: updateOptions);
             }
             else
             {
                 connectionContext.BulkUpdate(rows,
-                    row => row.Id,
                     row => new { row.Column3, row.Column2 },
-                    new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                    new NpgsqlTableInfor(_schema, "SingleKeyRows")
+                    {
+                        PrimaryKeys = ["Id"],
+                    },
                     options: updateOptions);
 
                 connectionContext.BulkUpdate(compositeKeyRows,
-                    row => new { row.Id1, row.Id2 },
                     row => new { row.Column3, row.Column2 },
-                    new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                    new NpgsqlTableInfor(_schema, "CompositeKeyRows")
+                    {
+                        PrimaryKeys = ["Id1", "Id2"],
+                    },
                     options: updateOptions);
             }
 
@@ -170,27 +172,29 @@ public class BulkUpdateTests : BaseTest
             if (omitTableName)
             {
                 connectionContext.BulkUpdate(rows,
-                    ["Id"],
-                    ["Column3", "Column2"],
+                     ["Column3", "Column2"],
                     options: updateOptions);
 
                 connectionContext.BulkUpdate(compositeKeyRows,
-                    ["Id1", "Id2"],
                     ["Column3", "Column2"],
                     options: updateOptions);
             }
             else
             {
                 connectionContext.BulkUpdate(rows,
-                    ["Id"],
                     ["Column3", "Column2"],
-                    new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                    new NpgsqlTableInfor(_schema, "SingleKeyRows")
+                    {
+                        PrimaryKeys = ["Id"],
+                    },
                     options: updateOptions);
 
                 connectionContext.BulkUpdate(compositeKeyRows,
-                    ["Id1", "Id2"],
                     ["Column3", "Column2"],
-                    new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                    new NpgsqlTableInfor(_schema, "CompositeKeyRows")
+                    {
+                        PrimaryKeys = ["Id1", "Id2"],
+                    },
                     options: updateOptions);
             }
 
