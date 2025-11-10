@@ -109,7 +109,7 @@ public class BulkDeleteBuilder<T>
 
         using var deleteCommand = _connectionContext.CreateTextCommand(deleteStatement, _options);
 
-        _table.CreateNpgsqlParameters(deleteCommand, dataToDelete, _idColumns).ForEach(x => deleteCommand.Parameters.Add(x));
+        LogParameters(_table.CreateNpgsqlParameters(deleteCommand, dataToDelete, _idColumns, autoAdd: true));
 
         _connectionContext.EnsureOpen();
 
@@ -126,6 +126,19 @@ public class BulkDeleteBuilder<T>
     private void Log(string message)
     {
         _options?.LogTo?.Invoke($"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss.fff zzz} [BulkDelete]: {message}");
+    }
+
+    private void LogParameters(List<ParameterInfo> parameters)
+    {
+        if (_options?.LogTo == null)
+        {
+            return;
+        }
+
+        foreach (var parameter in parameters)
+        {
+            _options.LogTo?.Invoke($"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss.fff zzz} [BulkDelete][Parameter]: Name={parameter.Name}, Type={parameter.Type}");
+        }
     }
 
     public async Task<BulkDeleteResult> ExecuteAsync(IEnumerable<T> data, CancellationToken cancellationToken = default)
@@ -191,7 +204,7 @@ public class BulkDeleteBuilder<T>
 
         using var deleteCommand = _connectionContext.CreateTextCommand(deleteStatement, _options);
 
-        _table.CreateNpgsqlParameters(deleteCommand, dataToDelete, _idColumns).ForEach(x => deleteCommand.Parameters.Add(x));
+        LogParameters(_table.CreateNpgsqlParameters(deleteCommand, dataToDelete, _idColumns, autoAdd: true));
 
         await _connectionContext.EnsureOpenAsync(cancellationToken);
 

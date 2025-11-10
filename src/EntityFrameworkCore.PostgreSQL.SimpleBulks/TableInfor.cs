@@ -76,7 +76,7 @@ public abstract class TableInfor
         throw new ArgumentException($"Property '{propertyName}' not found.");
     }
 
-    public abstract List<NpgsqlParameter> CreateNpgsqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames);
+    public abstract List<ParameterInfo> CreateNpgsqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames, bool autoAdd);
 }
 
 public class DbContextTableInfor : TableInfor
@@ -93,9 +93,9 @@ public class DbContextTableInfor : TableInfor
         _dbContext = dbContext;
     }
 
-    public override List<NpgsqlParameter> CreateNpgsqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames)
+    public override List<ParameterInfo> CreateNpgsqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames, bool autoAdd)
     {
-        var parameters = new List<NpgsqlParameter>();
+        var parameters = new List<ParameterInfo>();
 
         var mappingSource = _dbContext.GetService<IRelationalTypeMappingSource>();
 
@@ -106,8 +106,19 @@ public class DbContextTableInfor : TableInfor
             if (ColumnTypeMappings != null && ColumnTypeMappings.TryGetValue(prop.Name, out var columnType))
             {
                 var mapping = mappingSource.FindMapping(columnType);
-                var para = (NpgsqlParameter)mapping.CreateParameter(command, prop.Name, GetProviderValue(prop, data) ?? DBNull.Value);
-                parameters.Add(para);
+                var para = (NpgsqlParameter)mapping.CreateParameter(command, $"@{prop.Name}", GetProviderValue(prop, data) ?? DBNull.Value);
+                
+                parameters.Add(new ParameterInfo
+                {
+                    Name = para.ParameterName,
+                    Type = columnType,
+                    Parameter = para
+                });
+
+                if (autoAdd)
+                {
+                    command.Parameters.Add(para);
+                }
             }
         }
 
@@ -140,9 +151,9 @@ public class NpgsqlTableInfor : TableInfor
     {
     }
 
-    public override List<NpgsqlParameter> CreateNpgsqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames)
+    public override List<ParameterInfo> CreateNpgsqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames, bool autoAdd)
     {
-        var parameters = new List<NpgsqlParameter>();
+        var parameters = new List<ParameterInfo>();
 
         foreach (var propName in propertyNames)
         {
@@ -163,7 +174,17 @@ public class NpgsqlTableInfor : TableInfor
                 para.DataTypeName = type.ToPostgreSQLType();
             }
 
-            parameters.Add(para);
+            parameters.Add(new ParameterInfo
+            {
+                Name = para.ParameterName,
+                Type = para.DataTypeName,
+                Parameter = para
+            });
+
+            if (autoAdd)
+            {
+                command.Parameters.Add(para);
+            }
         }
 
         return parameters;

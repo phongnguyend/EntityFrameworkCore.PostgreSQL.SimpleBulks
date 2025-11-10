@@ -133,7 +133,7 @@ public class BulkUpdateBuilder<T>
 
         using var updateCommand = _connectionContext.CreateTextCommand(sqlUpdateStatement, _options);
 
-        _table.CreateNpgsqlParameters(updateCommand, dataToUpdate, propertyNamesIncludeId).ForEach(x => updateCommand.Parameters.Add(x));
+        LogParameters(_table.CreateNpgsqlParameters(updateCommand, dataToUpdate, propertyNamesIncludeId, autoAdd: true));
 
         _connectionContext.EnsureOpen();
 
@@ -182,6 +182,19 @@ public class BulkUpdateBuilder<T>
     private void Log(string message)
     {
         _options?.LogTo?.Invoke($"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss.fff zzz} [BulkUpdate]: {message}");
+    }
+
+    private void LogParameters(List<ParameterInfo> parameters)
+    {
+        if (_options?.LogTo == null)
+        {
+            return;
+        }
+
+        foreach (var parameter in parameters)
+        {
+            _options.LogTo?.Invoke($"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss.fff zzz} [BulkUpdate][Parameter]: Name={parameter.Name}, Type={parameter.Type}");
+        }
     }
 
     public async Task<BulkUpdateResult> ExecuteAsync(IEnumerable<T> data, CancellationToken cancellationToken = default)
@@ -257,7 +270,7 @@ public class BulkUpdateBuilder<T>
 
         using var updateCommand = _connectionContext.CreateTextCommand(sqlUpdateStatement, _options);
 
-        _table.CreateNpgsqlParameters(updateCommand, dataToUpdate, propertyNamesIncludeId).ForEach(x => updateCommand.Parameters.Add(x));
+        LogParameters(_table.CreateNpgsqlParameters(updateCommand, dataToUpdate, propertyNamesIncludeId, autoAdd: true));
 
         await _connectionContext.EnsureOpenAsync(cancellationToken);
 

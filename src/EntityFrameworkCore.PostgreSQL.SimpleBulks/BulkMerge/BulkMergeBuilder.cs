@@ -235,6 +235,19 @@ public class BulkMergeBuilder<T>
         _options?.LogTo?.Invoke($"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss.fff zzz} [BulkMerge]: {message}");
     }
 
+    private void LogParameters(List<ParameterInfo> parameters)
+    {
+        if (_options?.LogTo == null)
+        {
+            return;
+        }
+
+        foreach (var parameter in parameters)
+        {
+            _options.LogTo?.Invoke($"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss.fff zzz} [BulkMerge][Parameter]: Name={parameter.Name}, Type={parameter.Type}");
+        }
+    }
+
     public async Task<BulkMergeResult> ExecuteAsync(IEnumerable<T> data, CancellationToken cancellationToken = default)
     {
         if (data.Count() == 1)
@@ -441,8 +454,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
 
         using (var updateCommand = _connectionContext.CreateTextCommand(sqlMergeStatement, _options))
         {
-            _table.CreateNpgsqlParameters(updateCommand, data, propertyNames)
- .ForEach(x => updateCommand.Parameters.Add(x));
+            LogParameters(_table.CreateNpgsqlParameters(updateCommand, data, propertyNames, autoAdd: true));
 
             using var reader = updateCommand.ExecuteReader();
 
@@ -545,8 +557,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
 
         using (var updateCommand = _connectionContext.CreateTextCommand(sqlMergeStatement, _options))
         {
-            _table.CreateNpgsqlParameters(updateCommand, data, propertyNames)
-       .ForEach(x => updateCommand.Parameters.Add(x));
+            LogParameters(_table.CreateNpgsqlParameters(updateCommand, data, propertyNames, autoAdd: true));
 
             using var reader = await updateCommand.ExecuteReaderAsync(cancellationToken);
 
