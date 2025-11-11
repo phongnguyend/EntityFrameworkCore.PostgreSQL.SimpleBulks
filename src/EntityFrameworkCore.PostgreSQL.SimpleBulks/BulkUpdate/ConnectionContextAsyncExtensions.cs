@@ -9,7 +9,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
 
 public static class ConnectionContextAsyncExtensions
 {
-    public static Task<BulkUpdateResult> BulkUpdateAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, NpgsqlTableInfor table = null, BulkUpdateOptions options = null, CancellationToken cancellationToken = default)
+    public static Task<BulkUpdateResult> BulkUpdateAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, NpgsqlTableInfor<T> table = null, BulkUpdateOptions options = null, CancellationToken cancellationToken = default)
     {
         var temp = table ?? TableMapper.Resolve<T>();
 
@@ -21,7 +21,7 @@ public static class ConnectionContextAsyncExtensions
    .ExecuteAsync(data, cancellationToken);
     }
 
-    public static Task<BulkUpdateResult> BulkUpdateAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, IEnumerable<string> columnNames, NpgsqlTableInfor table = null, BulkUpdateOptions options = null, CancellationToken cancellationToken = default)
+    public static Task<BulkUpdateResult> BulkUpdateAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, IEnumerable<string> columnNames, NpgsqlTableInfor<T> table = null, BulkUpdateOptions options = null, CancellationToken cancellationToken = default)
     {
         var temp = table ?? TableMapper.Resolve<T>();
 

@@ -9,7 +9,7 @@ using System.Reflection;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks;
 
-public abstract class TableInfor
+public abstract class TableInfor<T>
 {
     public string Schema { get; private set; }
 
@@ -55,7 +55,7 @@ public abstract class TableInfor
         return ColumnNameMappings.TryGetValue(propertyName, out string value) ? value : propertyName;
     }
 
-    public Type GetProviderClrType<T>(string propertyName)
+    public Type GetProviderClrType(string propertyName)
     {
         if (ValueConverters != null && ValueConverters.TryGetValue(propertyName, out var converter))
         {
@@ -76,10 +76,10 @@ public abstract class TableInfor
         throw new ArgumentException($"Property '{propertyName}' not found.");
     }
 
-    public abstract List<ParameterInfo> CreateNpgsqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames, bool autoAdd);
+    public abstract List<ParameterInfo> CreateNpgsqlParameters(NpgsqlCommand command, T data, IEnumerable<string> propertyNames, bool autoAdd);
 }
 
-public class DbContextTableInfor : TableInfor
+public class DbContextTableInfor<T> : TableInfor<T>
 {
     private readonly DbContext _dbContext;
 
@@ -93,7 +93,7 @@ public class DbContextTableInfor : TableInfor
         _dbContext = dbContext;
     }
 
-    public override List<ParameterInfo> CreateNpgsqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames, bool autoAdd)
+    public override List<ParameterInfo> CreateNpgsqlParameters(NpgsqlCommand command, T data, IEnumerable<string> propertyNames, bool autoAdd)
     {
         var parameters = new List<ParameterInfo>();
 
@@ -141,7 +141,7 @@ public class DbContextTableInfor : TableInfor
     }
 }
 
-public class NpgsqlTableInfor : TableInfor
+public class NpgsqlTableInfor<T> : TableInfor<T>
 {
     public NpgsqlTableInfor(string schema, string tableName) : base(schema, tableName)
     {
@@ -151,7 +151,7 @@ public class NpgsqlTableInfor : TableInfor
     {
     }
 
-    public override List<ParameterInfo> CreateNpgsqlParameters<T>(NpgsqlCommand command, T data, IEnumerable<string> propertyNames, bool autoAdd)
+    public override List<ParameterInfo> CreateNpgsqlParameters(NpgsqlCommand command, T data, IEnumerable<string> propertyNames, bool autoAdd)
     {
         var parameters = new List<ParameterInfo>();
 
@@ -191,7 +191,7 @@ public class NpgsqlTableInfor : TableInfor
 
     }
 
-    private static object GetProviderValue<T>(PropertyInfo property, T item)
+    private static object GetProviderValue(PropertyInfo property, T item)
     {
         var type = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
         var tempValue = property.GetValue(item);

@@ -12,7 +12,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
 
 public class BulkUpdateBuilder<T>
 {
-    private TableInfor _table;
+    private TableInfor<T> _table;
     private IEnumerable<string> _idColumns;
     private IEnumerable<string> _columnNames;
     private BulkUpdateOptions _options = BulkUpdateOptions.DefaultOptions;
@@ -23,7 +23,7 @@ public class BulkUpdateBuilder<T>
         _connectionContext = connectionContext;
     }
 
-    public BulkUpdateBuilder<T> ToTable(TableInfor table)
+    public BulkUpdateBuilder<T> ToTable(TableInfor<T> table)
     {
         _table = table;
         return this;
@@ -76,7 +76,7 @@ public class BulkUpdateBuilder<T>
 
         var joinCondition = string.Join(" and ", _idColumns.Select(x =>
         {
-            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType<T>(x) == typeof(string) ?
+            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
             $" COLLATE \"{_options.Collation}\"" : string.Empty;
             return $"a.\"{_table.GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
         }));
@@ -213,7 +213,7 @@ public class BulkUpdateBuilder<T>
 
         var joinCondition = string.Join(" and ", _idColumns.Select(x =>
         {
-            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType<T>(x) == typeof(string) ?
+            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
             $" COLLATE \"{_options.Collation}\"" : string.Empty;
             return $"a.\"{_table.GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
         }));

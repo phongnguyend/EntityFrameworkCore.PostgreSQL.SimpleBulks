@@ -10,7 +10,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkDelete;
 
 public class BulkDeleteBuilder<T>
 {
-    private TableInfor _table;
+    private TableInfor<T> _table;
     private IEnumerable<string> _idColumns;
     private BulkDeleteOptions _options = BulkDeleteOptions.DefaultOptions;
     private readonly ConnectionContext _connectionContext;
@@ -20,7 +20,7 @@ public class BulkDeleteBuilder<T>
         _connectionContext = connectionContext;
     }
 
-    public BulkDeleteBuilder<T> ToTable(TableInfor table)
+    public BulkDeleteBuilder<T> ToTable(TableInfor<T> table)
     {
         _table = table;
         return this;
@@ -57,7 +57,7 @@ public class BulkDeleteBuilder<T>
 
         var joinCondition = string.Join(" AND ", _idColumns.Select(x =>
         {
-            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType<T>(x) == typeof(string) ?
+            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
             $" COLLATE \"{_options.Collation}\"" : string.Empty;
             return $"a.\"{_table.GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
         }));
@@ -153,7 +153,7 @@ public class BulkDeleteBuilder<T>
 
         var joinCondition = string.Join(" AND ", _idColumns.Select(x =>
         {
-            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType<T>(x) == typeof(string) ?
+            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
             $" COLLATE \"{_options.Collation}\"" : string.Empty;
             return $"a.\"{_table.GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
         }));

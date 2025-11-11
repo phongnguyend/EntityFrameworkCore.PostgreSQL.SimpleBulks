@@ -98,7 +98,7 @@ public class BulkUpdateAsyncTests : BaseTest
             {
                 await connectionContext.BulkUpdateAsync(rows,
                       row => new { row.Column3, row.Column2 },
-                      new NpgsqlTableInfor(_schema, "SingleKeyRows")
+                      new NpgsqlTableInfor<SingleKeyRow<int>>(_schema, "SingleKeyRows")
                       {
                           PrimaryKeys = ["Id"],
                       },
@@ -106,7 +106,7 @@ public class BulkUpdateAsyncTests : BaseTest
 
                 await connectionContext.BulkUpdateAsync(compositeKeyRows,
                        row => new { row.Column3, row.Column2 },
-                       new NpgsqlTableInfor(_schema, "CompositeKeyRows")
+                       new NpgsqlTableInfor<CompositeKeyRow<int, int>>(_schema, "CompositeKeyRows")
                        {
                            PrimaryKeys = ["Id1", "Id2"],
                        },
@@ -155,14 +155,14 @@ public class BulkUpdateAsyncTests : BaseTest
                      row => row.Id,
                      row => new { row.Column1, row.Column2 },
                      row => new { row.Column1, row.Column2, row.Column3 },
-                     new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                     new NpgsqlTableInfor<SingleKeyRow<int>>(_schema, "SingleKeyRows"),
                      options: mergeOptions);
 
                 await connectionContext.BulkMergeAsync(compositeKeyRows,
                      row => new { row.Id1, row.Id2 },
                      row => new { row.Column1, row.Column2, row.Column3 },
                      row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 },
-                     new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                     new NpgsqlTableInfor<CompositeKeyRow<int, int>>(_schema, "CompositeKeyRows"),
                      options: mergeOptions);
             }
 
@@ -183,7 +183,7 @@ public class BulkUpdateAsyncTests : BaseTest
             {
                 await connectionContext.BulkUpdateAsync(rows,
                       ["Column3", "Column2"],
-                      new NpgsqlTableInfor(_schema, "SingleKeyRows")
+                      new NpgsqlTableInfor<SingleKeyRow<int>>(_schema, "SingleKeyRows")
                       {
                           PrimaryKeys = ["Id"],
                       },
@@ -191,7 +191,7 @@ public class BulkUpdateAsyncTests : BaseTest
 
                 await connectionContext.BulkUpdateAsync(compositeKeyRows,
                       ["Column3", "Column2"],
-                      new NpgsqlTableInfor(_schema, "CompositeKeyRows")
+                      new NpgsqlTableInfor<CompositeKeyRow<int, int>>(_schema, "CompositeKeyRows")
                       {
                           PrimaryKeys = ["Id1", "Id2"],
                       },
@@ -240,14 +240,14 @@ public class BulkUpdateAsyncTests : BaseTest
                       ["Id"],
                       ["Column1", "Column2"],
                       ["Column1", "Column2", "Column3"],
-                      new NpgsqlTableInfor(_schema, "SingleKeyRows"),
+                      new NpgsqlTableInfor<SingleKeyRow<int>>(_schema, "SingleKeyRows"),
                       options: mergeOptions);
 
                 await connectionContext.BulkMergeAsync(compositeKeyRows,
                      ["Id1", "Id2"],
                      ["Column1", "Column2", "Column3"],
                      ["Id1", "Id2", "Column1", "Column2", "Column3"],
-                     new NpgsqlTableInfor(_schema, "CompositeKeyRows"),
+                     new NpgsqlTableInfor<CompositeKeyRow<int, int>>(_schema, "CompositeKeyRows"),
                      options: mergeOptions);
             }
         }

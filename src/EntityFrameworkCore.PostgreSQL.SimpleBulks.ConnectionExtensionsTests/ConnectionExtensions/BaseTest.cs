@@ -22,7 +22,7 @@ public abstract class BaseTest : IDisposable
         _context.Database.EnsureCreated();
         _connection = new NpgsqlConnection(connectionString);
 
-        TableMapper.Register<SingleKeyRow<int>>(new NpgsqlTableInfor(schema, "SingleKeyRows")
+        TableMapper.Register(new NpgsqlTableInfor<SingleKeyRow<int>>(schema, "SingleKeyRows")
         {
             PrimaryKeys = ["Id"],
             OutputId = new OutputId
@@ -32,12 +32,12 @@ public abstract class BaseTest : IDisposable
             }
         });
 
-        TableMapper.Register<CompositeKeyRow<int, int>>(new NpgsqlTableInfor(schema, "CompositeKeyRows")
+        TableMapper.Register(new NpgsqlTableInfor<CompositeKeyRow<int, int>>(schema, "CompositeKeyRows")
         {
             PrimaryKeys = ["Id1", "Id2"],
         });
 
-        TableMapper.Register<ConfigurationEntry>(new NpgsqlTableInfor(schema, "ConfigurationEntry")
+        TableMapper.Register(new NpgsqlTableInfor<ConfigurationEntry>(schema, "ConfigurationEntry")
         {
             PrimaryKeys = ["Id"],
             OutputId = new OutputId
@@ -47,12 +47,12 @@ public abstract class BaseTest : IDisposable
             }
         });
 
-        TableMapper.Register<Customer>(new NpgsqlTableInfor(schema, "Customers")
+        TableMapper.Register(new NpgsqlTableInfor<Customer>(schema, "Customers")
         {
             PropertyNames = ["Id", "FirstName", "LastName", "CurrentCountryIsoCode", "Index", "Season", "SeasonAsString"]
         });
 
-        TableMapper.Register<Contact>(new NpgsqlTableInfor(schema, "Contacts")
+        TableMapper.Register(new NpgsqlTableInfor<Contact>(schema, "Contacts")
         {
             PropertyNames = ["Id", "EmailAddress", "PhoneNumber", "CountryIsoCode", "Index", "Season", "SeasonAsString", "CustomerId"]
         });

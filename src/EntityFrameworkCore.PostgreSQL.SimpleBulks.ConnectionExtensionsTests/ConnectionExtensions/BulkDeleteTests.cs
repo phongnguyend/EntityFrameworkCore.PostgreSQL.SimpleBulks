@@ -69,12 +69,12 @@ public class BulkDeleteTests : BaseTest
             else
             {
                 connectionContext.BulkDelete(rows,
-                    new NpgsqlTableInfor(_schema, "SingleKeyRows")
+                    new NpgsqlTableInfor<SingleKeyRow<int>>(_schema, "SingleKeyRows")
                     {
                         PrimaryKeys = ["Id"],
                     }, options: options);
                 connectionContext.BulkDelete(compositeKeyRows,
-                    new NpgsqlTableInfor(_schema, "CompositeKeyRows")
+                    new NpgsqlTableInfor<CompositeKeyRow<int, int>>(_schema, "CompositeKeyRows")
                     {
                         PrimaryKeys = ["Id1", "Id2"],
                     }, options: options);
@@ -90,12 +90,12 @@ public class BulkDeleteTests : BaseTest
             else
             {
                 connectionContext.BulkDelete(rows,
-                    new NpgsqlTableInfor(_schema, "SingleKeyRows")
+                    new NpgsqlTableInfor<SingleKeyRow<int>>(_schema, "SingleKeyRows")
                     {
                         PrimaryKeys = ["Id"],
                     }, options: options);
                 connectionContext.BulkDelete(compositeKeyRows,
-                    new NpgsqlTableInfor(_schema, "CompositeKeyRows")
+                    new NpgsqlTableInfor<CompositeKeyRow<int, int>>(_schema, "CompositeKeyRows")
                     {
                         PrimaryKeys = ["Id1", "Id2"],
                     }, options: options);

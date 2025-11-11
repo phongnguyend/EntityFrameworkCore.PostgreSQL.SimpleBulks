@@ -14,7 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-TableMapper.Register<ConfigurationEntry>(new NpgsqlTableInfor("ConfigurationEntries")
+TableMapper.Register(new NpgsqlTableInfor<ConfigurationEntry>("ConfigurationEntries")
 {
     PrimaryKeys = ["Id"],
     OutputId = new OutputId
