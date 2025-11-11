@@ -21,6 +21,15 @@ TableMapper.Register(new NpgsqlTableInfor<ConfigurationEntry>("ConfigurationEntr
     {
         Name = "Id",
         Mode = OutputIdMode.ServerGenerated,
+    },
+    ParameterConverter = (data, propertyName) =>
+    {
+        if (propertyName == "CreatedDateTime")
+        {
+            return new NpgsqlParameter(propertyName, data.CreatedDateTime);
+        }
+
+        return null;
     }
 });
 

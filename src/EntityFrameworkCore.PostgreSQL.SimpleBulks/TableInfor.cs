@@ -107,7 +107,7 @@ public class DbContextTableInfor<T> : TableInfor<T>
             {
                 var mapping = mappingSource.FindMapping(columnType);
                 var para = (NpgsqlParameter)mapping.CreateParameter(command, $"@{prop.Name}", GetProviderValue(prop, data) ?? DBNull.Value);
-                
+
                 parameters.Add(new ParameterInfo
                 {
                     Name = para.ParameterName,
@@ -126,7 +126,7 @@ public class DbContextTableInfor<T> : TableInfor<T>
 
     }
 
-    private object GetProviderValue<T>(PropertyInfo property, T item)
+    private object GetProviderValue(PropertyInfo property, T item)
     {
         if (ValueConverters != null && ValueConverters.TryGetValue(property.Name, out var converter))
         {
@@ -143,6 +143,8 @@ public class DbContextTableInfor<T> : TableInfor<T>
 
 public class NpgsqlTableInfor<T> : TableInfor<T>
 {
+    public Func<T, string, NpgsqlParameter> ParameterConverter { get; init; }
+
     public NpgsqlTableInfor(string schema, string tableName) : base(schema, tableName)
     {
     }
@@ -157,29 +159,44 @@ public class NpgsqlTableInfor<T> : TableInfor<T>
 
         foreach (var propName in propertyNames)
         {
-            var prop = PropertiesCache<T>.GetProperty(propName);
+            var para = ParameterConverter?.Invoke(data, propName);
 
-            var value = GetProviderValue(prop, data);
-
-            var para = new NpgsqlParameter($"@{prop.Name}", value ?? DBNull.Value);
-
-            var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-
-            if (ColumnTypeMappings != null && ColumnTypeMappings.TryGetValue(prop.Name, out var columnType))
+            if (para == null)
             {
-                para.DataTypeName = columnType;
+                var prop = PropertiesCache<T>.GetProperty(propName);
+
+                var value = GetProviderValue(prop, data);
+
+                para = new NpgsqlParameter($"@{prop.Name}", value ?? DBNull.Value);
+
+                var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+
+                if (ColumnTypeMappings != null && ColumnTypeMappings.TryGetValue(prop.Name, out var columnType))
+                {
+                    para.DataTypeName = columnType;
+                }
+                else
+                {
+                    para.DataTypeName = type.ToPostgreSQLType();
+                }
+
+                parameters.Add(new ParameterInfo
+                {
+                    Name = para.ParameterName,
+                    Type = para.DataTypeName,
+                    Parameter = para
+                });
             }
             else
             {
-                para.DataTypeName = type.ToPostgreSQLType();
+                parameters.Add(new ParameterInfo
+                {
+                    Name = para.ParameterName,
+                    Type = para.DataTypeName,
+                    Parameter = para,
+                    FromConverter = true
+                });
             }
-
-            parameters.Add(new ParameterInfo
-            {
-                Name = para.ParameterName,
-                Type = para.DataTypeName,
-                Parameter = para
-            });
 
             if (autoAdd)
             {
