@@ -94,7 +94,7 @@ await dbct.BulkMergeAsync(compositeKeyRows,
 await dbct.CreateBulkInsertBuilder<Row>()
 	.WithColumns(row => new { row.Column1, row.Column2, row.Column3 })
 	// or .WithColumns([ "Column1", "Column2", "Column3" ])
-	.ToTable(dbct.GetTableInfor(typeof(Row)))
+	.ToTable(dbContext.GetTableInfor<Row>())
 	.ExecuteAsync(rows);
 ```
 
@@ -107,8 +107,8 @@ using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
 
 // Register Type - Table Name globaly
-TableMapper.Register<Row>(new NpgsqlTableInfor("Rows"));
-TableMapper.Register<CompositeKeyRow>(new NpgsqlTableInfor("CompositeKeyRows"));
+TableMapper.Register(new NpgsqlTableInfor<Row>("Rows"));
+TableMapper.Register(new NpgsqlTableInfor<CompositeKeyRow>("CompositeKeyRows"));
 
 var connection = new ConnectionContext(new NpgsqlConnection(connectionString), null);
 
@@ -167,7 +167,7 @@ await connection.BulkMergeAsync(compositeKeyRows,
 await connection.CreateBulkInsertBuilder<Row>()
 	.WithColumns(row => new { row.Column1, row.Column2, row.Column3 })
 	// or .WithColumns([ "Column1", "Column2", "Column3" ])
-	.ToTable(new NpgsqlTableInfor("Rows"))
+	.ToTable(new NpgsqlTableInfor<Row>("Rows"))
 	.ExecuteAsync(rows);
 ```
 
