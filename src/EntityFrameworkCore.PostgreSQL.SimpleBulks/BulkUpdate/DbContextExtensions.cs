@@ -8,7 +8,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
 
 public static class DbContextExtensions
 {
-    public static BulkUpdateResult BulkUpdate<T>(this DbContext dbContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, BulkUpdateOptions options = null)
+    public static BulkUpdateResult BulkUpdate<T>(this DbContext dbContext, IReadOnlyCollection<T> data, Expression<Func<T, object>> columnNamesSelector, BulkUpdateOptions options = null)
     {
         var table = dbContext.GetTableInfor<T>();
 
@@ -20,7 +20,7 @@ public static class DbContextExtensions
        .Execute(data);
     }
 
-    public static BulkUpdateResult BulkUpdate<T>(this DbContext dbContext, IEnumerable<T> data, IEnumerable<string> columnNames, BulkUpdateOptions options = null)
+    public static BulkUpdateResult BulkUpdate<T>(this DbContext dbContext, IReadOnlyCollection<T> data, IReadOnlyCollection<string> columnNames, BulkUpdateOptions options = null)
     {
         var table = dbContext.GetTableInfor<T>();
 

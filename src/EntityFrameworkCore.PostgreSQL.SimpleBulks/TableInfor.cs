@@ -69,7 +69,7 @@ public abstract class TableInfor<T>
         throw new ArgumentException($"Property '{propertyName}' not found.");
     }
 
-    public abstract List<ParameterInfo> CreateNpgsqlParameters(NpgsqlCommand command, T data, IEnumerable<string> propertyNames, bool autoAdd);
+    public abstract List<ParameterInfo> CreateNpgsqlParameters(NpgsqlCommand command, T data, IReadOnlyCollection<string> propertyNames, bool autoAdd);
 }
 
 public class DbContextTableInfor<T> : TableInfor<T>
@@ -86,7 +86,7 @@ public class DbContextTableInfor<T> : TableInfor<T>
         _dbContext = dbContext;
     }
 
-    public override List<ParameterInfo> CreateNpgsqlParameters(NpgsqlCommand command, T data, IEnumerable<string> propertyNames, bool autoAdd)
+    public override List<ParameterInfo> CreateNpgsqlParameters(NpgsqlCommand command, T data, IReadOnlyCollection<string> propertyNames, bool autoAdd)
     {
         var parameters = new List<ParameterInfo>();
 
@@ -146,7 +146,7 @@ public class NpgsqlTableInfor<T> : TableInfor<T>
     {
     }
 
-    public override List<ParameterInfo> CreateNpgsqlParameters(NpgsqlCommand command, T data, IEnumerable<string> propertyNames, bool autoAdd)
+    public override List<ParameterInfo> CreateNpgsqlParameters(NpgsqlCommand command, T data, IReadOnlyCollection<string> propertyNames, bool autoAdd)
     {
         var parameters = new List<ParameterInfo>();
 

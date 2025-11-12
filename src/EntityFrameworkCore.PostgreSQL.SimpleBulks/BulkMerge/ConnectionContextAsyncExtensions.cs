@@ -9,7 +9,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
 
 public static class ConnectionContextAsyncExtensions
 {
-    public static Task<BulkMergeResult> BulkMergeAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, Expression<Func<T, object>> idSelector, Expression<Func<T, object>> updateColumnNamesSelector, Expression<Func<T, object>> insertColumnNamesSelector, NpgsqlTableInfor<T> table = null, BulkMergeOptions options = null, CancellationToken cancellationToken = default)
+    public static Task<BulkMergeResult> BulkMergeAsync<T>(this ConnectionContext connectionContext, IReadOnlyCollection<T> data, Expression<Func<T, object>> idSelector, Expression<Func<T, object>> updateColumnNamesSelector, Expression<Func<T, object>> insertColumnNamesSelector, NpgsqlTableInfor<T> table = null, BulkMergeOptions options = null, CancellationToken cancellationToken = default)
     {
         return connectionContext.CreateBulkMergeBuilder<T>()
                  .WithId(idSelector)
@@ -20,7 +20,7 @@ public static class ConnectionContextAsyncExtensions
           .ExecuteAsync(data, cancellationToken);
     }
 
-    public static Task<BulkMergeResult> BulkMergeAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, IEnumerable<string> idColumns, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, NpgsqlTableInfor<T> table = null, BulkMergeOptions options = null, CancellationToken cancellationToken = default)
+    public static Task<BulkMergeResult> BulkMergeAsync<T>(this ConnectionContext connectionContext, IReadOnlyCollection<T> data, IReadOnlyCollection<string> idColumns, IReadOnlyCollection<string> updateColumnNames, IReadOnlyCollection<string> insertColumnNames, NpgsqlTableInfor<T> table = null, BulkMergeOptions options = null, CancellationToken cancellationToken = default)
     {
         return connectionContext.CreateBulkMergeBuilder<T>()
        .WithId(idColumns)

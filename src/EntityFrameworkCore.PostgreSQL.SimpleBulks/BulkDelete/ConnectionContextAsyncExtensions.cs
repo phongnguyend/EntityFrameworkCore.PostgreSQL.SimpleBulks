@@ -7,7 +7,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkDelete;
 
 public static class ConnectionContextAsyncExtensions
 {
-    public static Task<BulkDeleteResult> BulkDeleteAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, NpgsqlTableInfor<T> table = null, BulkDeleteOptions options = null, CancellationToken cancellationToken = default)
+    public static Task<BulkDeleteResult> BulkDeleteAsync<T>(this ConnectionContext connectionContext, IReadOnlyCollection<T> data, NpgsqlTableInfor<T> table = null, BulkDeleteOptions options = null, CancellationToken cancellationToken = default)
     {
         var temp = table ?? TableMapper.Resolve<T>();
 

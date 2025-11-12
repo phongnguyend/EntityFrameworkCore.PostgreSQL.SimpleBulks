@@ -5,7 +5,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkDelete;
 
 public static class ConnectionContextExtensions
 {
-    public static BulkDeleteResult BulkDelete<T>(this ConnectionContext connectionContext, IEnumerable<T> data, NpgsqlTableInfor<T> table = null, BulkDeleteOptions options = null)
+    public static BulkDeleteResult BulkDelete<T>(this ConnectionContext connectionContext, IReadOnlyCollection<T> data, NpgsqlTableInfor<T> table = null, BulkDeleteOptions options = null)
     {
         var temp = table ?? TableMapper.Resolve<T>();
 

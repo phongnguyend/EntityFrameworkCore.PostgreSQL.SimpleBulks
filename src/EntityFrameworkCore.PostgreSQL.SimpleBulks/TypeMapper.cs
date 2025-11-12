@@ -46,7 +46,7 @@ public static class TypeMapper
         return sqlType;
     }
 
-    public static string GenerateTempTableDefinition(this Type type, string tableName, IEnumerable<string> propertyNames,
+    public static string GenerateTempTableDefinition(this Type type, string tableName, IReadOnlyCollection<string> propertyNames,
         IReadOnlyDictionary<string, string> columnNameMappings,
         IReadOnlyDictionary<string, string> columnTypeMappings,
         bool addIndexNumberColumn = false)

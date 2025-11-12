@@ -17,7 +17,7 @@ public static class ConnectionContextExtensions
      .SingleInsert(data);
     }
 
-    public static void DirectInsert<T>(this ConnectionContext connectionContext, T data, IEnumerable<string> columnNames, NpgsqlTableInfor<T> table = null, BulkInsertOptions options = null)
+    public static void DirectInsert<T>(this ConnectionContext connectionContext, T data, IReadOnlyCollection<string> columnNames, NpgsqlTableInfor<T> table = null, BulkInsertOptions options = null)
     {
         connectionContext.CreateBulkInsertBuilder<T>()
          .WithColumns(columnNames)

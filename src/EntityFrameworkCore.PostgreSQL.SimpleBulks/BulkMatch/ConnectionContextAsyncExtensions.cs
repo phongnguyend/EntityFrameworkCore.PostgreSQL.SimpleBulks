@@ -9,7 +9,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMatch;
 
 public static class ConnectionContextAsyncExtensions
 {
-    public static Task<List<T>> BulkMatchAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, Expression<Func<T, object>> matchedColumnsSelector, NpgsqlTableInfor<T> table = null, BulkMatchOptions options = null, CancellationToken cancellationToken = default)
+    public static Task<List<T>> BulkMatchAsync<T>(this ConnectionContext connectionContext, IReadOnlyCollection<T> machedValues, Expression<Func<T, object>> matchedColumnsSelector, NpgsqlTableInfor<T> table = null, BulkMatchOptions options = null, CancellationToken cancellationToken = default)
     {
         var temp = table ?? TableMapper.Resolve<T>();
 
@@ -21,7 +21,7 @@ public static class ConnectionContextAsyncExtensions
             .ExecuteAsync(machedValues, cancellationToken);
     }
 
-    public static Task<List<T>> BulkMatchAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, Expression<Func<T, object>> matchedColumnsSelector, Expression<Func<T, object>> returnedColumnsSelector, NpgsqlTableInfor<T> table = null, BulkMatchOptions options = null, CancellationToken cancellationToken = default)
+    public static Task<List<T>> BulkMatchAsync<T>(this ConnectionContext connectionContext, IReadOnlyCollection<T> machedValues, Expression<Func<T, object>> matchedColumnsSelector, Expression<Func<T, object>> returnedColumnsSelector, NpgsqlTableInfor<T> table = null, BulkMatchOptions options = null, CancellationToken cancellationToken = default)
     {
         return connectionContext.CreateBulkMatchBuilder<T>()
             .WithReturnedColumns(returnedColumnsSelector)
@@ -31,7 +31,7 @@ public static class ConnectionContextAsyncExtensions
      .ExecuteAsync(machedValues, cancellationToken);
     }
 
-    public static Task<List<T>> BulkMatchAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, IEnumerable<string> matchedColumns, IEnumerable<string> returnedColumns, NpgsqlTableInfor<T> table = null, BulkMatchOptions options = null, CancellationToken cancellationToken = default)
+    public static Task<List<T>> BulkMatchAsync<T>(this ConnectionContext connectionContext, IReadOnlyCollection<T> machedValues, IReadOnlyCollection<string> matchedColumns, IReadOnlyCollection<string> returnedColumns, NpgsqlTableInfor<T> table = null, BulkMatchOptions options = null, CancellationToken cancellationToken = default)
     {
         return connectionContext.CreateBulkMatchBuilder<T>()
          .WithReturnedColumns(returnedColumns)

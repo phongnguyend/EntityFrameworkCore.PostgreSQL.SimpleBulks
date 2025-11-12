@@ -7,7 +7,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMatch;
 
 public static class ConnectionContextExtensions
 {
-    public static List<T> BulkMatch<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, Expression<Func<T, object>> matchedColumnsSelector, NpgsqlTableInfor<T> table = null, BulkMatchOptions options = null)
+    public static List<T> BulkMatch<T>(this ConnectionContext connectionContext, IReadOnlyCollection<T> machedValues, Expression<Func<T, object>> matchedColumnsSelector, NpgsqlTableInfor<T> table = null, BulkMatchOptions options = null)
     {
         var temp = table ?? TableMapper.Resolve<T>();
 
@@ -19,7 +19,7 @@ public static class ConnectionContextExtensions
              .Execute(machedValues);
     }
 
-    public static List<T> BulkMatch<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, Expression<Func<T, object>> matchedColumnsSelector, Expression<Func<T, object>> returnedColumnsSelector, NpgsqlTableInfor<T> table = null, BulkMatchOptions options = null)
+    public static List<T> BulkMatch<T>(this ConnectionContext connectionContext, IReadOnlyCollection<T> machedValues, Expression<Func<T, object>> matchedColumnsSelector, Expression<Func<T, object>> returnedColumnsSelector, NpgsqlTableInfor<T> table = null, BulkMatchOptions options = null)
     {
         return connectionContext.CreateBulkMatchBuilder<T>()
             .WithReturnedColumns(returnedColumnsSelector)
@@ -29,7 +29,7 @@ public static class ConnectionContextExtensions
              .Execute(machedValues);
     }
 
-    public static List<T> BulkMatch<T>(this ConnectionContext connectionContext, IEnumerable<T> machedValues, IEnumerable<string> matchedColumns, IEnumerable<string> returnedColumns, NpgsqlTableInfor<T> table = null, BulkMatchOptions options = null)
+    public static List<T> BulkMatch<T>(this ConnectionContext connectionContext, IReadOnlyCollection<T> machedValues, IReadOnlyCollection<string> matchedColumns, IReadOnlyCollection<string> returnedColumns, NpgsqlTableInfor<T> table = null, BulkMatchOptions options = null)
     {
         return connectionContext.CreateBulkMatchBuilder<T>()
       .WithReturnedColumns(returnedColumns)

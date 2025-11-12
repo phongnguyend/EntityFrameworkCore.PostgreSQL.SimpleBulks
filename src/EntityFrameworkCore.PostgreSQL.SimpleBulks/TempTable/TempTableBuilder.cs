@@ -9,7 +9,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.TempTable;
 
 public class TempTableBuilder<T>
 {
-    private IEnumerable<string> _columnNames;
+    private IReadOnlyCollection<string> _columnNames;
     private MappingContext _mappingContext = MappingContext.Default;
     private TempTableOptions _options = TempTableOptions.DefaultOptions;
     private readonly ConnectionContext _connectionContext;
@@ -19,7 +19,7 @@ public class TempTableBuilder<T>
         _connectionContext = connectionContext;
     }
 
-    public TempTableBuilder<T> WithColumns(IEnumerable<string> columnNames)
+    public TempTableBuilder<T> WithColumns(IReadOnlyCollection<string> columnNames)
     {
         _columnNames = columnNames;
         return this;
@@ -58,7 +58,7 @@ public class TempTableBuilder<T>
         return Guid.NewGuid().ToString();
     }
 
-    public string Execute(IEnumerable<T> data)
+    public string Execute(IReadOnlyCollection<T> data)
     {
         var tempTableName = $"\"{GetTableName()}\"";
         var sqlCreateTempTable = typeof(T).GenerateTempTableDefinition(tempTableName, _columnNames, _mappingContext.ColumnNameMappings, _mappingContext.ColumnTypeMappings);
@@ -87,7 +87,7 @@ public class TempTableBuilder<T>
         _options?.LogTo?.Invoke($"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss.fff zzz} [TempTable]: {message}");
     }
 
-    public async Task<string> ExecuteAsync(IEnumerable<T> data, CancellationToken cancellationToken = default)
+    public async Task<string> ExecuteAsync(IReadOnlyCollection<T> data, CancellationToken cancellationToken = default)
     {
         var tempTableName = $"\"{GetTableName()}\"";
         var sqlCreateTempTable = typeof(T).GenerateTempTableDefinition(tempTableName, _columnNames, _mappingContext.ColumnNameMappings, _mappingContext.ColumnTypeMappings);

@@ -7,7 +7,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
 
 public static class ConnectionContextExtensions
 {
-    public static BulkMergeResult BulkMerge<T>(this ConnectionContext connectionContext, IEnumerable<T> data, Expression<Func<T, object>> idSelector, Expression<Func<T, object>> updateColumnNamesSelector, Expression<Func<T, object>> insertColumnNamesSelector, NpgsqlTableInfor<T> table = null, BulkMergeOptions options = null)
+    public static BulkMergeResult BulkMerge<T>(this ConnectionContext connectionContext, IReadOnlyCollection<T> data, Expression<Func<T, object>> idSelector, Expression<Func<T, object>> updateColumnNamesSelector, Expression<Func<T, object>> insertColumnNamesSelector, NpgsqlTableInfor<T> table = null, BulkMergeOptions options = null)
     {
         return connectionContext.CreateBulkMergeBuilder<T>()
     .WithId(idSelector)
@@ -18,7 +18,7 @@ public static class ConnectionContextExtensions
        .Execute(data);
     }
 
-    public static BulkMergeResult BulkMerge<T>(this ConnectionContext connectionContext, IEnumerable<T> data, IEnumerable<string> idColumns, IEnumerable<string> updateColumnNames, IEnumerable<string> insertColumnNames, NpgsqlTableInfor<T> table = null, BulkMergeOptions options = null)
+    public static BulkMergeResult BulkMerge<T>(this ConnectionContext connectionContext, IReadOnlyCollection<T> data, IReadOnlyCollection<string> idColumns, IReadOnlyCollection<string> updateColumnNames, IReadOnlyCollection<string> insertColumnNames, NpgsqlTableInfor<T> table = null, BulkMergeOptions options = null)
     {
         return connectionContext.CreateBulkMergeBuilder<T>()
         .WithId(idColumns)

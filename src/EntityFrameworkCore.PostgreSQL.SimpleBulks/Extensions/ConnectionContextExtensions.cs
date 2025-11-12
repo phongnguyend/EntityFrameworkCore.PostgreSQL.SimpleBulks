@@ -65,7 +65,7 @@ public static class ConnectionContextExtensions
         return command;
     }
 
-    public static void SqlBulkCopy<T>(this ConnectionContext connectionContext, IEnumerable<T> data, string tableName, IEnumerable<string> propertyNames, IReadOnlyDictionary<string, string> columnNameMappings, bool addIndexNumberColumn, BulkOptions options = null, IReadOnlyDictionary<string, ValueConverter> valueConverters = null)
+    public static void SqlBulkCopy<T>(this ConnectionContext connectionContext, IReadOnlyCollection<T> data, string tableName, IReadOnlyCollection<string> propertyNames, IReadOnlyDictionary<string, string> columnNameMappings, bool addIndexNumberColumn, BulkOptions options = null, IReadOnlyDictionary<string, ValueConverter> valueConverters = null)
     {
         options ??= DefaultBulkOptions;
 
@@ -106,7 +106,7 @@ public static class ConnectionContextExtensions
         writer.Complete();
     }
 
-    public static async Task SqlBulkCopyAsync<T>(this ConnectionContext connectionContext, IEnumerable<T> data, string tableName, IEnumerable<string> propertyNames, IReadOnlyDictionary<string, string> columnNameMappings, bool addIndexNumberColumn, BulkOptions options = null, IReadOnlyDictionary<string, ValueConverter> valueConverters = null, CancellationToken cancellationToken = default)
+    public static async Task SqlBulkCopyAsync<T>(this ConnectionContext connectionContext, IReadOnlyCollection<T> data, string tableName, IReadOnlyCollection<string> propertyNames, IReadOnlyDictionary<string, string> columnNameMappings, bool addIndexNumberColumn, BulkOptions options = null, IReadOnlyDictionary<string, ValueConverter> valueConverters = null, CancellationToken cancellationToken = default)
     {
         options ??= DefaultBulkOptions;
 

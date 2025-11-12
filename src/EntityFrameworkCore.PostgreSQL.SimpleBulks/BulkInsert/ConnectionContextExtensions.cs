@@ -7,7 +7,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 
 public static class ConnectionContextExtensions
 {
-    public static void BulkInsert<T>(this ConnectionContext connectionContext, IEnumerable<T> data, Expression<Func<T, object>> columnNamesSelector, NpgsqlTableInfor<T> table = null, BulkInsertOptions options = null)
+    public static void BulkInsert<T>(this ConnectionContext connectionContext, IReadOnlyCollection<T> data, Expression<Func<T, object>> columnNamesSelector, NpgsqlTableInfor<T> table = null, BulkInsertOptions options = null)
     {
         connectionContext.CreateBulkInsertBuilder<T>()
         .WithColumns(columnNamesSelector)
@@ -16,7 +16,7 @@ public static class ConnectionContextExtensions
      .Execute(data);
     }
 
-    public static void BulkInsert<T>(this ConnectionContext connectionContext, IEnumerable<T> data, IEnumerable<string> columnNames, NpgsqlTableInfor<T> table = null, BulkInsertOptions options = null)
+    public static void BulkInsert<T>(this ConnectionContext connectionContext, IReadOnlyCollection<T> data, IReadOnlyCollection<string> columnNames, NpgsqlTableInfor<T> table = null, BulkInsertOptions options = null)
     {
         connectionContext.CreateBulkInsertBuilder<T>()
          .WithColumns(columnNames)
