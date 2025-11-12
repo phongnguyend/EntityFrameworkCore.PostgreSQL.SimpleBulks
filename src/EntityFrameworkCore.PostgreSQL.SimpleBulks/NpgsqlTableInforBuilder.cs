@@ -20,11 +20,11 @@ public class NpgsqlTableInforBuilder<T>
 
     private List<string> _insertablePropertyNames;
 
-    private IReadOnlyDictionary<string, string> _columnNameMappings;
+    private Dictionary<string, string> _columnNameMappings = new();
 
-    private IReadOnlyDictionary<string, string> _columnTypeMappings;
+    private Dictionary<string, string> _columnTypeMappings = new();
 
-    private IReadOnlyDictionary<string, ValueConverter> _valueConverters;
+    private Dictionary<string, ValueConverter> _valueConverters = new();
 
     private OutputId _outputId;
 
@@ -59,24 +59,6 @@ public class NpgsqlTableInforBuilder<T>
         var primaryKey = primaryKeysSelector.Body.GetMemberName();
         var primaryKeys = string.IsNullOrEmpty(primaryKey) ? primaryKeysSelector.Body.GetMemberNames() : [primaryKey];
         return PrimaryKeys(primaryKeys);
-    }
-
-    public NpgsqlTableInforBuilder<T> ColumnNameMappings(IReadOnlyDictionary<string, string> columnNameMappings)
-    {
-        _columnNameMappings = columnNameMappings;
-        return this;
-    }
-
-    public NpgsqlTableInforBuilder<T> ColumnTypeMappings(IReadOnlyDictionary<string, string> columnTypeMappings)
-    {
-        _columnTypeMappings = columnTypeMappings;
-        return this;
-    }
-
-    public NpgsqlTableInforBuilder<T> ValueConverters(IReadOnlyDictionary<string, ValueConverter> valueConverters)
-    {
-        _valueConverters = valueConverters;
-        return this;
     }
 
     public NpgsqlTableInforBuilder<T> OutputId(string name, OutputIdMode outputIdMode)
@@ -140,13 +122,26 @@ public class NpgsqlTableInforBuilder<T>
         return ReadOnlyProperty(propertyName);
     }
 
-    public NpgsqlTableInforBuilder<T> ConfigureProperty(string propertyName,
-        string columnName = null,
-        string columnType = null,
-        ValueConverter valueConverter = null)
+    public NpgsqlTableInforBuilder<T> ConfigureProperty(string propertyName, string columnName = null, string columnType = null)
     {
+        if (columnName != null)
+        {
+            _columnNameMappings[propertyName] = columnName;
+        }
+
+        if (columnType != null)
+        {
+            _columnTypeMappings[propertyName] = columnType;
+        }
 
         return this;
+    }
+
+    public NpgsqlTableInforBuilder<T> ConfigureProperty(Expression<Func<T, object>> nameSelector, string columnName = null, string columnType = null)
+    {
+        var propertyName = nameSelector.Body.GetMemberName();
+
+        return ConfigureProperty(propertyName, columnName, columnType);
     }
 
     public NpgsqlTableInfor<T> Build()
