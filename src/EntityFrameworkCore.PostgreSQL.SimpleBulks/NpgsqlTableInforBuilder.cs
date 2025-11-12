@@ -123,6 +123,32 @@ public class NpgsqlTableInforBuilder<T>
         return IgnoreProperty(propertyName);
     }
 
+    public NpgsqlTableInforBuilder<T> ReadOnlyProperty(string name)
+    {
+        if (_insertablePropertyNames != null && _insertablePropertyNames.Contains(name))
+        {
+            _insertablePropertyNames.Remove(name);
+        }
+
+        return this;
+    }
+
+    public NpgsqlTableInforBuilder<T> ReadOnlyProperty(Expression<Func<T, object>> nameSelector)
+    {
+        var propertyName = nameSelector.Body.GetMemberName();
+
+        return ReadOnlyProperty(propertyName);
+    }
+
+    public NpgsqlTableInforBuilder<T> ConfigureProperty(string propertyName,
+        string columnName = null,
+        string columnType = null,
+        ValueConverter valueConverter = null)
+    {
+
+        return this;
+    }
+
     public NpgsqlTableInfor<T> Build()
     {
         var tableInfor = new NpgsqlTableInfor<T>(_schema, _name)
