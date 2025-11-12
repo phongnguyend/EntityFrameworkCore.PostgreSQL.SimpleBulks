@@ -34,11 +34,11 @@ namespace ConnectionExtensionsExamples.Migrations
                 name: "ConfigurationEntries",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v1mc()"),
+                    Id1 = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v1mc()"),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
                     CreatedDateTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedDateTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    Key = table.Column<string>(type: "text", nullable: true),
+                    Key1 = table.Column<string>(type: "text", nullable: true),
                     Value = table.Column<string>(type: "text", nullable: true),
                     Description = table.Column<string>(type: "text", nullable: true),
                     IsSensitive = table.Column<bool>(type: "boolean", nullable: false),
@@ -47,7 +47,7 @@ namespace ConnectionExtensionsExamples.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ConfigurationEntries", x => x.Id);
+                    table.PrimaryKey("PK_ConfigurationEntries", x => x.Id1);
                 });
 
             migrationBuilder.CreateTable(

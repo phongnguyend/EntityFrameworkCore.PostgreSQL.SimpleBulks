@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ConnectionExtensionsExamples.Migrations
 {
     [DbContext(typeof(DemoDbContext))]
-    [Migration("20251105075149_Init")]
+    [Migration("20251112225740_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -53,6 +53,7 @@ namespace ConnectionExtensionsExamples.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
+                        .HasColumnName("Id1")
                         .HasDefaultValueSql("uuid_generate_v1mc()");
 
                     b.Property<DateTimeOffset>("CreatedDateTime")
@@ -65,7 +66,8 @@ namespace ConnectionExtensionsExamples.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Key")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("Key1");
 
                     b.Property<uint>("RowVersion")
                         .IsConcurrencyToken()
