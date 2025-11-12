@@ -146,6 +146,11 @@ public class NpgsqlTableInforBuilder<T>
 
     public NpgsqlTableInfor<T> Build()
     {
+        if(_outputId?.Mode == OutputIdMode.ServerGenerated && _insertablePropertyNames.Contains(_outputId.Name))
+        {
+            _insertablePropertyNames.Remove(_outputId.Name);
+        }
+
         var tableInfor = new NpgsqlTableInfor<T>(_schema, _name)
         {
             PrimaryKeys = _primaryKeys,
