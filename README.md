@@ -106,9 +106,22 @@ using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkInsert;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
 
-// Register Type - Table Name globaly
-TableMapper.Register(new NpgsqlTableInfor<Row>("Rows"));
-TableMapper.Register(new NpgsqlTableInfor<CompositeKeyRow>("CompositeKeyRows"));
+// Configure Mapping globaly
+
+TableMapper.Configure<Row>(config =>
+{
+    config
+    .TableName("Rows")
+    .PrimaryKeys(x => x.Id)
+    .OutputId(x => x.Id, OutputIdMode.ServerGenerated);
+});
+
+TableMapper.Configure<CompositeKeyRow>(config =>
+{
+    config
+    .TableName("CompositeKeyRows")
+    .PrimaryKeys(x => new { x.Id1, x.Id2 });
+});
 
 var connection = new ConnectionContext(new NpgsqlConnection(connectionString), null);
 
