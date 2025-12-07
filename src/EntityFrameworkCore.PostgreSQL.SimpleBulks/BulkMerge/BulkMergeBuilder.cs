@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -76,6 +77,11 @@ public class BulkMergeBuilder<T>
         return this;
     }
 
+    private PropertyInfo GetIdProperty()
+    {
+        return PropertiesCache<T>.GetProperty(_outputIdColumn);
+    }
+
     public BulkMergeResult Execute(IReadOnlyCollection<T> data)
     {
         if (data.Count() == 1)
@@ -97,7 +103,7 @@ public class BulkMergeBuilder<T>
         propertyNames.AddRange(_insertColumnNames);
         propertyNames = propertyNames.Distinct().ToList();
 
-        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNames, null, _table.ColumnTypeMappings, addIndexNumberColumn: returnDbGeneratedId);
+        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, propertyNames, null, _table.ColumnTypeMappings, addIndexNumberColumn: returnDbGeneratedId);
 
         var mergeStatementBuilder = new StringBuilder();
 
@@ -194,7 +200,7 @@ public class BulkMergeBuilder<T>
 
         if (returnDbGeneratedId)
         {
-            var idProperty = PropertiesCache<T>.GetProperty(_outputIdColumn);
+            var idProperty = GetIdProperty();
 
             long idx = 0;
             foreach (var row in data)
@@ -269,7 +275,7 @@ public class BulkMergeBuilder<T>
         propertyNames.AddRange(_insertColumnNames);
         propertyNames = propertyNames.Distinct().ToList();
 
-        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNames, null, _table.ColumnTypeMappings, addIndexNumberColumn: returnDbGeneratedId);
+        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, propertyNames, null, _table.ColumnTypeMappings, addIndexNumberColumn: returnDbGeneratedId);
 
         var mergeStatementBuilder = new StringBuilder();
 
@@ -366,7 +372,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
 
         if (returnDbGeneratedId)
         {
-            var idProperty = PropertiesCache<T>.GetProperty(_outputIdColumn);
+            var idProperty = GetIdProperty();
 
             long idx = 0;
             foreach (var row in data)
@@ -406,7 +412,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
            return $"s.\"{x}\"{collation} = t.\"{_table.GetDbColumnName(x)}\"{collation}";
        }));
 
-        var parameterNames = string.Join(", ", propertyNames.Select(x => "@" + x));
+        var parameterNames = _table.CreateParameterNames(propertyNames);
         var columnNames = string.Join(", ", propertyNames.Select(x => "\"" + x + "\""));
 
         mergeStatementBuilder.AppendLine($"MERGE INTO {_table.SchemaQualifiedTableName} AS t");
@@ -466,7 +472,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
                 {
                     if (returnDbGeneratedId)
                     {
-                        var idProperty = PropertiesCache<T>.GetProperty(_outputIdColumn);
+                        var idProperty = GetIdProperty();
                         idProperty.SetValue(data, reader[outputIdDbColumnName]);
                     }
 
@@ -509,7 +515,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
                   return $"s.\"{x}\"{collation} = t.\"{_table.GetDbColumnName(x)}\"{collation}";
               }));
 
-        var parameterNames = string.Join(", ", propertyNames.Select(x => "@" + x));
+        var parameterNames = _table.CreateParameterNames(propertyNames);
         var columnNames = string.Join(", ", propertyNames.Select(x => "\"" + x + "\""));
 
         mergeStatementBuilder.AppendLine($"MERGE INTO {_table.SchemaQualifiedTableName} AS t");
@@ -569,7 +575,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
                 {
                     if (returnDbGeneratedId)
                     {
-                        var idProperty = PropertiesCache<T>.GetProperty(_outputIdColumn);
+                        var idProperty = GetIdProperty();
                         idProperty.SetValue(data, reader[outputIdDbColumnName]);
                     }
 

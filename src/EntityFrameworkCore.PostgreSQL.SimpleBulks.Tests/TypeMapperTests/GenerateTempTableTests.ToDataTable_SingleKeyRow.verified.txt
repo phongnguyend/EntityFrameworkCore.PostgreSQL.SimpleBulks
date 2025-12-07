@@ -1,0 +1,8 @@
+﻿CREATE TEMPORARY TABLE SingleKeyRows (
+	"Id" int4 NULL,
+	"Column1" int4 NULL,
+	"Column2" text NULL,
+	"Column3" timestamp NULL,
+	"Season" int4 NULL,
+	"SeasonAsString" int4 NULL
+);

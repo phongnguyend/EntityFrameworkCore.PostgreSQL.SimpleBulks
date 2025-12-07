@@ -4,13 +4,11 @@ using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMatch;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMerge;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkUpdate;
 using EntityFrameworkCore.PostgreSQL.SimpleBulks.TempTable;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -88,9 +86,7 @@ public static class ConnectionContextExtensions
 
             foreach (var name in propertyNames)
             {
-                var prop = PropertiesCache<T>.GetProperty(name);
-
-                var value = GetProviderValue(prop, item, valueConverters);
+                var value = PropertiesCache<T>.GetPropertyValue(name, item, valueConverters);
 
                 writer.Write(value);
             }
@@ -133,9 +129,7 @@ public static class ConnectionContextExtensions
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var prop = PropertiesCache<T>.GetProperty(name);
-
-                var value = GetProviderValue(prop, item, valueConverters);
+                var value = PropertiesCache<T>.GetPropertyValue(name, item, valueConverters);
 
                 await writer.WriteAsync(value, cancellationToken);
             }
@@ -159,20 +153,6 @@ public static class ConnectionContextExtensions
         }
 
         return columnNameMappings.TryGetValue(columName, out string value) ? value : columName;
-    }
-
-    private static object GetProviderValue<T>(PropertyInfo property, T item, IReadOnlyDictionary<string, ValueConverter> valueConverters)
-    {
-        if (valueConverters != null && valueConverters.TryGetValue(property.Name, out var converter))
-        {
-            return converter.ConvertToProvider(property.GetValue(item));
-        }
-
-        var type = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
-        var tempValue = property.GetValue(item);
-        var value = type.IsEnum && tempValue != null ? (int)tempValue : tempValue;
-
-        return value;
     }
 
     public static void ExecuteReader(this ConnectionContext connectionContext, string commandText, Action<IDataReader> action, BulkOptions options = null)

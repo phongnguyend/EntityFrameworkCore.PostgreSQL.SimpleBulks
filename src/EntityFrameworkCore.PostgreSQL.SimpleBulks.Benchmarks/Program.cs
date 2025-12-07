@@ -12,7 +12,6 @@ using System.Diagnostics;
 //test.IterationCleanup();
 //return;
 
-_ = BenchmarkRunner.Run<PropertiesCacheBenchmarks>();
 //_ = BenchmarkRunner.Run<BulkInsertSingleTableBenchmarks>();
 //_ = BenchmarkRunner.Run<BulkInsertMultipleTablesBenchmarks>();
 //_ = BenchmarkRunner.Run<BulkUpdateBenchmarks1>();
@@ -26,4 +25,7 @@ _ = BenchmarkRunner.Run<PropertiesCacheBenchmarks>();
 //_ = BenchmarkRunner.Run<BulkMatchSingleColumnBenchmarks2>();
 //_ = BenchmarkRunner.Run<BulkMatchMultipleColumnsBenchmarks1>();
 //_ = BenchmarkRunner.Run<BulkMatchMultipleColumnsBenchmarks2>();
+_ = BenchmarkRunner.Run<PropertiesCacheBenchmarks>();
+_ = BenchmarkRunner.Run<PropertiesCacheGetValueBenchmarks>();
+_ = BenchmarkRunner.Run<PropertiesCacheSetValueBenchmarks>();
 //_ = BenchmarkRunner.Run<TempTableBenchmarks>();

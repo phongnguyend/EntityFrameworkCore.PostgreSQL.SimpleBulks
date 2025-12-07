@@ -61,7 +61,7 @@ public class TempTableBuilder<T>
     public string Execute(IReadOnlyCollection<T> data)
     {
         var tempTableName = $"\"{GetTableName()}\"";
-        var sqlCreateTempTable = typeof(T).GenerateTempTableDefinition(tempTableName, _columnNames, _mappingContext.ColumnNameMappings, _mappingContext.ColumnTypeMappings);
+        var sqlCreateTempTable = TypeMapper.GenerateTempTableDefinition<T>(tempTableName, _columnNames, _mappingContext.ColumnNameMappings, _mappingContext.ColumnTypeMappings);
 
         Log($"Begin creating temp table:{Environment.NewLine}{sqlCreateTempTable}");
 
@@ -90,7 +90,7 @@ public class TempTableBuilder<T>
     public async Task<string> ExecuteAsync(IReadOnlyCollection<T> data, CancellationToken cancellationToken = default)
     {
         var tempTableName = $"\"{GetTableName()}\"";
-        var sqlCreateTempTable = typeof(T).GenerateTempTableDefinition(tempTableName, _columnNames, _mappingContext.ColumnNameMappings, _mappingContext.ColumnTypeMappings);
+        var sqlCreateTempTable = TypeMapper.GenerateTempTableDefinition<T>(tempTableName, _columnNames, _mappingContext.ColumnNameMappings, _mappingContext.ColumnTypeMappings);
 
         Log($"Begin creating temp table:{Environment.NewLine}{sqlCreateTempTable}");
 

@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks;
 
@@ -55,18 +54,27 @@ public abstract class TableInfor<T>
 
     public Type GetProviderClrType(string propertyName)
     {
-        if (ValueConverters != null && ValueConverters.TryGetValue(propertyName, out var converter))
+        return PropertiesCache<T>.GetPropertyUnderlyingType(propertyName, ValueConverters);
+    }
+
+    public object GetProviderValue(string name, T item)
+    {
+        return PropertiesCache<T>.GetPropertyValue(name, item, ValueConverters);
+    }
+
+    public string CreateParameterName(string propertyName)
+    {
+        if (propertyName.Contains('.'))
         {
-            return Nullable.GetUnderlyingType(converter.ProviderClrType) ?? converter.ProviderClrType;
+            return $"@{propertyName.Replace(".", "_")}";
         }
 
-        var property = PropertiesCache<T>.GetProperty(propertyName);
-        if (property != null)
-        {
-            return Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
-        }
+        return $"@{propertyName}";
+    }
 
-        throw new ArgumentException($"Property '{propertyName}' not found.");
+    public string CreateParameterNames(IReadOnlyCollection<string> propertyNames)
+    {
+        return string.Join(", ", propertyNames.Select(CreateParameterName));
     }
 
     public abstract List<ParameterInfo> CreateNpgsqlParameters(NpgsqlCommand command, T data, IReadOnlyCollection<string> propertyNames, bool autoAdd);
@@ -94,12 +102,10 @@ public class DbContextTableInfor<T> : TableInfor<T>
 
         foreach (var propName in propertyNames)
         {
-            var prop = PropertiesCache<T>.GetProperty(propName);
-
-            if (ColumnTypeMappings != null && ColumnTypeMappings.TryGetValue(prop.Name, out var columnType))
+            if (ColumnTypeMappings != null && ColumnTypeMappings.TryGetValue(propName, out var columnType))
             {
                 var mapping = mappingSource.FindMapping(columnType);
-                var para = (NpgsqlParameter)mapping.CreateParameter(command, $"@{prop.Name}", GetProviderValue(prop, data) ?? DBNull.Value);
+                var para = (NpgsqlParameter)mapping.CreateParameter(command, CreateParameterName(propName), GetProviderValue(propName, data) ?? DBNull.Value);
 
                 parameters.Add(new ParameterInfo
                 {
@@ -117,20 +123,6 @@ public class DbContextTableInfor<T> : TableInfor<T>
 
         return parameters;
 
-    }
-
-    private object GetProviderValue(PropertyInfo property, T item)
-    {
-        if (ValueConverters != null && ValueConverters.TryGetValue(property.Name, out var converter))
-        {
-            return converter.ConvertToProvider(property.GetValue(item));
-        }
-
-        var type = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
-        var tempValue = property.GetValue(item);
-        var value = type.IsEnum && tempValue != null ? (int)tempValue : tempValue;
-
-        return value;
     }
 }
 
@@ -156,20 +148,15 @@ public class NpgsqlTableInfor<T> : TableInfor<T>
 
             if (para == null)
             {
-                var prop = PropertiesCache<T>.GetProperty(propName);
+                para = new NpgsqlParameter(CreateParameterName(propName), GetProviderValue(propName, data) ?? DBNull.Value);
 
-                var value = GetProviderValue(prop, data);
-
-                para = new NpgsqlParameter($"@{prop.Name}", value ?? DBNull.Value);
-
-                var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-
-                if (ColumnTypeMappings != null && ColumnTypeMappings.TryGetValue(prop.Name, out var columnType))
+                if (ColumnTypeMappings != null && ColumnTypeMappings.TryGetValue(propName, out var columnType))
                 {
                     para.DataTypeName = columnType;
                 }
                 else
                 {
+                    var type = GetProviderClrType(propName);
                     para.DataTypeName = type.ToPostgreSQLType();
                 }
 
@@ -199,14 +186,5 @@ public class NpgsqlTableInfor<T> : TableInfor<T>
 
         return parameters;
 
-    }
-
-    private static object GetProviderValue(PropertyInfo property, T item)
-    {
-        var type = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
-        var tempValue = property.GetValue(item);
-        var value = type.IsEnum && tempValue != null ? (int)tempValue : tempValue;
-
-        return value;
     }
 }
