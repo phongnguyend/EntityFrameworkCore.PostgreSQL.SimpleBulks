@@ -1,0 +1,7 @@
+﻿CREATE TEMPORARY TABLE ConfigurationEntries (
+	"Id1" uuid NULL,
+	"Key1" text NULL,
+	"Value" text NULL,
+	"Description" text NULL,
+	"CreatedDateTime" timestamp with time zone NULL
+);

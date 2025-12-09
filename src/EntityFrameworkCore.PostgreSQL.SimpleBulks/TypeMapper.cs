@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks;
@@ -46,7 +45,7 @@ public static class TypeMapper
         return sqlType;
     }
 
-    public static string GenerateTempTableDefinition(this Type type, string tableName, IReadOnlyCollection<string> propertyNames,
+    public static string GenerateTempTableDefinition<T>(string tableName, IReadOnlyCollection<string> propertyNames,
         IReadOnlyDictionary<string, string> columnNameMappings,
         IReadOnlyDictionary<string, string> columnTypeMappings,
         bool addIndexNumberColumn = false)
@@ -63,9 +62,7 @@ public static class TypeMapper
                 sql.Append(",");
             }
 
-            var prop = PropertiesCache.GetProperty(type, propName);
-
-            var propType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+            var propType = PropertiesCache<T>.GetPropertyUnderlyingType(propName);
 
             sql.Append($"\n\t\"{GetDbColumnName(propName, columnNameMappings)}\"");
             var sqlType = GetDbColumnType(propName, propType, columnTypeMappings);

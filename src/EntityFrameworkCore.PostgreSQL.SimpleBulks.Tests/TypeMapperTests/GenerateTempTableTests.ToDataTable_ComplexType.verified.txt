@@ -1,0 +1,6 @@
+﻿CREATE TEMPORARY TABLE ComplexTypeOrders (
+	"Id" int4 NULL,
+	"ShippingAddress.Street" text NULL,
+	"ShippingAddress.Location.Lat" float8 NULL,
+	"ShippingAddress.Location.Lng" float8 NULL
+);

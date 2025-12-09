@@ -1,0 +1,9 @@
+﻿CREATE TEMPORARY TABLE CompositeKeyRows (
+	"Id1" int4 NULL,
+	"Id2" int4 NULL,
+	"Column1" int4 NULL,
+	"Column2" text NULL,
+	"Column3" timestamp NULL,
+	"Season" int4 NULL,
+	"SeasonAsString" int4 NULL
+);

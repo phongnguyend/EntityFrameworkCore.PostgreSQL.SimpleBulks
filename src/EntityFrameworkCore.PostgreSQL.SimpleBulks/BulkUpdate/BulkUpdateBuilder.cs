@@ -72,7 +72,7 @@ public class BulkUpdateBuilder<T>
         var propertyNamesIncludeId = _columnNames.Select(RemoveOperator).ToList();
         propertyNamesIncludeId.AddRange(_idColumns);
 
-        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNamesIncludeId, null, _table.ColumnTypeMappings);
+        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, propertyNamesIncludeId, null, _table.ColumnTypeMappings);
 
         var joinCondition = string.Join(" and ", _idColumns.Select(x =>
         {
@@ -170,7 +170,7 @@ public class BulkUpdateBuilder<T>
             sqlOperator = "+=";
         }
 
-        return $"\"{_table.GetDbColumnName(sqlProp)}\" {sqlOperator} @{sqlProp}";
+        return $"\"{_table.GetDbColumnName(sqlProp)}\" {sqlOperator} {_table.CreateParameterName(sqlProp)}";
     }
 
     private static string RemoveOperator(string prop)
@@ -209,7 +209,7 @@ public class BulkUpdateBuilder<T>
         var propertyNamesIncludeId = _columnNames.Select(RemoveOperator).ToList();
         propertyNamesIncludeId.AddRange(_idColumns);
 
-        var sqlCreateTemptable = typeof(T).GenerateTempTableDefinition(temptableName, propertyNamesIncludeId, null, _table.ColumnTypeMappings);
+        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, propertyNamesIncludeId, null, _table.ColumnTypeMappings);
 
         var joinCondition = string.Join(" and ", _idColumns.Select(x =>
         {

@@ -29,7 +29,25 @@ public class BulkMergeAsyncTests : BaseTest
                 Column2 = "" + i,
                 Column3 = DateTime.Now,
                 Season = Season.Spring,
-                SeasonAsString = Season.Summer
+                SeasonAsString = Season.Summer,
+                ComplexShippingAddress = new ComplexTypeAddress
+                {
+                    Street = "Street " + i,
+                    Location = new ComplexTypeLocation
+                    {
+                        Lat = 40.7128 + i,
+                        Lng = -74.0060 - i
+                    }
+                },
+                OwnedShippingAddress = new OwnedTypeAddress
+                {
+                    Street = "Street " + i,
+                    Location = new OwnedTypeLocation
+                    {
+                        Lat = 40.7128 + i,
+                        Lng = -74.0060 - i
+                    }
+                }
             });
 
             compositeKeyRows.Add(new CompositeKeyRow<int, int>
@@ -44,11 +62,9 @@ public class BulkMergeAsyncTests : BaseTest
             });
         }
 
-        _context.BulkInsert(rows,
-      row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString });
+        _context.BulkInsert(rows);
 
-        _context.BulkInsert(compositeKeyRows,
-        row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString });
+        _context.BulkInsert(compositeKeyRows);
 
         tran.Commit();
     }
@@ -91,7 +107,25 @@ public class BulkMergeAsyncTests : BaseTest
                 Column2 = "Inserted using Merge" + i,
                 Column3 = DateTime.Now,
                 Season = Season.Summer,
-                SeasonAsString = Season.Summer
+                SeasonAsString = Season.Summer,
+                ComplexShippingAddress = new ComplexTypeAddress
+                {
+                    Street = "Street " + i,
+                    Location = new ComplexTypeLocation
+                    {
+                        Lat = 40.7128 + i,
+                        Lng = -74.0060 - i
+                    }
+                },
+                OwnedShippingAddress = new OwnedTypeAddress
+                {
+                    Street = "Street " + i,
+                    Location = new OwnedTypeLocation
+                    {
+                        Lat = 40.7128 + i,
+                        Lng = -74.0060 - i
+                    }
+                }
             });
 
             compositeKeyRows.Add(new CompositeKeyRow<int, int>
@@ -108,8 +142,34 @@ public class BulkMergeAsyncTests : BaseTest
 
         var result1 = await _context.BulkMergeAsync(rows,
             row => row.Id,
-            row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-            row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+            row => new
+            {
+                row.Column1,
+                row.Column2,
+                row.Column3,
+                row.Season,
+                row.SeasonAsString,
+                row.ComplexShippingAddress.Street,
+                row.ComplexShippingAddress.Location.Lat,
+                row.ComplexShippingAddress.Location.Lng,
+                a = row.OwnedShippingAddress.Street,
+                b = row.OwnedShippingAddress.Location.Lat,
+                c = row.OwnedShippingAddress.Location.Lng
+            },
+            row => new
+            {
+                row.Column1,
+                row.Column2,
+                row.Column3,
+                row.Season,
+                row.SeasonAsString,
+                row.ComplexShippingAddress.Street,
+                row.ComplexShippingAddress.Location.Lat,
+                row.ComplexShippingAddress.Location.Lng,
+                a = row.OwnedShippingAddress.Street,
+                b = row.OwnedShippingAddress.Location.Lat,
+                c = row.OwnedShippingAddress.Location.Lng
+            },
             new BulkMergeOptions
             {
                 LogTo = _output.WriteLine,
@@ -147,6 +207,12 @@ public class BulkMergeAsyncTests : BaseTest
             Assert.Equal(rows[i].Column3.TruncateToMicroseconds(), dbRows[i].Column3);
             Assert.Equal(rows[i].Season, dbRows[i].Season);
             Assert.Equal(rows[i].SeasonAsString, dbRows[i].SeasonAsString);
+            Assert.Equal(rows[i].ComplexShippingAddress?.Street, dbRows[i].ComplexShippingAddress?.Street);
+            Assert.Equal(rows[i].ComplexShippingAddress?.Location?.Lat, dbRows[i].ComplexShippingAddress?.Location?.Lat);
+            Assert.Equal(rows[i].ComplexShippingAddress?.Location?.Lng, dbRows[i].ComplexShippingAddress?.Location?.Lng);
+            Assert.Equal(rows[i].OwnedShippingAddress?.Street, dbRows[i].OwnedShippingAddress?.Street);
+            Assert.Equal(rows[i].OwnedShippingAddress?.Location?.Lat, dbRows[i].OwnedShippingAddress?.Location?.Lat);
+            Assert.Equal(rows[i].OwnedShippingAddress?.Location?.Lng, dbRows[i].OwnedShippingAddress?.Location?.Lng);
 
             Assert.Equal(compositeKeyRows[i].Id1, dbCompositeKeyRows[i].Id1);
             Assert.Equal(compositeKeyRows[i].Id2, dbCompositeKeyRows[i].Id2);
@@ -196,7 +262,25 @@ public class BulkMergeAsyncTests : BaseTest
                 Column2 = "Inserted using Merge" + i,
                 Column3 = DateTime.Now,
                 Season = Season.Summer,
-                SeasonAsString = Season.Summer
+                SeasonAsString = Season.Summer,
+                ComplexShippingAddress = new ComplexTypeAddress
+                {
+                    Street = "Street " + length + 1,
+                    Location = new ComplexTypeLocation
+                    {
+                        Lat = 40.7128 + length + 1,
+                        Lng = -74.0060 - length + 1
+                    }
+                },
+                OwnedShippingAddress = new OwnedTypeAddress
+                {
+                    Street = "Street " + length + 1,
+                    Location = new OwnedTypeLocation
+                    {
+                        Lat = 40.7128 + length + 1,
+                        Lng = -74.0060 - length + 1
+                    }
+                }
             });
 
             compositeKeyRows.Add(new CompositeKeyRow<int, int>
@@ -213,8 +297,20 @@ public class BulkMergeAsyncTests : BaseTest
 
         var result1 = await _context.BulkMergeAsync(rows,
         ["Id"],
-       ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
-          ["Column1", "Column2", "Column3", "Season", "SeasonAsString"],
+            ["Column1", "Column2", "Column3", "Season", "SeasonAsString",
+          "ComplexShippingAddress.Street",
+          "ComplexShippingAddress.Location.Lat",
+          "ComplexShippingAddress.Location.Lng",
+          "OwnedShippingAddress.Street",
+          "OwnedShippingAddress.Location.Lat",
+          "OwnedShippingAddress.Location.Lng"],
+          ["Column1", "Column2", "Column3", "Season", "SeasonAsString",
+          "ComplexShippingAddress.Street",
+          "ComplexShippingAddress.Location.Lat",
+          "ComplexShippingAddress.Location.Lng",
+          "OwnedShippingAddress.Street",
+          "OwnedShippingAddress.Location.Lat",
+          "OwnedShippingAddress.Location.Lng"],
      new BulkMergeOptions
      {
          LogTo = _output.WriteLine,
@@ -251,6 +347,12 @@ public class BulkMergeAsyncTests : BaseTest
             Assert.Equal(rows[i].Column3.TruncateToMicroseconds(), dbRows[i].Column3);
             Assert.Equal(rows[i].Season, dbRows[i].Season);
             Assert.Equal(rows[i].SeasonAsString, dbRows[i].SeasonAsString);
+            Assert.Equal(rows[i].ComplexShippingAddress?.Street, dbRows[i].ComplexShippingAddress?.Street);
+            Assert.Equal(rows[i].ComplexShippingAddress?.Location?.Lat, dbRows[i].ComplexShippingAddress?.Location?.Lat);
+            Assert.Equal(rows[i].ComplexShippingAddress?.Location?.Lng, dbRows[i].ComplexShippingAddress?.Location?.Lng);
+            Assert.Equal(rows[i].OwnedShippingAddress?.Street, dbRows[i].OwnedShippingAddress?.Street);
+            Assert.Equal(rows[i].OwnedShippingAddress?.Location?.Lat, dbRows[i].OwnedShippingAddress?.Location?.Lat);
+            Assert.Equal(rows[i].OwnedShippingAddress?.Location?.Lng, dbRows[i].OwnedShippingAddress?.Location?.Lng);
 
             Assert.Equal(compositeKeyRows[i].Id1, dbCompositeKeyRows[i].Id1);
             Assert.Equal(compositeKeyRows[i].Id2, dbCompositeKeyRows[i].Id2);
