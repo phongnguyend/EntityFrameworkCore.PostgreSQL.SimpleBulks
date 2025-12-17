@@ -19,3 +19,7 @@ public class CompositeKeyRow<TId1, TId2>
 
     public Season? SeasonAsString { get; set; }
 }
+
+public class ExtendedCompositeKeyRow<TId1, TId2> : CompositeKeyRow<TId1, TId2>
+{
+}

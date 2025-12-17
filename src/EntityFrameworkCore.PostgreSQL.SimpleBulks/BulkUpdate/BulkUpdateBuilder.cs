@@ -60,9 +60,43 @@ public class BulkUpdateBuilder<T>
         return this;
     }
 
+    private List<string> GetKeys()
+    {
+        var copiedPropertyNames = _idColumns.ToList();
+
+        if (_table.Discriminator != null && !copiedPropertyNames.Contains(_table.Discriminator.PropertyName))
+        {
+            copiedPropertyNames.Add(_table.Discriminator.PropertyName);
+        }
+
+        return copiedPropertyNames;
+    }
+
+    private string CreateJoinCondition()
+    {
+        var keys = GetKeys();
+
+        return string.Join(" and ", keys.Select(x =>
+        {
+            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
+            $" COLLATE \"{_options.Collation}\"" : string.Empty;
+            return $"a.\"{_table.GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
+        }));
+    }
+
+    private string CreateWhereCondition()
+    {
+        var keys = GetKeys();
+
+        return string.Join(" AND ", keys.Select(x =>
+        {
+            return CreateSetStatement(x);
+        }));
+    }
+
     public BulkUpdateResult Execute(IReadOnlyCollection<T> data)
     {
-        if (data.Count() == 1)
+        if (data.Count == 1)
         {
             return SingleUpdate(data.First());
         }
@@ -72,14 +106,9 @@ public class BulkUpdateBuilder<T>
         var propertyNamesIncludeId = _columnNames.Select(RemoveOperator).ToList();
         propertyNamesIncludeId.AddRange(_idColumns);
 
-        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, propertyNamesIncludeId, null, _table.ColumnTypeMappings);
+        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, propertyNamesIncludeId, null, _table.ColumnTypeMappings, discriminator: _table.Discriminator);
 
-        var joinCondition = string.Join(" and ", _idColumns.Select(x =>
-        {
-            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
-            $" COLLATE \"{_options.Collation}\"" : string.Empty;
-            return $"a.\"{_table.GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
-        }));
+        var joinCondition = CreateJoinCondition();
 
         var updateStatementBuilder = new StringBuilder();
         updateStatementBuilder.AppendLine($"UPDATE {_table.SchemaQualifiedTableName} AS a SET");
@@ -96,7 +125,7 @@ public class BulkUpdateBuilder<T>
         Log("End creating temp table.");
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
-        _connectionContext.SqlBulkCopy(data, temptableName, propertyNamesIncludeId, null, false, _options, valueConverters: _table.ValueConverters);
+        _connectionContext.SqlBulkCopy(data, temptableName, propertyNamesIncludeId, null, false, _options, valueConverters: _table.ValueConverters, discriminator: _table.Discriminator);
         Log("End executing SqlBulkCopy.");
 
         var sqlUpdateStatement = updateStatementBuilder.ToString();
@@ -114,10 +143,7 @@ public class BulkUpdateBuilder<T>
 
     public BulkUpdateResult SingleUpdate(T dataToUpdate)
     {
-        var whereCondition = string.Join(" AND ", _idColumns.Select(x =>
-        {
-            return CreateSetStatement(x);
-        }));
+        var whereCondition = CreateWhereCondition();
 
         var updateStatementBuilder = new StringBuilder();
         updateStatementBuilder.AppendLine($"UPDATE {_table.SchemaQualifiedTableName} SET");
@@ -133,7 +159,7 @@ public class BulkUpdateBuilder<T>
 
         using var updateCommand = _connectionContext.CreateTextCommand(sqlUpdateStatement, _options);
 
-        LogParameters(_table.CreateNpgsqlParameters(updateCommand, dataToUpdate, propertyNamesIncludeId, autoAdd: true));
+        LogParameters(_table.CreateNpgsqlParameters(updateCommand, dataToUpdate, propertyNamesIncludeId, includeDiscriminator: true, autoAdd: true));
 
         _connectionContext.EnsureOpen();
 
@@ -199,7 +225,7 @@ public class BulkUpdateBuilder<T>
 
     public async Task<BulkUpdateResult> ExecuteAsync(IReadOnlyCollection<T> data, CancellationToken cancellationToken = default)
     {
-        if (data.Count() == 1)
+        if (data.Count == 1)
         {
             return await SingleUpdateAsync(data.First(), cancellationToken);
         }
@@ -209,14 +235,9 @@ public class BulkUpdateBuilder<T>
         var propertyNamesIncludeId = _columnNames.Select(RemoveOperator).ToList();
         propertyNamesIncludeId.AddRange(_idColumns);
 
-        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, propertyNamesIncludeId, null, _table.ColumnTypeMappings);
+        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, propertyNamesIncludeId, null, _table.ColumnTypeMappings, discriminator: _table.Discriminator);
 
-        var joinCondition = string.Join(" and ", _idColumns.Select(x =>
-        {
-            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
-            $" COLLATE \"{_options.Collation}\"" : string.Empty;
-            return $"a.\"{_table.GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
-        }));
+        var joinCondition = CreateJoinCondition();
 
         var updateStatementBuilder = new StringBuilder();
         updateStatementBuilder.AppendLine($"UPDATE {_table.SchemaQualifiedTableName} AS a SET");
@@ -233,7 +254,7 @@ public class BulkUpdateBuilder<T>
         Log("End creating temp table.");
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
-        await _connectionContext.SqlBulkCopyAsync(data, temptableName, propertyNamesIncludeId, null, false, _options, valueConverters: _table.ValueConverters, cancellationToken: cancellationToken);
+        await _connectionContext.SqlBulkCopyAsync(data, temptableName, propertyNamesIncludeId, null, false, _options, valueConverters: _table.ValueConverters, discriminator: _table.Discriminator, cancellationToken: cancellationToken);
         Log("End executing SqlBulkCopy.");
 
         var sqlUpdateStatement = updateStatementBuilder.ToString();
@@ -251,10 +272,7 @@ public class BulkUpdateBuilder<T>
 
     public async Task<BulkUpdateResult> SingleUpdateAsync(T dataToUpdate, CancellationToken cancellationToken = default)
     {
-        var whereCondition = string.Join(" AND ", _idColumns.Select(x =>
-        {
-            return CreateSetStatement(x);
-        }));
+        var whereCondition = CreateWhereCondition();
 
         var updateStatementBuilder = new StringBuilder();
         updateStatementBuilder.AppendLine($"UPDATE {_table.SchemaQualifiedTableName} SET");
@@ -270,7 +288,7 @@ public class BulkUpdateBuilder<T>
 
         using var updateCommand = _connectionContext.CreateTextCommand(sqlUpdateStatement, _options);
 
-        LogParameters(_table.CreateNpgsqlParameters(updateCommand, dataToUpdate, propertyNamesIncludeId, autoAdd: true));
+        LogParameters(_table.CreateNpgsqlParameters(updateCommand, dataToUpdate, propertyNamesIncludeId, includeDiscriminator: true, autoAdd: true));
 
         await _connectionContext.EnsureOpenAsync(cancellationToken);
 

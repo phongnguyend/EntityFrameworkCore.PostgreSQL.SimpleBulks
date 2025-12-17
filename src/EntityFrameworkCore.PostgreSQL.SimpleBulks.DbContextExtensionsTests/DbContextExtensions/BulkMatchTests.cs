@@ -80,7 +80,7 @@ public class BulkMatchTests : BaseTest
             x => x.Id,
   new BulkMatchOptions
   {
-      LogTo = _output.WriteLine
+      LogTo = LogTo
   });
 
         // Assert
@@ -110,7 +110,7 @@ public class BulkMatchTests : BaseTest
     x => new { x.Id, x.FirstName },
       new BulkMatchOptions
       {
-          LogTo = _output.WriteLine
+          LogTo = LogTo
       });
 
         // Assert
@@ -139,7 +139,7 @@ public class BulkMatchTests : BaseTest
               x => x.CustomerId,
      new BulkMatchOptions
      {
-         LogTo = _output.WriteLine
+         LogTo = LogTo
      })
                 .OrderBy(x => x.Id).ToList();
 
@@ -174,7 +174,7 @@ public class BulkMatchTests : BaseTest
             x => new { x.Id, x.PhoneNumber },
             new BulkMatchOptions
             {
-                LogTo = _output.WriteLine
+                LogTo = LogTo
             })
       .OrderBy(x => x.Id).ToList();
 
@@ -206,7 +206,7 @@ public class BulkMatchTests : BaseTest
             x => new { x.CustomerId, x.CountryIsoCode },
    new BulkMatchOptions
    {
-       LogTo = _output.WriteLine
+       LogTo = LogTo
    })
         .OrderBy(x => x.Id).ToList();
 
@@ -240,7 +240,7 @@ public class BulkMatchTests : BaseTest
                  x => new { x.Id, x.PhoneNumber },
                  new BulkMatchOptions
                  {
-                     LogTo = _output.WriteLine
+                     LogTo = LogTo
                  })
                  .OrderBy(x => x.Id).ToList();
 
