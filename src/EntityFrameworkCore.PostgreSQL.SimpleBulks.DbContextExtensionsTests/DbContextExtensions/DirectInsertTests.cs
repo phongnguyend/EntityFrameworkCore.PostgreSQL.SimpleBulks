@@ -72,14 +72,14 @@ public class DirectInsertTests : BaseTest
                 },
                 new BulkInsertOptions
                 {
-                    LogTo = _output.WriteLine
+                    LogTo = LogTo
                 });
 
         _context.DirectInsert(compositeKeyRow,
                 row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
                 new BulkInsertOptions
                 {
-                    LogTo = _output.WriteLine
+                    LogTo = LogTo
                 });
 
 
@@ -172,14 +172,14 @@ public class DirectInsertTests : BaseTest
                 },
                 new BulkInsertOptions
                 {
-                    LogTo = _output.WriteLine
+                    LogTo = LogTo
                 });
 
         _context.DirectInsert(compositeKeyRow,
                 row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
                 new BulkInsertOptions
                 {
-                    LogTo = _output.WriteLine
+                    LogTo = LogTo
                 });
 
         tran.Commit();
@@ -273,14 +273,14 @@ public class DirectInsertTests : BaseTest
                 },
                 new BulkInsertOptions
                 {
-                    LogTo = _output.WriteLine
+                    LogTo = LogTo
                 });
 
         _context.DirectInsert(compositeKeyRow,
                 row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
                 new BulkInsertOptions
                 {
-                    LogTo = _output.WriteLine
+                    LogTo = LogTo
                 });
 
         tran.Rollback();
@@ -308,7 +308,7 @@ public class DirectInsertTests : BaseTest
         _context.DirectInsert(configurationEntry, new BulkInsertOptions
         {
             KeepIdentity = true,
-            LogTo = _output.WriteLine
+            LogTo = LogTo
         });
 
         // Assert
@@ -334,7 +334,7 @@ public class DirectInsertTests : BaseTest
 
         _context.DirectInsert(configurationEntry, new BulkInsertOptions
         {
-            LogTo = _output.WriteLine
+            LogTo = LogTo
         });
 
         // Assert

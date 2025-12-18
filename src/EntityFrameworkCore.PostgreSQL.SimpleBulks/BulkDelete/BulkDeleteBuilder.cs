@@ -45,22 +45,51 @@ public class BulkDeleteBuilder<T>
         return this;
     }
 
-    public BulkDeleteResult Execute(IReadOnlyCollection<T> data)
+    private List<string> GetKeys()
     {
-        if (data.Count() == 1)
+        var copiedPropertyNames = _idColumns.ToList();
+
+        if (_table.Discriminator != null && !copiedPropertyNames.Contains(_table.Discriminator.PropertyName))
         {
-            return SingleDelete(data.First());
+            copiedPropertyNames.Add(_table.Discriminator.PropertyName);
         }
 
-        var temptableName = $"\"{Guid.NewGuid()}\"";
-        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, _idColumns, null, _table.ColumnTypeMappings);
+        return copiedPropertyNames;
+    }
 
-        var joinCondition = string.Join(" AND ", _idColumns.Select(x =>
+    private string CreateJoinCondition()
+    {
+        var keys = GetKeys();
+
+        return string.Join(" AND ", keys.Select(x =>
         {
             string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
             $" COLLATE \"{_options.Collation}\"" : string.Empty;
             return $"a.\"{_table.GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
         }));
+    }
+
+    private string CreateWhereCondition()
+    {
+        var keys = GetKeys();
+
+        return string.Join(" AND ", keys.Select(x =>
+        {
+            return $"\"{_table.GetDbColumnName(x)}\" = {_table.CreateParameterName(x)}";
+        }));
+    }
+
+    public BulkDeleteResult Execute(IReadOnlyCollection<T> data)
+    {
+        if (data.Count == 1)
+        {
+            return SingleDelete(data.First());
+        }
+
+        var temptableName = $"\"{Guid.NewGuid()}\"";
+        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, _idColumns, null, _table.ColumnTypeMappings, discriminator: _table.Discriminator);
+
+        var joinCondition = CreateJoinCondition();
 
         var deleteStatement = $"DELETE FROM {_table.SchemaQualifiedTableName} AS a USING {temptableName} AS b WHERE " + joinCondition;
 
@@ -78,7 +107,7 @@ public class BulkDeleteBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        _connectionContext.SqlBulkCopy(data, temptableName, _idColumns, null, false, _options, valueConverters: _table.ValueConverters);
+        _connectionContext.SqlBulkCopy(data, temptableName, _idColumns, null, false, _options, valueConverters: _table.ValueConverters, discriminator: _table.Discriminator);
 
         Log("End executing SqlBulkCopy.");
 
@@ -98,10 +127,7 @@ public class BulkDeleteBuilder<T>
 
     public BulkDeleteResult SingleDelete(T dataToDelete)
     {
-        var whereCondition = string.Join(" AND ", _idColumns.Select(x =>
-        {
-            return $"\"{_table.GetDbColumnName(x)}\" = {_table.CreateParameterName(x)}";
-        }));
+        var whereCondition = CreateWhereCondition();
 
         var deleteStatement = $"DELETE FROM {_table.SchemaQualifiedTableName} WHERE " + whereCondition;
 
@@ -109,7 +135,7 @@ public class BulkDeleteBuilder<T>
 
         using var deleteCommand = _connectionContext.CreateTextCommand(deleteStatement, _options);
 
-        LogParameters(_table.CreateNpgsqlParameters(deleteCommand, dataToDelete, _idColumns, autoAdd: true));
+        LogParameters(_table.CreateNpgsqlParameters(deleteCommand, dataToDelete, _idColumns, includeDiscriminator: true, autoAdd: true));
 
         _connectionContext.EnsureOpen();
 
@@ -143,20 +169,15 @@ public class BulkDeleteBuilder<T>
 
     public async Task<BulkDeleteResult> ExecuteAsync(IReadOnlyCollection<T> data, CancellationToken cancellationToken = default)
     {
-        if (data.Count() == 1)
+        if (data.Count == 1)
         {
             return await SingleDeleteAsync(data.First(), cancellationToken);
         }
 
         var temptableName = $"\"{Guid.NewGuid()}\"";
-        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, _idColumns, null, _table.ColumnTypeMappings);
+        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, _idColumns, null, _table.ColumnTypeMappings, discriminator: _table.Discriminator);
 
-        var joinCondition = string.Join(" AND ", _idColumns.Select(x =>
-        {
-            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
-            $" COLLATE \"{_options.Collation}\"" : string.Empty;
-            return $"a.\"{_table.GetDbColumnName(x)}\"{collation} = b.\"{x}\"{collation}";
-        }));
+        var joinCondition = CreateJoinCondition();
 
         var deleteStatement = $"DELETE FROM {_table.SchemaQualifiedTableName} AS a USING {temptableName} AS b WHERE " + joinCondition;
 
@@ -173,7 +194,7 @@ public class BulkDeleteBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        await _connectionContext.SqlBulkCopyAsync(data, temptableName, _idColumns, null, false, _options, valueConverters: _table.ValueConverters, cancellationToken: cancellationToken);
+        await _connectionContext.SqlBulkCopyAsync(data, temptableName, _idColumns, null, false, _options, valueConverters: _table.ValueConverters, discriminator: _table.Discriminator, cancellationToken: cancellationToken);
 
         Log("End executing SqlBulkCopy.");
 
@@ -193,10 +214,7 @@ public class BulkDeleteBuilder<T>
 
     public async Task<BulkDeleteResult> SingleDeleteAsync(T dataToDelete, CancellationToken cancellationToken = default)
     {
-        var whereCondition = string.Join(" AND ", _idColumns.Select(x =>
-        {
-            return $"\"{_table.GetDbColumnName(x)}\" = {_table.CreateParameterName(x)}";
-        }));
+        var whereCondition = CreateWhereCondition();
 
         var deleteStatement = $"DELETE FROM {_table.SchemaQualifiedTableName} WHERE " + whereCondition;
 
@@ -204,7 +222,7 @@ public class BulkDeleteBuilder<T>
 
         using var deleteCommand = _connectionContext.CreateTextCommand(deleteStatement, _options);
 
-        LogParameters(_table.CreateNpgsqlParameters(deleteCommand, dataToDelete, _idColumns, autoAdd: true));
+        LogParameters(_table.CreateNpgsqlParameters(deleteCommand, dataToDelete, _idColumns, includeDiscriminator: true, autoAdd: true));
 
         await _connectionContext.EnsureOpenAsync(cancellationToken);
 

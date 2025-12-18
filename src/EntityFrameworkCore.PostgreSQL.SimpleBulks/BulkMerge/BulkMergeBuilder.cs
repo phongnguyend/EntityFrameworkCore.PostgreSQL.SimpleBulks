@@ -82,9 +82,33 @@ public class BulkMergeBuilder<T>
         return PropertiesCache<T>.GetProperty(_outputIdColumn);
     }
 
+    private List<string> GetKeys()
+    {
+        var copiedPropertyNames = _idColumns.ToList();
+
+        if (_table.Discriminator != null && !copiedPropertyNames.Contains(_table.Discriminator.PropertyName))
+        {
+            copiedPropertyNames.Add(_table.Discriminator.PropertyName);
+        }
+
+        return copiedPropertyNames;
+    }
+
+    private string CreateJoinCondition()
+    {
+        var keys = GetKeys();
+
+        return string.Join(" and ", keys.Select(x =>
+        {
+            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
+            $" COLLATE \"{_options.Collation}\"" : string.Empty;
+            return $"s.\"{x}\"{collation} = t.\"{_table.GetDbColumnName(x)}\"{collation}";
+        }));
+    }
+
     public BulkMergeResult Execute(IReadOnlyCollection<T> data)
     {
-        if (data.Count() == 1)
+        if (data.Count == 1)
         {
             return SingleMerge(data.First());
         }
@@ -103,16 +127,11 @@ public class BulkMergeBuilder<T>
         propertyNames.AddRange(_insertColumnNames);
         propertyNames = propertyNames.Distinct().ToList();
 
-        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, propertyNames, null, _table.ColumnTypeMappings, addIndexNumberColumn: returnDbGeneratedId);
+        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, propertyNames, null, _table.ColumnTypeMappings, addIndexNumberColumn: returnDbGeneratedId, discriminator: _table.Discriminator);
 
         var mergeStatementBuilder = new StringBuilder();
 
-        var joinCondition = string.Join(" and ", _idColumns.Select(x =>
-           {
-               string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
-            $" COLLATE \"{_options.Collation}\"" : string.Empty;
-               return $"s.\"{x}\"{collation} = t.\"{_table.GetDbColumnName(x)}\"{collation}";
-           }));
+        var joinCondition = CreateJoinCondition();
 
         mergeStatementBuilder.AppendLine($"MERGE INTO {_table.SchemaQualifiedTableName} AS t");
         mergeStatementBuilder.AppendLine($"    USING {temptableName} AS s");
@@ -128,8 +147,8 @@ public class BulkMergeBuilder<T>
         if (_insertColumnNames.Any())
         {
             mergeStatementBuilder.AppendLine($"WHEN NOT MATCHED");
-            mergeStatementBuilder.AppendLine($"    THEN INSERT ({string.Join(", ", _insertColumnNames.Select(x => $"\"{_table.GetDbColumnName(x)}\""))})");
-            mergeStatementBuilder.AppendLine($"         VALUES ({string.Join(", ", _insertColumnNames.Select(x => $"s.\"{x}\""))})");
+            mergeStatementBuilder.AppendLine($"    THEN INSERT ({_table.CreateDbColumnNames(_insertColumnNames, includeDiscriminator: true)})");
+            mergeStatementBuilder.AppendLine($"         VALUES ({_table.CreateColumnNames(_insertColumnNames, "s", includeDiscriminator: true)})");
         }
 
         if (returnDbGeneratedId)
@@ -153,7 +172,7 @@ public class BulkMergeBuilder<T>
         Log("End creating temp table.");
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
-        _connectionContext.SqlBulkCopy(data, temptableName, propertyNames, null, returnDbGeneratedId, _options, valueConverters: _table.ValueConverters);
+        _connectionContext.SqlBulkCopy(data, temptableName, propertyNames, null, returnDbGeneratedId, _options, valueConverters: _table.ValueConverters, discriminator: _table.Discriminator);
         Log("End executing SqlBulkCopy.");
 
         var sqlMergeStatement = mergeStatementBuilder.ToString();
@@ -256,7 +275,7 @@ public class BulkMergeBuilder<T>
 
     public async Task<BulkMergeResult> ExecuteAsync(IReadOnlyCollection<T> data, CancellationToken cancellationToken = default)
     {
-        if (data.Count() == 1)
+        if (data.Count == 1)
         {
             return await SingleMergeAsync(data.First(), cancellationToken);
         }
@@ -275,16 +294,11 @@ public class BulkMergeBuilder<T>
         propertyNames.AddRange(_insertColumnNames);
         propertyNames = propertyNames.Distinct().ToList();
 
-        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, propertyNames, null, _table.ColumnTypeMappings, addIndexNumberColumn: returnDbGeneratedId);
+        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, propertyNames, null, _table.ColumnTypeMappings, addIndexNumberColumn: returnDbGeneratedId, discriminator: _table.Discriminator);
 
         var mergeStatementBuilder = new StringBuilder();
 
-        var joinCondition = string.Join(" and ", _idColumns.Select(x =>
-        {
-            string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
-$" COLLATE \"{_options.Collation}\"" : string.Empty;
-            return $"s.\"{x}\"{collation} = t.\"{_table.GetDbColumnName(x)}\"{collation}";
-        }));
+        var joinCondition = CreateJoinCondition();
 
         mergeStatementBuilder.AppendLine($"MERGE INTO {_table.SchemaQualifiedTableName} AS t");
         mergeStatementBuilder.AppendLine($"    USING {temptableName} AS s");
@@ -300,8 +314,8 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
         if (_insertColumnNames.Any())
         {
             mergeStatementBuilder.AppendLine($"WHEN NOT MATCHED");
-            mergeStatementBuilder.AppendLine($"    THEN INSERT ({string.Join(", ", _insertColumnNames.Select(x => $"\"{_table.GetDbColumnName(x)}\""))})");
-            mergeStatementBuilder.AppendLine($"         VALUES ({string.Join(", ", _insertColumnNames.Select(x => $"s.\"{x}\""))})");
+            mergeStatementBuilder.AppendLine($"    THEN INSERT ({_table.CreateDbColumnNames(_insertColumnNames, includeDiscriminator: true)})");
+            mergeStatementBuilder.AppendLine($"         VALUES ({_table.CreateColumnNames(_insertColumnNames, "s", includeDiscriminator: true)})");
         }
 
         if (returnDbGeneratedId)
@@ -325,7 +339,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
         Log("End creating temp table.");
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
-        await _connectionContext.SqlBulkCopyAsync(data, temptableName, propertyNames, null, returnDbGeneratedId, _options, valueConverters: _table.ValueConverters, cancellationToken: cancellationToken);
+        await _connectionContext.SqlBulkCopyAsync(data, temptableName, propertyNames, null, returnDbGeneratedId, _options, valueConverters: _table.ValueConverters, discriminator: _table.Discriminator, cancellationToken: cancellationToken);
         Log("End executing SqlBulkCopy.");
 
         var sqlMergeStatement = mergeStatementBuilder.ToString();
@@ -405,15 +419,10 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
 
         var mergeStatementBuilder = new StringBuilder();
 
-        var joinCondition = string.Join(" and ", _idColumns.Select(x =>
-       {
-           string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
-            $" COLLATE \"{_options.Collation}\"" : string.Empty;
-           return $"s.\"{x}\"{collation} = t.\"{_table.GetDbColumnName(x)}\"{collation}";
-       }));
+        var joinCondition = CreateJoinCondition();
 
-        var parameterNames = _table.CreateParameterNames(propertyNames);
-        var columnNames = string.Join(", ", propertyNames.Select(x => "\"" + x + "\""));
+        var parameterNames = _table.CreateParameterNames(propertyNames, includeDiscriminator: true);
+        var columnNames = _table.CreateColumnNames(propertyNames, includeDiscriminator: true);
 
         mergeStatementBuilder.AppendLine($"MERGE INTO {_table.SchemaQualifiedTableName} AS t");
         mergeStatementBuilder.AppendLine($"    USING (values ({parameterNames})) AS s ({columnNames}) ");
@@ -429,8 +438,8 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
         if (_insertColumnNames.Any())
         {
             mergeStatementBuilder.AppendLine($"WHEN NOT MATCHED");
-            mergeStatementBuilder.AppendLine($"    THEN INSERT ({string.Join(", ", _insertColumnNames.Select(x => $"\"{_table.GetDbColumnName(x)}\""))})");
-            mergeStatementBuilder.AppendLine($"         VALUES ({string.Join(", ", _insertColumnNames.Select(x => $"s.\"{x}\""))})");
+            mergeStatementBuilder.AppendLine($"    THEN INSERT ({_table.CreateDbColumnNames(_insertColumnNames, includeDiscriminator: true)})");
+            mergeStatementBuilder.AppendLine($"         VALUES ({_table.CreateColumnNames(_insertColumnNames, "s", includeDiscriminator: true)})");
         }
 
         if (returnDbGeneratedId)
@@ -460,7 +469,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
 
         using (var updateCommand = _connectionContext.CreateTextCommand(sqlMergeStatement, _options))
         {
-            LogParameters(_table.CreateNpgsqlParameters(updateCommand, data, propertyNames, autoAdd: true));
+            LogParameters(_table.CreateNpgsqlParameters(updateCommand, data, propertyNames, includeDiscriminator: true, autoAdd: true));
 
             using var reader = updateCommand.ExecuteReader();
 
@@ -508,15 +517,10 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
 
         var mergeStatementBuilder = new StringBuilder();
 
-        var joinCondition = string.Join(" and ", _idColumns.Select(x =>
-              {
-                  string collation = !string.IsNullOrEmpty(_options.Collation) && _table.GetProviderClrType(x) == typeof(string) ?
-   $" COLLATE \"{_options.Collation}\"" : string.Empty;
-                  return $"s.\"{x}\"{collation} = t.\"{_table.GetDbColumnName(x)}\"{collation}";
-              }));
+        var joinCondition = CreateJoinCondition();
 
-        var parameterNames = _table.CreateParameterNames(propertyNames);
-        var columnNames = string.Join(", ", propertyNames.Select(x => "\"" + x + "\""));
+        var parameterNames = _table.CreateParameterNames(propertyNames, includeDiscriminator: true);
+        var columnNames = _table.CreateColumnNames(propertyNames, includeDiscriminator: true);
 
         mergeStatementBuilder.AppendLine($"MERGE INTO {_table.SchemaQualifiedTableName} AS t");
         mergeStatementBuilder.AppendLine($"    USING (values ({parameterNames})) AS s ({columnNames}) ");
@@ -532,8 +536,8 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
         if (_insertColumnNames.Any())
         {
             mergeStatementBuilder.AppendLine($"WHEN NOT MATCHED");
-            mergeStatementBuilder.AppendLine($"    THEN INSERT ({string.Join(", ", _insertColumnNames.Select(x => $"\"{_table.GetDbColumnName(x)}\""))})");
-            mergeStatementBuilder.AppendLine($"         VALUES ({string.Join(", ", _insertColumnNames.Select(x => $"s.\"{x}\""))})");
+            mergeStatementBuilder.AppendLine($"    THEN INSERT ({_table.CreateDbColumnNames(_insertColumnNames, includeDiscriminator: true)})");
+            mergeStatementBuilder.AppendLine($"         VALUES ({_table.CreateColumnNames(_insertColumnNames, "s", includeDiscriminator: true)})");
         }
 
         if (returnDbGeneratedId)
@@ -563,7 +567,7 @@ $" COLLATE \"{_options.Collation}\"" : string.Empty;
 
         using (var updateCommand = _connectionContext.CreateTextCommand(sqlMergeStatement, _options))
         {
-            LogParameters(_table.CreateNpgsqlParameters(updateCommand, data, propertyNames, autoAdd: true));
+            LogParameters(_table.CreateNpgsqlParameters(updateCommand, data, propertyNames, includeDiscriminator: true, autoAdd: true));
 
             using var reader = await updateCommand.ExecuteReaderAsync(cancellationToken);
 
