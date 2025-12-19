@@ -11,13 +11,14 @@ public abstract class BaseTest : IDisposable
     protected readonly TestDbContext _context;
     protected readonly NpgsqlConnection _connection;
 
-    protected BaseTest(ITestOutputHelper output, PostgreSqlFixture fixture, string dbPrefixName, string schema = "")
+    protected BaseTest(ITestOutputHelper output, PostgreSqlFixture fixture, string dbPrefixName)
     {
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
         _output = output;
         _fixture = fixture;
         var connectionString = _fixture.GetConnectionString(dbPrefixName);
+        string schema = GetSchema();
         _context = GetDbContext(connectionString, schema);
         _context.Database.EnsureCreated();
         _connection = new NpgsqlConnection(connectionString);
@@ -73,5 +74,16 @@ public abstract class BaseTest : IDisposable
     protected TestDbContext GetDbContext(string connectionString, string schema)
     {
         return new TestDbContext(connectionString, schema);
+    }
+
+    public void LogTo(string log)
+    {
+        _output.WriteLine(log);
+        Console.WriteLine(log);
+    }
+
+    protected string GetSchema()
+    {
+        return Environment.GetEnvironmentVariable("SCHEMA") ?? "";
     }
 }

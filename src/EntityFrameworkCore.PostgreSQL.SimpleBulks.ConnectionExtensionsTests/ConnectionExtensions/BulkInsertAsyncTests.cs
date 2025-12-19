@@ -9,8 +9,6 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.ConnectionExtensionsTests.C
 [Collection("PostgreSqlCollection")]
 public class BulkInsertAsyncTests : BaseTest
 {
-    private string _schema = "";
-
     public BulkInsertAsyncTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkInsertTest")
     {
     }
@@ -53,7 +51,7 @@ public class BulkInsertAsyncTests : BaseTest
         var connectionContext = new ConnectionContext(_connection, null);
         var options = new BulkInsertOptions
         {
-            LogTo = _output.WriteLine
+            LogTo = LogTo
         };
 
         if (useLinq)
@@ -106,7 +104,7 @@ public class BulkInsertAsyncTests : BaseTest
                         row.NullableFloat,
                         row.NullableString
                     },
-                     new NpgsqlTableInfor<SingleKeyRow<int>>(_schema, "SingleKeyRows")
+                     new NpgsqlTableInfor<SingleKeyRow<int>>(GetSchema(), "SingleKeyRows")
                      {
                          OutputId = new OutputId
                          {
@@ -118,7 +116,7 @@ public class BulkInsertAsyncTests : BaseTest
 
                 await connectionContext.BulkInsertAsync(compositeKeyRows,
                       row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 },
-                      new NpgsqlTableInfor<CompositeKeyRow<int, int>>(_schema, "CompositeKeyRows"),
+                      new NpgsqlTableInfor<CompositeKeyRow<int, int>>(GetSchema(), "CompositeKeyRows"),
                       options: options);
             }
 
@@ -139,7 +137,7 @@ public class BulkInsertAsyncTests : BaseTest
             {
                 await connectionContext.BulkInsertAsync(rows,
                       ["Column1", "Column2", "Column3"],
-                       new NpgsqlTableInfor<SingleKeyRow<int>>(_schema, "SingleKeyRows")
+                       new NpgsqlTableInfor<SingleKeyRow<int>>(GetSchema(), "SingleKeyRows")
                        {
                            OutputId = new OutputId
                            {
@@ -151,7 +149,7 @@ public class BulkInsertAsyncTests : BaseTest
 
                 await connectionContext.BulkInsertAsync(compositeKeyRows,
                       ["Id1", "Id2", "Column1", "Column2", "Column3"],
-                       new NpgsqlTableInfor<CompositeKeyRow<int, int>>(_schema, "CompositeKeyRows"),
+                       new NpgsqlTableInfor<CompositeKeyRow<int, int>>(GetSchema(), "CompositeKeyRows"),
                       options: options);
             }
 
