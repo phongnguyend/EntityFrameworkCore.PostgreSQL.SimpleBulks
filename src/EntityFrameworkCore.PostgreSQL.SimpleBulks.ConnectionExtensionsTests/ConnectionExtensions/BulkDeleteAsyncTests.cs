@@ -9,8 +9,6 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.ConnectionExtensionsTests.C
 [Collection("PostgreSqlCollection")]
 public class BulkDeleteAsyncTests : BaseTest
 {
-    private string _schema = "";
-
     public BulkDeleteAsyncTests(ITestOutputHelper output, PostgreSqlFixture fixture) : base(output, fixture, "BulkDeleteTest")
     {
         var rows = new List<SingleKeyRow<int>>();
@@ -35,11 +33,9 @@ public class BulkDeleteAsyncTests : BaseTest
             });
         }
 
-        _context.BulkInsert(rows,
-                row => new { row.Column1, row.Column2, row.Column3 });
+        _context.BulkInsert(rows);
 
-        _context.BulkInsert(compositeKeyRows,
-                row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 });
+        _context.BulkInsert(compositeKeyRows);
     }
 
     [Theory]
@@ -56,7 +52,7 @@ public class BulkDeleteAsyncTests : BaseTest
 
         var options = new BulkDeleteOptions
         {
-            LogTo = _output.WriteLine
+            LogTo = LogTo
         };
 
         if (useLinq)
@@ -69,12 +65,12 @@ public class BulkDeleteAsyncTests : BaseTest
             else
             {
                 await connectionContext.BulkDeleteAsync(rows,
-                    new NpgsqlTableInfor<SingleKeyRow<int>>(_schema, "SingleKeyRows")
+                    new NpgsqlTableInfor<SingleKeyRow<int>>(GetSchema(), "SingleKeyRows")
                     {
                         PrimaryKeys = ["Id"],
                     }, options: options);
                 await connectionContext.BulkDeleteAsync(compositeKeyRows,
-                    new NpgsqlTableInfor<CompositeKeyRow<int, int>>(_schema, "CompositeKeyRows")
+                    new NpgsqlTableInfor<CompositeKeyRow<int, int>>(GetSchema(), "CompositeKeyRows")
                     {
                         PrimaryKeys = ["Id1", "Id2"],
                     }, options: options);
@@ -90,12 +86,12 @@ public class BulkDeleteAsyncTests : BaseTest
             else
             {
                 connectionContext.BulkDelete(rows,
-                    new NpgsqlTableInfor<SingleKeyRow<int>>(_schema, "SingleKeyRows")
+                    new NpgsqlTableInfor<SingleKeyRow<int>>(GetSchema(), "SingleKeyRows")
                     {
                         PrimaryKeys = ["Id"],
                     }, options: options);
                 connectionContext.BulkDelete(compositeKeyRows,
-                    new NpgsqlTableInfor<CompositeKeyRow<int, int>>(_schema, "CompositeKeyRows")
+                    new NpgsqlTableInfor<CompositeKeyRow<int, int>>(GetSchema(), "CompositeKeyRows")
                     {
                         PrimaryKeys = ["Id1", "Id2"],
                     }, options: options);

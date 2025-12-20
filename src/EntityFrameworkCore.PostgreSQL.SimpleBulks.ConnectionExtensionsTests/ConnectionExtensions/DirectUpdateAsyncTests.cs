@@ -43,11 +43,9 @@ public class DirectUpdateAsyncTests : BaseTest
             });
         }
 
-        _context.BulkInsert(rows,
-                row => new { row.Column1, row.Column2, row.Column3, row.Season });
+        _context.BulkInsert(rows);
 
-        _context.BulkInsert(compositeKeyRows,
-                row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season });
+        _context.BulkInsert(compositeKeyRows);
 
         tran.Commit();
     }
@@ -82,14 +80,14 @@ public class DirectUpdateAsyncTests : BaseTest
                 row => new { row.Column3, row.Column2, row.Season },
                 options: new BulkUpdateOptions
                 {
-                    LogTo = _output.WriteLine
+                    LogTo = LogTo
                 });
 
         var updateResult2 = await connectionContext.DirectUpdateAsync(compositeKeyRow,
                 row => new { row.Column3, row.Column2, row.Season },
                 options: new BulkUpdateOptions
                 {
-                    LogTo = _output.WriteLine
+                    LogTo = LogTo
                 });
 
         tran.Commit();
@@ -148,14 +146,14 @@ public class DirectUpdateAsyncTests : BaseTest
                 ["Column3", "Column2", "Season"],
                 options: new BulkUpdateOptions
                 {
-                    LogTo = _output.WriteLine
+                    LogTo = LogTo
                 });
 
         var updateResult2 = await connectionContext.DirectUpdateAsync(compositeKeyRow,
                 ["Column3", "Column2", "Season"],
                 options: new BulkUpdateOptions
                 {
-                    LogTo = _output.WriteLine
+                    LogTo = LogTo
                 });
 
         tran.Commit();

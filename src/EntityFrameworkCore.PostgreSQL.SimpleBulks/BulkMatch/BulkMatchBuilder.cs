@@ -13,7 +13,7 @@ namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.BulkMatch;
 public class BulkMatchBuilder<T>
 {
     private TableInfor<T> _table;
-    private IReadOnlyCollection<string> _matchedColumns;
+    private IReadOnlyCollection<string> _matchKeys;
     private IReadOnlyCollection<string> _returnedColumns;
     private BulkMatchOptions _options = BulkMatchOptions.DefaultOptions;
     private readonly ConnectionContext _connectionContext;
@@ -31,14 +31,14 @@ public class BulkMatchBuilder<T>
 
     public BulkMatchBuilder<T> WithMatchedColumns(IReadOnlyCollection<string> matchedColumns)
     {
-        _matchedColumns = matchedColumns;
+        _matchKeys = matchedColumns;
         return this;
     }
 
     public BulkMatchBuilder<T> WithMatchedColumns(Expression<Func<T, object>> matchedColumnsSelector)
     {
         var matchedColumn = matchedColumnsSelector.Body.GetMemberName();
-        _matchedColumns = string.IsNullOrEmpty(matchedColumn) ? matchedColumnsSelector.Body.GetMemberNames() : new List<string> { matchedColumn };
+        _matchKeys = string.IsNullOrEmpty(matchedColumn) ? matchedColumnsSelector.Body.GetMemberNames() : new List<string> { matchedColumn };
         return this;
     }
 
@@ -60,16 +60,9 @@ public class BulkMatchBuilder<T>
         return this;
     }
 
-    private List<string> GetKeys()
+    private IReadOnlyCollection<string> GetKeys()
     {
-        var copiedPropertyNames = _matchedColumns.ToList();
-
-        if (_table.Discriminator != null && !copiedPropertyNames.Contains(_table.Discriminator.PropertyName))
-        {
-            copiedPropertyNames.Add(_table.Discriminator.PropertyName);
-        }
-
-        return copiedPropertyNames;
+        return _table.IncludeDiscriminator(_matchKeys);
     }
 
     private string CreateJoinCondition()
@@ -98,7 +91,7 @@ public class BulkMatchBuilder<T>
     {
         var temptableName = $"\"{Guid.NewGuid()}\"";
 
-        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, _matchedColumns, null, _table.ColumnTypeMappings, discriminator: _table.Discriminator);
+        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, _matchKeys, null, _table.ColumnTypeMappings, discriminator: _table.Discriminator);
 
         var joinCondition = CreateJoinCondition();
 
@@ -120,7 +113,7 @@ public class BulkMatchBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        _connectionContext.SqlBulkCopy(machedValues, temptableName, _matchedColumns, null, false, _options, valueConverters: _table.ValueConverters, discriminator: _table.Discriminator);
+        _connectionContext.SqlBulkCopy(machedValues, temptableName, _matchKeys, null, false, _options, valueConverters: _table.ValueConverters, discriminator: _table.Discriminator);
 
         Log("End executing SqlBulkCopy.");
 
@@ -156,7 +149,7 @@ public class BulkMatchBuilder<T>
     {
         var temptableName = $"\"{Guid.NewGuid()}\"";
 
-        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, _matchedColumns, null, _table.ColumnTypeMappings, discriminator: _table.Discriminator);
+        var sqlCreateTemptable = TypeMapper.GenerateTempTableDefinition<T>(temptableName, _matchKeys, null, _table.ColumnTypeMappings, discriminator: _table.Discriminator);
 
         var joinCondition = CreateJoinCondition();
 
@@ -178,7 +171,7 @@ public class BulkMatchBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        await _connectionContext.SqlBulkCopyAsync(machedValues, temptableName, _matchedColumns, null, false, _options, valueConverters: _table.ValueConverters, discriminator: _table.Discriminator, cancellationToken: cancellationToken);
+        await _connectionContext.SqlBulkCopyAsync(machedValues, temptableName, _matchKeys, null, false, _options, valueConverters: _table.ValueConverters, discriminator: _table.Discriminator, cancellationToken: cancellationToken);
 
         Log("End executing SqlBulkCopy.");
 
