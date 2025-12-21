@@ -23,8 +23,8 @@ public class BulkDeleteTests : BaseTest
                 Column1 = i,
                 Column2 = "" + i,
                 Column3 = DateTime.Now,
-                Season = Season.Spring,
-                SeasonAsString = Season.Summer,
+                Season = Season.Winter,
+                SeasonAsString = Season.Winter,
                 ComplexShippingAddress = new ComplexTypeAddress
                 {
                     Street = "Street " + i,
@@ -52,8 +52,8 @@ public class BulkDeleteTests : BaseTest
                 Column1 = i,
                 Column2 = "" + i,
                 Column3 = DateTime.Now,
-                Season = Season.Spring,
-                SeasonAsString = Season.Summer
+                Season = Season.Winter,
+                SeasonAsString = Season.Winter
             });
         }
 
@@ -67,24 +67,85 @@ public class BulkDeleteTests : BaseTest
     [Theory]
     [InlineData(1)]
     [InlineData(100)]
-    public void Bulk_Delete_Using_Linq_With_Transaction(int length)
+    public void BulkDelete_PrimaryKeys(int length)
     {
         var tran = _context.Database.BeginTransaction();
 
         var rows = _context.SingleKeyRows.AsNoTracking().Take(length).ToList();
         var compositeKeyRows = _context.CompositeKeyRows.AsNoTracking().Take(length).ToList();
 
-        var deleteResult1 = _context.BulkDelete(rows,
-     new BulkDeleteOptions
-     {
-         LogTo = LogTo
-     });
+        var options = new BulkDeleteOptions()
+        {
+            LogTo = LogTo
+        };
 
-        var deleteResult2 = _context.BulkDelete(compositeKeyRows,
-     new BulkDeleteOptions
-     {
-         LogTo = LogTo
-     });
+        var deleteResult1 = _context.BulkDelete(rows, options);
+
+        var deleteResult2 = _context.BulkDelete(compositeKeyRows, options);
+
+        tran.Commit();
+
+        // Assert
+        var dbRows = _context.SingleKeyRows.AsNoTracking().ToList();
+        var dbCompositeKeyRows = _context.CompositeKeyRows.AsNoTracking().ToList();
+
+        Assert.Equal(length, deleteResult1.AffectedRows);
+        Assert.Equal(length, deleteResult2.AffectedRows);
+
+        Assert.Equal(100 - length, dbRows.Count);
+        Assert.Equal(100 - length, dbCompositeKeyRows.Count);
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(100)]
+    public void BulkDelete_SpecifiedKeys(int length)
+    {
+        var tran = _context.Database.BeginTransaction();
+
+        var rows = _context.SingleKeyRows.AsNoTracking().Take(length).ToList();
+        var compositeKeyRows = _context.CompositeKeyRows.AsNoTracking().Take(length).ToList();
+
+        var options = new BulkDeleteOptions()
+        {
+            LogTo = LogTo
+        };
+
+        var deleteResult1 = _context.BulkDelete(rows, x => x.Id, options);
+
+        var deleteResult2 = _context.BulkDelete(compositeKeyRows, x => new { x.Id1, x.Id2 }, options);
+
+        tran.Commit();
+
+        // Assert
+        var dbRows = _context.SingleKeyRows.AsNoTracking().ToList();
+        var dbCompositeKeyRows = _context.CompositeKeyRows.AsNoTracking().ToList();
+
+        Assert.Equal(length, deleteResult1.AffectedRows);
+        Assert.Equal(length, deleteResult2.AffectedRows);
+
+        Assert.Equal(100 - length, dbRows.Count);
+        Assert.Equal(100 - length, dbCompositeKeyRows.Count);
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(100)]
+    public void BulkDelete_SpecifiedKeys_DynamicString(int length)
+    {
+        var tran = _context.Database.BeginTransaction();
+
+        var rows = _context.SingleKeyRows.AsNoTracking().Take(length).ToList();
+        var compositeKeyRows = _context.CompositeKeyRows.AsNoTracking().Take(length).ToList();
+
+        var options = new BulkDeleteOptions()
+        {
+            LogTo = LogTo
+        };
+
+        var deleteResult1 = _context.BulkDelete(rows, ["Id"], options);
+
+        var deleteResult2 = _context.BulkDelete(compositeKeyRows, ["Id1", "Id2"], options);
 
         tran.Commit();
 
