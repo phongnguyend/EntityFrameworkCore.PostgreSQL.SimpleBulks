@@ -29,7 +29,7 @@ public class DirectUpdateTests : BaseTest
                 Column1 = i,
                 Column2 = "" + i,
                 Column3 = DateTime.Now,
-                Season = Season.Spring
+                Season = Season.Winter
             });
 
             compositeKeyRows.Add(new CompositeKeyRow<int, int>
@@ -39,7 +39,7 @@ public class DirectUpdateTests : BaseTest
                 Column1 = i,
                 Column2 = "" + i,
                 Column3 = DateTime.Now,
-                Season = Season.Spring
+                Season = Season.Winter
             });
         }
 
@@ -53,7 +53,7 @@ public class DirectUpdateTests : BaseTest
     [Theory]
     [InlineData(5)]
     [InlineData(90)]
-    public void Direct_Update_Using_Linq_With_Transaction(int index)
+    public void DirectUpdate_PrimaryKeys(int index)
     {
         SeedData(100);
 
@@ -69,26 +69,25 @@ public class DirectUpdateTests : BaseTest
         var row = rows.Skip(index).First();
         row.Column2 = "abc";
         row.Column3 = DateTime.Now;
-        row.Season = Season.Winter;
+        row.Season = Season.Spring;
 
         var compositeKeyRow = compositeKeyRows.Skip(index).First();
         compositeKeyRow.Column2 = "abc";
         compositeKeyRow.Column3 = DateTime.Now;
-        compositeKeyRow.Season = Season.Winter;
+        compositeKeyRow.Season = Season.Spring;
+
+        var options = new BulkUpdateOptions()
+        {
+            LogTo = LogTo
+        };
 
         var updateResult1 = connectionContext.DirectUpdate(row,
-                row => new { row.Column3, row.Column2, row.Season },
-                options: new BulkUpdateOptions
-                {
-                    LogTo = LogTo
-                });
+            row => new { row.Column3, row.Column2, row.Season },
+            options: options);
 
         var updateResult2 = connectionContext.DirectUpdate(compositeKeyRow,
-                row => new { row.Column3, row.Column2, row.Season },
-                options: new BulkUpdateOptions
-                {
-                    LogTo = LogTo
-                });
+            row => new { row.Column3, row.Column2, row.Season },
+            options: options);
 
         tran.Commit();
 
@@ -119,7 +118,7 @@ public class DirectUpdateTests : BaseTest
     [Theory]
     [InlineData(5)]
     [InlineData(90)]
-    public void Direct_Update_Using_Dynamic_String_With_Transaction(int index)
+    public void DirectUpdate_PrimaryKeys_DynamicString(int index)
     {
         SeedData(100);
 
@@ -135,26 +134,155 @@ public class DirectUpdateTests : BaseTest
         var row = rows.Skip(index).First();
         row.Column2 = "abc";
         row.Column3 = DateTime.Now;
-        row.Season = Season.Winter;
+        row.Season = Season.Summer;
 
         var compositeKeyRow = compositeKeyRows.Skip(index).First();
         compositeKeyRow.Column2 = "abc";
         compositeKeyRow.Column3 = DateTime.Now;
-        compositeKeyRow.Season = Season.Winter;
+        compositeKeyRow.Season = Season.Summer;
+
+        var options = new BulkUpdateOptions()
+        {
+            LogTo = LogTo
+        };
 
         var updateResult1 = connectionContext.DirectUpdate(row,
-               ["Column3", "Column2", "Season"],
-              options: new BulkUpdateOptions
-              {
-                  LogTo = LogTo
-              });
+            ["Column3", "Column2", "Season"],
+            options: options);
 
         var updateResult2 = connectionContext.DirectUpdate(compositeKeyRow,
             ["Column3", "Column2", "Season"],
-          options: new BulkUpdateOptions
-          {
-              LogTo = LogTo
-          });
+            options: options);
+
+        tran.Commit();
+
+        // Assert
+        var dbRows = _context.SingleKeyRows.OrderBy(x => x.Id).AsNoTracking().ToList();
+        var dbCompositeKeyRows = _context.CompositeKeyRows.OrderBy(x => x.Id1).ThenBy(x => x.Id2).AsNoTracking().ToList();
+
+        Assert.Equal(1, updateResult1.AffectedRows);
+        Assert.Equal(1, updateResult2.AffectedRows);
+
+        for (int i = 0; i < 100; i++)
+        {
+            Assert.Equal(rows[i].Id, dbRows[i].Id);
+            Assert.Equal(rows[i].Column1, dbRows[i].Column1);
+            Assert.Equal(rows[i].Column2, dbRows[i].Column2);
+            Assert.Equal(rows[i].Column3.TruncateToMicroseconds(), dbRows[i].Column3);
+            Assert.Equal(rows[i].Season, dbRows[i].Season);
+
+            Assert.Equal(compositeKeyRows[i].Id1, dbCompositeKeyRows[i].Id1);
+            Assert.Equal(compositeKeyRows[i].Id2, dbCompositeKeyRows[i].Id2);
+            Assert.Equal(compositeKeyRows[i].Column1, dbCompositeKeyRows[i].Column1);
+            Assert.Equal(compositeKeyRows[i].Column2, dbCompositeKeyRows[i].Column2);
+            Assert.Equal(compositeKeyRows[i].Column3.TruncateToMicroseconds(), dbCompositeKeyRows[i].Column3);
+            Assert.Equal(compositeKeyRows[i].Season, dbCompositeKeyRows[i].Season);
+        }
+    }
+
+    [Theory]
+    [InlineData(5)]
+    [InlineData(90)]
+    public void DirectUpdate_SpecifiedKeys(int index)
+    {
+        SeedData(100);
+
+        _connection.Open();
+
+        var tran = _connection.BeginTransaction();
+
+        var connectionContext = new ConnectionContext(_connection, tran);
+
+        var rows = _context.SingleKeyRows.AsNoTracking().ToList();
+        var compositeKeyRows = _context.CompositeKeyRows.AsNoTracking().ToList();
+
+        var row = rows.Skip(index).First();
+        row.Column2 = "abc";
+        row.Column3 = DateTime.Now;
+        row.Season = Season.Spring;
+
+        var compositeKeyRow = compositeKeyRows.Skip(index).First();
+        compositeKeyRow.Column2 = "abc";
+        compositeKeyRow.Column3 = DateTime.Now;
+        compositeKeyRow.Season = Season.Spring;
+
+        var options = new BulkUpdateOptions()
+        {
+            LogTo = LogTo
+        };
+
+        var updateResult1 = connectionContext.DirectUpdate(row, x => x.Id,
+            row => new { row.Column3, row.Column2, row.Season },
+            options: options);
+
+        var updateResult2 = connectionContext.DirectUpdate(compositeKeyRow, x => new { x.Id1, x.Id2 },
+            row => new { row.Column3, row.Column2, row.Season },
+            options: options);
+
+        tran.Commit();
+
+        // Assert
+        var dbRows = _context.SingleKeyRows.OrderBy(x => x.Id).AsNoTracking().ToList();
+        var dbCompositeKeyRows = _context.CompositeKeyRows.OrderBy(x => x.Id1).ThenBy(x => x.Id2).AsNoTracking().ToList();
+
+        Assert.Equal(1, updateResult1.AffectedRows);
+        Assert.Equal(1, updateResult2.AffectedRows);
+
+        for (int i = 0; i < 100; i++)
+        {
+            Assert.Equal(rows[i].Id, dbRows[i].Id);
+            Assert.Equal(rows[i].Column1, dbRows[i].Column1);
+            Assert.Equal(rows[i].Column2, dbRows[i].Column2);
+            Assert.Equal(rows[i].Column3.TruncateToMicroseconds(), dbRows[i].Column3);
+            Assert.Equal(rows[i].Season, dbRows[i].Season);
+
+            Assert.Equal(compositeKeyRows[i].Id1, dbCompositeKeyRows[i].Id1);
+            Assert.Equal(compositeKeyRows[i].Id2, dbCompositeKeyRows[i].Id2);
+            Assert.Equal(compositeKeyRows[i].Column1, dbCompositeKeyRows[i].Column1);
+            Assert.Equal(compositeKeyRows[i].Column2, dbCompositeKeyRows[i].Column2);
+            Assert.Equal(compositeKeyRows[i].Column3.TruncateToMicroseconds(), dbCompositeKeyRows[i].Column3);
+            Assert.Equal(compositeKeyRows[i].Season, dbCompositeKeyRows[i].Season);
+        }
+    }
+
+    [Theory]
+    [InlineData(5)]
+    [InlineData(90)]
+    public void DirectUpdate_SpecifiedKeys_DynamicString(int index)
+    {
+        SeedData(100);
+
+        _connection.Open();
+
+        var tran = _connection.BeginTransaction();
+
+        var connectionContext = new ConnectionContext(_connection, tran);
+
+        var rows = _context.SingleKeyRows.AsNoTracking().ToList();
+        var compositeKeyRows = _context.CompositeKeyRows.AsNoTracking().ToList();
+
+        var row = rows.Skip(index).First();
+        row.Column2 = "abc";
+        row.Column3 = DateTime.Now;
+        row.Season = Season.Summer;
+
+        var compositeKeyRow = compositeKeyRows.Skip(index).First();
+        compositeKeyRow.Column2 = "abc";
+        compositeKeyRow.Column3 = DateTime.Now;
+        compositeKeyRow.Season = Season.Summer;
+
+        var options = new BulkUpdateOptions()
+        {
+            LogTo = LogTo
+        };
+
+        var updateResult1 = connectionContext.DirectUpdate(row, ["Id"],
+            ["Column3", "Column2", "Season"],
+            options: options);
+
+        var updateResult2 = connectionContext.DirectUpdate(compositeKeyRow, ["Id1", "Id2"],
+            ["Column3", "Column2", "Season"],
+            options: options);
 
         tran.Commit();
 
