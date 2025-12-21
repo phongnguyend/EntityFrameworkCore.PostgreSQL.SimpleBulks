@@ -11,13 +11,12 @@ public static class DbContextExtensions
     public static BulkUpdateResult BulkUpdate<T>(this DbContext dbContext, IReadOnlyCollection<T> data, Expression<Func<T, object>> columnNamesSelector, BulkUpdateOptions options = null)
     {
         var table = dbContext.GetTableInfor<T>();
-
         return dbContext.CreateBulkUpdateBuilder<T>()
              .WithId(table.PrimaryKeys)
              .WithColumns(columnNamesSelector)
              .ToTable(table)
              .WithBulkOptions(options)
-       .Execute(data);
+             .Execute(data);
     }
 
     public static BulkUpdateResult BulkUpdate<T>(this DbContext dbContext, IReadOnlyCollection<T> data, IReadOnlyCollection<string> columnNames, BulkUpdateOptions options = null)
@@ -25,10 +24,33 @@ public static class DbContextExtensions
         var table = dbContext.GetTableInfor<T>();
 
         return dbContext.CreateBulkUpdateBuilder<T>()
-            .WithId(table.PrimaryKeys)
-            .WithColumns(columnNames)
-            .ToTable(table)
-            .WithBulkOptions(options)
-        .Execute(data);
+             .WithId(table.PrimaryKeys)
+             .WithColumns(columnNames)
+             .ToTable(table)
+             .WithBulkOptions(options)
+             .Execute(data);
+    }
+
+    public static BulkUpdateResult BulkUpdate<T>(this DbContext dbContext, IReadOnlyCollection<T> data, Expression<Func<T, object>> keySelector, Expression<Func<T, object>> columnNamesSelector, BulkUpdateOptions options = null)
+    {
+        var table = dbContext.GetTableInfor<T>();
+        return dbContext.CreateBulkUpdateBuilder<T>()
+             .WithId(keySelector)
+             .WithColumns(columnNamesSelector)
+             .ToTable(table)
+             .WithBulkOptions(options)
+             .Execute(data);
+    }
+
+    public static BulkUpdateResult BulkUpdate<T>(this DbContext dbContext, IReadOnlyCollection<T> data, IReadOnlyCollection<string> keys, IReadOnlyCollection<string> columnNames, BulkUpdateOptions options = null)
+    {
+        var table = dbContext.GetTableInfor<T>();
+
+        return dbContext.CreateBulkUpdateBuilder<T>()
+             .WithId(keys)
+             .WithColumns(columnNames)
+             .ToTable(table)
+             .WithBulkOptions(options)
+             .Execute(data);
     }
 }
