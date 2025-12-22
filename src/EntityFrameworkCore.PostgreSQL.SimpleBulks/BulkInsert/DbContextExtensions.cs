@@ -13,18 +13,27 @@ public static class DbContextExtensions
         var table = dbContext.GetTableInfor<T>();
 
         dbContext.CreateBulkInsertBuilder<T>()
-       .WithColumns(table.InsertablePropertyNames)
-           .ToTable(table)
-          .WithBulkOptions(options)
+            .WithColumns(table.InsertablePropertyNames)
+            .ToTable(table)
+            .WithBulkOptions(options)
             .Execute(data);
     }
 
     public static void BulkInsert<T>(this DbContext dbContext, IReadOnlyCollection<T> data, Expression<Func<T, object>> columnNamesSelector, BulkInsertOptions options = null)
     {
         dbContext.CreateBulkInsertBuilder<T>()
-     .WithColumns(columnNamesSelector)
-      .ToTable(dbContext.GetTableInfor<T>())
-       .WithBulkOptions(options)
-      .Execute(data);
+            .WithColumns(columnNamesSelector)
+            .ToTable(dbContext.GetTableInfor<T>())
+            .WithBulkOptions(options)
+            .Execute(data);
+    }
+
+    public static void BulkInsert<T>(this DbContext dbContext, IReadOnlyCollection<T> data, IReadOnlyCollection<string> columnNames, BulkInsertOptions options = null)
+    {
+        dbContext.CreateBulkInsertBuilder<T>()
+            .WithColumns(columnNames)
+            .ToTable(dbContext.GetTableInfor<T>())
+            .WithBulkOptions(options)
+            .Execute(data);
     }
 }
