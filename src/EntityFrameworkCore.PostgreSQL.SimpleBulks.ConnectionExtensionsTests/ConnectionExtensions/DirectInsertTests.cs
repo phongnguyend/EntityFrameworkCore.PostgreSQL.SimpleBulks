@@ -15,7 +15,7 @@ public class DirectInsertTests : BaseTest
     }
 
     [Fact]
-    public void Direct_Insert_Using_Linq_Without_Transaction()
+    public void DirectInsert_Using_Linq_Without_Transaction()
     {
         var connectionContext = new ConnectionContext(_connection, null);
 
@@ -37,19 +37,18 @@ public class DirectInsertTests : BaseTest
             Season = Season.Spring
         };
 
+        var options = new BulkInsertOptions
+        {
+            LogTo = LogTo
+        };
+
         connectionContext.DirectInsert(row,
                 row => new { row.Column1, row.Column2, row.Column3, row.Season },
-                options: new BulkInsertOptions
-                {
-                    LogTo = LogTo
-                });
+                options: options);
 
         connectionContext.DirectInsert(compositeKeyRow,
                 row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season },
-                options: new BulkInsertOptions
-                {
-                    LogTo = LogTo
-                });
+                options: options);
 
 
         // Assert
@@ -74,7 +73,7 @@ public class DirectInsertTests : BaseTest
     }
 
     [Fact]
-    public void Direct_Insert_Using_Linq_With_Transaction_Committed()
+    public void DirectInsert_Using_Linq_With_Transaction_Committed()
     {
         _connection.Open();
 
@@ -138,7 +137,7 @@ public class DirectInsertTests : BaseTest
     }
 
     [Fact]
-    public void Direct_Insert_Using_Linq_With_Transaction_RolledBack()
+    public void DirectInsert_Using_Linq_With_Transaction_RolledBack()
     {
         _connection.Open();
 
@@ -189,7 +188,7 @@ public class DirectInsertTests : BaseTest
     }
 
     [Fact]
-    public void Direct_Insert_KeepIdentity()
+    public void DirectInsert_KeepIdentity()
     {
         var connectionContext = new ConnectionContext(_connection, null);
 
@@ -203,7 +202,6 @@ public class DirectInsertTests : BaseTest
         };
 
         connectionContext.DirectInsert(configurationEntry,
-            x => new { x.Key, x.Value, x.CreatedDateTime, x.UpdatedDateTime, x.IsSensitive, x.Description },
             options: new BulkInsertOptions
             {
                 KeepIdentity = true,
@@ -221,7 +219,7 @@ public class DirectInsertTests : BaseTest
     }
 
     [Fact]
-    public void Direct_Insert_Return_DbGeneratedId()
+    public void DirectInsert_Return_DbGeneratedId()
     {
         var connectionContext = new ConnectionContext(_connection, null);
 
@@ -234,7 +232,6 @@ public class DirectInsertTests : BaseTest
         };
 
         connectionContext.DirectInsert(configurationEntry,
-            x => new { x.Key, x.Value, x.CreatedDateTime, x.UpdatedDateTime, x.IsSensitive, x.Description },
             options: new BulkInsertOptions
             {
                 LogTo = LogTo
@@ -249,5 +246,75 @@ public class DirectInsertTests : BaseTest
         Assert.Equal(configurationEntry.Value, configurationEntriesInDb[0].Value);
         Assert.Equal(configurationEntry.Description, configurationEntriesInDb[0].Description);
         Assert.Equal(configurationEntry.CreatedDateTime.TruncateToMicroseconds(), configurationEntriesInDb[0].CreatedDateTime);
+    }
+
+    [Fact]
+    public void DirectInsert_Using_DynamicString()
+    {
+        var connectionContext = new ConnectionContext(_connection, null);
+
+        var row = new SingleKeyRow<int>
+        {
+            Column1 = 1,
+            Column2 = "" + 1,
+            Column3 = DateTime.Now,
+            Season = Season.Spring
+        };
+
+        var compositeKeyRow = new CompositeKeyRow<int, int>
+        {
+            Id1 = 1,
+            Id2 = 1,
+            Column1 = 1,
+            Column2 = "" + 1,
+            Column3 = DateTime.Now,
+            Season = Season.Spring
+        };
+
+        var options = new BulkInsertOptions
+        {
+            LogTo = LogTo
+        };
+
+        connectionContext.DirectInsert(row,
+            [
+            "Column1",
+            "Column2",
+            "Column3",
+            "Season"
+            ],
+            options: options);
+
+        connectionContext.DirectInsert(compositeKeyRow,
+            [
+            "Id1",
+            "Id2",
+            "Column1",
+            "Column2",
+            "Column3",
+            "Season"
+            ],
+            options: options);
+
+
+        // Assert
+        var dbRows = _context.SingleKeyRows.AsNoTracking().ToList();
+        var dbCompositeKeyRows = _context.CompositeKeyRows.AsNoTracking().ToList();
+
+        Assert.Single(dbRows);
+        Assert.Single(dbCompositeKeyRows);
+
+        Assert.Equal(row.Id, dbRows[0].Id);
+        Assert.Equal(row.Column1, dbRows[0].Column1);
+        Assert.Equal(row.Column2, dbRows[0].Column2);
+        Assert.Equal(row.Column3.TruncateToMicroseconds(), dbRows[0].Column3);
+        Assert.Equal(row.Season, dbRows[0].Season);
+
+        Assert.Equal(compositeKeyRow.Id1, dbCompositeKeyRows[0].Id1);
+        Assert.Equal(compositeKeyRow.Id2, dbCompositeKeyRows[0].Id2);
+        Assert.Equal(compositeKeyRow.Column1, dbCompositeKeyRows[0].Column1);
+        Assert.Equal(compositeKeyRow.Column2, dbCompositeKeyRows[0].Column2);
+        Assert.Equal(compositeKeyRow.Column3.TruncateToMicroseconds(), dbCompositeKeyRows[0].Column3);
+        Assert.Equal(compositeKeyRow.Season, dbCompositeKeyRows[0].Season);
     }
 }

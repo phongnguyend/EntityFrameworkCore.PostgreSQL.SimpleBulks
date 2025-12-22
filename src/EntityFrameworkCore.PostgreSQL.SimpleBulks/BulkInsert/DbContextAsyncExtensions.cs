@@ -15,18 +15,27 @@ public static class DbContextAsyncExtensions
         var table = dbContext.GetTableInfor<T>();
 
         return dbContext.CreateBulkInsertBuilder<T>()
-      .WithColumns(table.InsertablePropertyNames)
-      .ToTable(table)
-       .WithBulkOptions(options)
+              .WithColumns(table.InsertablePropertyNames)
+              .ToTable(table)
+              .WithBulkOptions(options)
               .ExecuteAsync(data, cancellationToken);
     }
 
     public static Task BulkInsertAsync<T>(this DbContext dbContext, IReadOnlyCollection<T> data, Expression<Func<T, object>> columnNamesSelector, BulkInsertOptions options = null, CancellationToken cancellationToken = default)
     {
         return dbContext.CreateBulkInsertBuilder<T>()
-    .WithColumns(columnNamesSelector)
-      .ToTable(dbContext.GetTableInfor<T>())
-   .WithBulkOptions(options)
-       .ExecuteAsync(data, cancellationToken);
+              .WithColumns(columnNamesSelector)
+              .ToTable(dbContext.GetTableInfor<T>())
+              .WithBulkOptions(options)
+              .ExecuteAsync(data, cancellationToken);
+    }
+
+    public static Task BulkInsertAsync<T>(this DbContext dbContext, IReadOnlyCollection<T> data, IReadOnlyCollection<string> columnNames, BulkInsertOptions options = null, CancellationToken cancellationToken = default)
+    {
+        return dbContext.CreateBulkInsertBuilder<T>()
+              .WithColumns(columnNames)
+              .ToTable(dbContext.GetTableInfor<T>())
+              .WithBulkOptions(options)
+              .ExecuteAsync(data, cancellationToken);
     }
 }
