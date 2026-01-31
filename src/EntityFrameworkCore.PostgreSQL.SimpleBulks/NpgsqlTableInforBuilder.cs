@@ -1,5 +1,4 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -144,9 +143,21 @@ public class NpgsqlTableInforBuilder<T>
         return ConfigureProperty(propertyName, columnName, columnType);
     }
 
+    public NpgsqlTableInforBuilder<T> ConfigurePropertyConversion<TProperty, TProvider>(Expression<Func<T, TProperty>> nameSelector, Func<TProperty, TProvider?> convertToProvider, Func<TProvider?, TProperty?> convertFromProvider)
+    {
+        var propertyName = nameSelector.Body.GetMemberName();
+        _valueConverters[propertyName] = new ValueConverter
+        {
+            ProviderClrType = typeof(TProvider),
+            ConvertToProvider = obj => convertToProvider((TProperty?)obj),
+            ConvertFromProvider = obj => convertFromProvider((TProvider?)obj),
+        };
+        return this;
+    }
+
     public NpgsqlTableInfor<T> Build()
     {
-        if(_outputId?.Mode == OutputIdMode.ServerGenerated && _insertablePropertyNames.Contains(_outputId.Name))
+        if (_outputId?.Mode == OutputIdMode.ServerGenerated && _insertablePropertyNames.Contains(_outputId.Name))
         {
             _insertablePropertyNames.Remove(_outputId.Name);
         }
