@@ -35,6 +35,7 @@ public class BulkInsertAsyncTests : BaseTest
                 Column2 = "" + i,
                 Column3 = DateTime.Now,
                 Season = Season.Autumn,
+                SeasonAsString = Season.Autumn,
             });
 
             compositeKeyRows.Add(new CompositeKeyRow<int, int>
@@ -45,6 +46,7 @@ public class BulkInsertAsyncTests : BaseTest
                 Column2 = "" + i,
                 Column3 = DateTime.Now,
                 Season = Season.Autumn,
+                SeasonAsString = Season.Autumn,
             });
         }
 
@@ -65,6 +67,7 @@ public class BulkInsertAsyncTests : BaseTest
                           row.Column2,
                           row.Column3,
                           row.Season,
+                          row.SeasonAsString,
                           row.NullableBool,
                           row.NullableDateTime,
                           row.NullableDateTimeOffset,
@@ -80,7 +83,7 @@ public class BulkInsertAsyncTests : BaseTest
                       options: options);
 
                 await connectionContext.BulkInsertAsync(compositeKeyRows,
-                      row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 },
+                      row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
                       options: options);
             }
             else
@@ -92,6 +95,7 @@ public class BulkInsertAsyncTests : BaseTest
                         row.Column2,
                         row.Column3,
                         row.Season,
+                        row.SeasonAsString,
                         row.NullableBool,
                         row.NullableDateTime,
                         row.NullableDateTimeOffset,
@@ -104,19 +108,12 @@ public class BulkInsertAsyncTests : BaseTest
                         row.NullableFloat,
                         row.NullableString
                     },
-                     new NpgsqlTableInfor<SingleKeyRow<int>>(GetSchema(), "SingleKeyRows")
-                     {
-                         OutputId = new OutputId
-                         {
-                             Name = "Id",
-                             Mode = OutputIdMode.ServerGenerated,
-                         }
-                     },
+                     _singleKeyRowTableInfo,
                      options: options);
 
                 await connectionContext.BulkInsertAsync(compositeKeyRows,
-                      row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3 },
-                      new NpgsqlTableInfor<CompositeKeyRow<int, int>>(GetSchema(), "CompositeKeyRows"),
+                      row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+                      _compositeKeyRowTableInfo,
                       options: options);
             }
 
@@ -137,19 +134,12 @@ public class BulkInsertAsyncTests : BaseTest
             {
                 await connectionContext.BulkInsertAsync(rows,
                       ["Column1", "Column2", "Column3"],
-                       new NpgsqlTableInfor<SingleKeyRow<int>>(GetSchema(), "SingleKeyRows")
-                       {
-                           OutputId = new OutputId
-                           {
-                               Name = "Id",
-                               Mode = OutputIdMode.ServerGenerated,
-                           }
-                       },
+                       _singleKeyRowTableInfo,
                       options: options);
 
                 await connectionContext.BulkInsertAsync(compositeKeyRows,
                       ["Id1", "Id2", "Column1", "Column2", "Column3"],
-                       new NpgsqlTableInfor<CompositeKeyRow<int, int>>(GetSchema(), "CompositeKeyRows"),
+                       _compositeKeyRowTableInfo,
                       options: options);
             }
 

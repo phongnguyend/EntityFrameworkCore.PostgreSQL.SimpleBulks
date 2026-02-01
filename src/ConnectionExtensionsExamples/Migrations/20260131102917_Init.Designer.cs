@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ConnectionExtensionsExamples.Migrations
 {
     [DbContext(typeof(DemoDbContext))]
-    [Migration("20251112225740_Init")]
+    [Migration("20260131102917_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -78,8 +78,8 @@ namespace ConnectionExtensionsExamples.Migrations
                     b.Property<int?>("SeasonAsInt")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("SeasonAsString")
-                        .HasColumnType("integer");
+                    b.Property<string>("SeasonAsString")
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset?>("UpdatedDateTime")
                         .HasColumnType("timestamp with time zone");

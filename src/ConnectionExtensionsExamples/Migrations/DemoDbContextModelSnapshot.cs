@@ -75,8 +75,8 @@ namespace ConnectionExtensionsExamples.Migrations
                     b.Property<int?>("SeasonAsInt")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("SeasonAsString")
-                        .HasColumnType("integer");
+                    b.Property<string>("SeasonAsString")
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset?>("UpdatedDateTime")
                         .HasColumnType("timestamp with time zone");

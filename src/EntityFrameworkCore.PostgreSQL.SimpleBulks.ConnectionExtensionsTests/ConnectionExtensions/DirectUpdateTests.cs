@@ -29,7 +29,8 @@ public class DirectUpdateTests : BaseTest
                 Column1 = i,
                 Column2 = "" + i,
                 Column3 = DateTime.Now,
-                Season = Season.Winter
+                Season = Season.Winter,
+                SeasonAsString = Season.Winter
             });
 
             compositeKeyRows.Add(new CompositeKeyRow<int, int>
@@ -39,7 +40,8 @@ public class DirectUpdateTests : BaseTest
                 Column1 = i,
                 Column2 = "" + i,
                 Column3 = DateTime.Now,
-                Season = Season.Winter
+                Season = Season.Winter,
+                SeasonAsString = Season.Winter
             });
         }
 
@@ -70,11 +72,13 @@ public class DirectUpdateTests : BaseTest
         row.Column2 = "abc";
         row.Column3 = DateTime.Now;
         row.Season = Season.Spring;
+        row.SeasonAsString = Season.Spring;
 
         var compositeKeyRow = compositeKeyRows.Skip(index).First();
         compositeKeyRow.Column2 = "abc";
         compositeKeyRow.Column3 = DateTime.Now;
         compositeKeyRow.Season = Season.Spring;
+        compositeKeyRow.SeasonAsString = Season.Spring;
 
         var options = new BulkUpdateOptions()
         {
@@ -82,11 +86,11 @@ public class DirectUpdateTests : BaseTest
         };
 
         var updateResult1 = connectionContext.DirectUpdate(row,
-            row => new { row.Column3, row.Column2, row.Season },
+            row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
             options: options);
 
         var updateResult2 = connectionContext.DirectUpdate(compositeKeyRow,
-            row => new { row.Column3, row.Column2, row.Season },
+            row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
             options: options);
 
         tran.Commit();
@@ -105,6 +109,7 @@ public class DirectUpdateTests : BaseTest
             Assert.Equal(rows[i].Column2, dbRows[i].Column2);
             Assert.Equal(rows[i].Column3.TruncateToMicroseconds(), dbRows[i].Column3);
             Assert.Equal(rows[i].Season, dbRows[i].Season);
+            Assert.Equal(rows[i].SeasonAsString, dbRows[i].SeasonAsString);
 
             Assert.Equal(compositeKeyRows[i].Id1, dbCompositeKeyRows[i].Id1);
             Assert.Equal(compositeKeyRows[i].Id2, dbCompositeKeyRows[i].Id2);
@@ -112,6 +117,7 @@ public class DirectUpdateTests : BaseTest
             Assert.Equal(compositeKeyRows[i].Column2, dbCompositeKeyRows[i].Column2);
             Assert.Equal(compositeKeyRows[i].Column3.TruncateToMicroseconds(), dbCompositeKeyRows[i].Column3);
             Assert.Equal(compositeKeyRows[i].Season, dbCompositeKeyRows[i].Season);
+            Assert.Equal(compositeKeyRows[i].SeasonAsString, dbCompositeKeyRows[i].SeasonAsString);
         }
     }
 
@@ -135,11 +141,13 @@ public class DirectUpdateTests : BaseTest
         row.Column2 = "abc";
         row.Column3 = DateTime.Now;
         row.Season = Season.Summer;
+        row.SeasonAsString = Season.Summer;
 
         var compositeKeyRow = compositeKeyRows.Skip(index).First();
         compositeKeyRow.Column2 = "abc";
         compositeKeyRow.Column3 = DateTime.Now;
         compositeKeyRow.Season = Season.Summer;
+        compositeKeyRow.SeasonAsString = Season.Summer;
 
         var options = new BulkUpdateOptions()
         {
@@ -147,11 +155,11 @@ public class DirectUpdateTests : BaseTest
         };
 
         var updateResult1 = connectionContext.DirectUpdate(row,
-            ["Column3", "Column2", "Season"],
+            ["Column3", "Column2", "Season", "SeasonAsString"],
             options: options);
 
         var updateResult2 = connectionContext.DirectUpdate(compositeKeyRow,
-            ["Column3", "Column2", "Season"],
+            ["Column3", "Column2", "Season", "SeasonAsString"],
             options: options);
 
         tran.Commit();
@@ -170,6 +178,7 @@ public class DirectUpdateTests : BaseTest
             Assert.Equal(rows[i].Column2, dbRows[i].Column2);
             Assert.Equal(rows[i].Column3.TruncateToMicroseconds(), dbRows[i].Column3);
             Assert.Equal(rows[i].Season, dbRows[i].Season);
+            Assert.Equal(rows[i].SeasonAsString, dbRows[i].SeasonAsString);
 
             Assert.Equal(compositeKeyRows[i].Id1, dbCompositeKeyRows[i].Id1);
             Assert.Equal(compositeKeyRows[i].Id2, dbCompositeKeyRows[i].Id2);
@@ -177,6 +186,7 @@ public class DirectUpdateTests : BaseTest
             Assert.Equal(compositeKeyRows[i].Column2, dbCompositeKeyRows[i].Column2);
             Assert.Equal(compositeKeyRows[i].Column3.TruncateToMicroseconds(), dbCompositeKeyRows[i].Column3);
             Assert.Equal(compositeKeyRows[i].Season, dbCompositeKeyRows[i].Season);
+            Assert.Equal(compositeKeyRows[i].SeasonAsString, dbCompositeKeyRows[i].SeasonAsString);
         }
     }
 
@@ -200,11 +210,13 @@ public class DirectUpdateTests : BaseTest
         row.Column2 = "abc";
         row.Column3 = DateTime.Now;
         row.Season = Season.Spring;
+        row.SeasonAsString = Season.Spring;
 
         var compositeKeyRow = compositeKeyRows.Skip(index).First();
         compositeKeyRow.Column2 = "abc";
         compositeKeyRow.Column3 = DateTime.Now;
         compositeKeyRow.Season = Season.Spring;
+        compositeKeyRow.SeasonAsString = Season.Spring;
 
         var options = new BulkUpdateOptions()
         {
@@ -212,11 +224,11 @@ public class DirectUpdateTests : BaseTest
         };
 
         var updateResult1 = connectionContext.DirectUpdate(row, x => x.Id,
-            row => new { row.Column3, row.Column2, row.Season },
+            row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
             options: options);
 
         var updateResult2 = connectionContext.DirectUpdate(compositeKeyRow, x => new { x.Id1, x.Id2 },
-            row => new { row.Column3, row.Column2, row.Season },
+            row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
             options: options);
 
         tran.Commit();
@@ -235,6 +247,7 @@ public class DirectUpdateTests : BaseTest
             Assert.Equal(rows[i].Column2, dbRows[i].Column2);
             Assert.Equal(rows[i].Column3.TruncateToMicroseconds(), dbRows[i].Column3);
             Assert.Equal(rows[i].Season, dbRows[i].Season);
+            Assert.Equal(rows[i].SeasonAsString, dbRows[i].SeasonAsString);
 
             Assert.Equal(compositeKeyRows[i].Id1, dbCompositeKeyRows[i].Id1);
             Assert.Equal(compositeKeyRows[i].Id2, dbCompositeKeyRows[i].Id2);
@@ -242,6 +255,7 @@ public class DirectUpdateTests : BaseTest
             Assert.Equal(compositeKeyRows[i].Column2, dbCompositeKeyRows[i].Column2);
             Assert.Equal(compositeKeyRows[i].Column3.TruncateToMicroseconds(), dbCompositeKeyRows[i].Column3);
             Assert.Equal(compositeKeyRows[i].Season, dbCompositeKeyRows[i].Season);
+            Assert.Equal(compositeKeyRows[i].SeasonAsString, dbCompositeKeyRows[i].SeasonAsString);
         }
     }
 
@@ -265,11 +279,13 @@ public class DirectUpdateTests : BaseTest
         row.Column2 = "abc";
         row.Column3 = DateTime.Now;
         row.Season = Season.Summer;
+        row.SeasonAsString = Season.Summer;
 
         var compositeKeyRow = compositeKeyRows.Skip(index).First();
         compositeKeyRow.Column2 = "abc";
         compositeKeyRow.Column3 = DateTime.Now;
         compositeKeyRow.Season = Season.Summer;
+        compositeKeyRow.SeasonAsString = Season.Summer;
 
         var options = new BulkUpdateOptions()
         {
@@ -277,11 +293,11 @@ public class DirectUpdateTests : BaseTest
         };
 
         var updateResult1 = connectionContext.DirectUpdate(row, ["Id"],
-            ["Column3", "Column2", "Season"],
+            ["Column3", "Column2", "Season", "SeasonAsString"],
             options: options);
 
         var updateResult2 = connectionContext.DirectUpdate(compositeKeyRow, ["Id1", "Id2"],
-            ["Column3", "Column2", "Season"],
+            ["Column3", "Column2", "Season", "SeasonAsString"],
             options: options);
 
         tran.Commit();
@@ -300,6 +316,7 @@ public class DirectUpdateTests : BaseTest
             Assert.Equal(rows[i].Column2, dbRows[i].Column2);
             Assert.Equal(rows[i].Column3.TruncateToMicroseconds(), dbRows[i].Column3);
             Assert.Equal(rows[i].Season, dbRows[i].Season);
+            Assert.Equal(rows[i].SeasonAsString, dbRows[i].SeasonAsString);
 
             Assert.Equal(compositeKeyRows[i].Id1, dbCompositeKeyRows[i].Id1);
             Assert.Equal(compositeKeyRows[i].Id2, dbCompositeKeyRows[i].Id2);
@@ -307,6 +324,7 @@ public class DirectUpdateTests : BaseTest
             Assert.Equal(compositeKeyRows[i].Column2, dbCompositeKeyRows[i].Column2);
             Assert.Equal(compositeKeyRows[i].Column3.TruncateToMicroseconds(), dbCompositeKeyRows[i].Column3);
             Assert.Equal(compositeKeyRows[i].Season, dbCompositeKeyRows[i].Season);
+            Assert.Equal(compositeKeyRows[i].SeasonAsString, dbCompositeKeyRows[i].SeasonAsString);
         }
     }
 }

@@ -43,7 +43,7 @@ namespace ConnectionExtensionsExamples.Migrations
                     Description = table.Column<string>(type: "text", nullable: true),
                     IsSensitive = table.Column<bool>(type: "boolean", nullable: false),
                     SeasonAsInt = table.Column<int>(type: "integer", nullable: true),
-                    SeasonAsString = table.Column<int>(type: "integer", nullable: true)
+                    SeasonAsString = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
