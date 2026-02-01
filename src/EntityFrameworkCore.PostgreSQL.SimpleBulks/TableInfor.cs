@@ -256,6 +256,23 @@ public class NpgsqlTableInfor<T> : TableInfor<T>
             }
         }
 
+        if (includeDiscriminator && Discriminator != null && !propertyNames.Contains(Discriminator.PropertyName))
+        {
+            var para = new NpgsqlParameter(CreateParameterName(Discriminator.PropertyName), Discriminator.PropertyValue ?? DBNull.Value);
+
+            parameters.Add(new ParameterInfo
+            {
+                Name = para.ParameterName,
+                Type = Discriminator.ColumnType,
+                Parameter = para
+            });
+
+            if (autoAdd)
+            {
+                command.Parameters.Add(para);
+            }
+        }
+
         return parameters;
 
     }
