@@ -1,4 +1,5 @@
 ﻿using EntityFrameworkCore.PostgreSQL.SimpleBulks.ConnectionExtensionsTests.Database;
+using EntityFrameworkCore.PostgreSQL.SimpleBulks.Extensions;
 using Npgsql;
 using Xunit.Abstractions;
 
@@ -12,6 +13,8 @@ public abstract class BaseTest : IDisposable
     protected readonly NpgsqlConnection _connection;
     protected readonly NpgsqlTableInfor<SingleKeyRow<int>> _singleKeyRowTableInfo;
     protected readonly NpgsqlTableInfor<CompositeKeyRow<int, int>> _compositeKeyRowTableInfo;
+    private string _schema = Environment.GetEnvironmentVariable("SCHEMA") ?? "";
+    private bool _enableDiscriminator = (Environment.GetEnvironmentVariable("DISCRIMINATOR") ?? "") == "true";
 
     protected BaseTest(ITestOutputHelper output, PostgreSqlFixture fixture, string dbPrefixName)
     {
@@ -20,12 +23,11 @@ public abstract class BaseTest : IDisposable
         _output = output;
         _fixture = fixture;
         var connectionString = _fixture.GetConnectionString(dbPrefixName);
-        string schema = GetSchema();
-        _context = GetDbContext(connectionString, schema);
+        _context = GetDbContext(connectionString);
         _context.Database.EnsureCreated();
         _connection = new NpgsqlConnection(connectionString);
 
-        _singleKeyRowTableInfo = new NpgsqlTableInfor<SingleKeyRow<int>>(schema, "SingleKeyRows")
+        _singleKeyRowTableInfo = new NpgsqlTableInfor<SingleKeyRow<int>>(_schema, "SingleKeyRows")
         {
             PrimaryKeys = ["Id"],
             OutputId = new OutputId
@@ -35,62 +37,95 @@ public abstract class BaseTest : IDisposable
             },
             ColumnTypeMappings = new Dictionary<string, string>
             {
-                {"SeasonAsString", "text" }
+                {"SeasonAsString", "text" },
+                {"Discriminator", _enableDiscriminator ? _context.GetDiscriminator(typeof(SingleKeyRow<int>)).ColumnType : null }
             },
             ValueConverters = new Dictionary<string, ValueConverter>
             {
                 {"SeasonAsString", new ValueConverter(typeof(string),x => x.ToString(),v => (Season)Enum.Parse(typeof(Season), (string)v))}
-            }
+            },
+            Discriminator = _enableDiscriminator ? new Discriminator
+            {
+                PropertyName = "Discriminator",
+                PropertyType = typeof(string),
+                PropertyValue = "SingleKeyRow<int>",
+                ColumnName = "Discriminator",
+                ColumnType = _context.GetDiscriminator(typeof(SingleKeyRow<int>)).ColumnType
+            } : null
         };
 
-        _compositeKeyRowTableInfo = new NpgsqlTableInfor<CompositeKeyRow<int, int>>(schema, "CompositeKeyRows")
+        _compositeKeyRowTableInfo = new NpgsqlTableInfor<CompositeKeyRow<int, int>>(_schema, "CompositeKeyRows")
         {
             PrimaryKeys = ["Id1", "Id2"],
             ColumnTypeMappings = new Dictionary<string, string>
             {
-                {"SeasonAsString", "text" }
+                {"SeasonAsString", "text" },
+                {"Discriminator", _enableDiscriminator ? _context.GetDiscriminator(typeof(CompositeKeyRow<int, int>)).ColumnType : null }
             },
             ValueConverters = new Dictionary<string, ValueConverter>
             {
                 {"SeasonAsString", new ValueConverter(typeof(string),x => x.ToString(),v => (Season)Enum.Parse(typeof(Season), (string)v))}
-            }
+            },
+            Discriminator = _enableDiscriminator ? new Discriminator
+            {
+                PropertyName = "Discriminator",
+                PropertyType = typeof(string),
+                PropertyValue = "CompositeKeyRow<int, int>",
+                ColumnName = "Discriminator",
+                ColumnType = _context.GetDiscriminator(typeof(CompositeKeyRow<int, int>)).ColumnType
+            } : null
         };
 
         TableMapper.Configure<SingleKeyRow<int>>(config =>
         {
             config
-            .Schema(schema)
+            .Schema(_schema)
             .TableName("SingleKeyRows")
             .PrimaryKeys(x => x.Id)
             .OutputId(x => x.Id, OutputIdMode.ServerGenerated)
             .ConfigureProperty(x => x.SeasonAsString, columnType: "text")
             .ConfigurePropertyConversion(x => x.SeasonAsString, y => y.ToString(), z => (Season)Enum.Parse(typeof(Season), z));
+
+            if (_enableDiscriminator)
+            {
+                config.ConfigureDiscriminator("Discriminator", value: "SingleKeyRow<int>", columnName: "Discriminator", columnType: _context.GetDiscriminator(typeof(SingleKeyRow<int>)).ColumnType);
+            }
         });
 
         TableMapper.Configure<CompositeKeyRow<int, int>>(config =>
         {
             config
-            .Schema(schema)
+            .Schema(_schema)
             .TableName("CompositeKeyRows")
             .PrimaryKeys(x => new { x.Id1, x.Id2 })
             .ConfigureProperty(x => x.SeasonAsString, columnType: "text")
             .ConfigurePropertyConversion(x => x.SeasonAsString, y => y.ToString(), z => (Season)Enum.Parse(typeof(Season), z));
+
+            if (_enableDiscriminator)
+            {
+                config.ConfigureDiscriminator("Discriminator", value: "CompositeKeyRow<int, int>", columnName: "Discriminator", columnType: _context.GetDiscriminator(typeof(CompositeKeyRow<int, int>)).ColumnType);
+            }
         });
 
         TableMapper.Configure<ConfigurationEntry>(config =>
         {
             config
-            .Schema(schema)
+            .Schema(_schema)
             .TableName("ConfigurationEntry")
             .PrimaryKeys(x => x.Id)
             .OutputId(x => x.Id, OutputIdMode.ServerGenerated)
-            .ReadOnlyProperty(x => x.RowVersion);
+            .ConfigureProperty(x => x.RowVersion, readOnly: true);
+
+            if (_enableDiscriminator)
+            {
+                config.ConfigureDiscriminator("Discriminator", value: "ConfigurationEntry", columnName: "Discriminator", columnType: _context.GetDiscriminator(typeof(ConfigurationEntry)).ColumnType);
+            }
         });
 
         TableMapper.Configure<Customer>(config =>
         {
             config
-            .Schema(schema)
+            .Schema(_schema)
             .TableName("Customers")
             .IgnoreProperty(x => x.Contacts)
             .ConfigureProperty(x => x.SeasonAsString, columnType: "text")
@@ -100,7 +135,7 @@ public abstract class BaseTest : IDisposable
         TableMapper.Configure<Contact>(config =>
         {
             config
-            .Schema(schema)
+            .Schema(_schema)
             .TableName("Contacts")
             .IgnoreProperty(x => x.Customer)
             .ConfigureProperty(x => x.SeasonAsString, columnType: "text")
@@ -113,19 +148,16 @@ public abstract class BaseTest : IDisposable
         _context.Database.EnsureDeleted();
     }
 
-    protected TestDbContext GetDbContext(string connectionString, string schema)
+    protected TestDbContext GetDbContext(string connectionString)
     {
-        return new TestDbContext(connectionString, schema);
+        Console.WriteLine($"Schema: {_schema}, Enable Discriminator: {_enableDiscriminator}");
+
+        return new TestDbContext(connectionString, _schema, _enableDiscriminator);
     }
 
     public void LogTo(string log)
     {
         _output.WriteLine(log);
         Console.WriteLine(log);
-    }
-
-    protected string GetSchema()
-    {
-        return Environment.GetEnvironmentVariable("SCHEMA") ?? "";
     }
 }
