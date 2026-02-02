@@ -1,4 +1,6 @@
-﻿namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.ConnectionExtensionsTests.Database;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.ConnectionExtensionsTests.Database;
 
 public class SingleKeyRow<TId>
 {
@@ -8,6 +10,7 @@ public class SingleKeyRow<TId>
 
     public string Column2 { get; set; }
 
+    [Column(TypeName = "timestamp without time zone")]
     public DateTime Column3 { get; set; }
 
     public Season? Season { get; set; }
@@ -35,9 +38,12 @@ public class SingleKeyRow<TId>
     public float? NullableFloat { get; set; }
 
     public string? NullableString { get; set; }
+
+    public ComplexTypeAddress ComplexShippingAddress { get; set; }
+
+    public OwnedTypeAddress OwnedShippingAddress { get; set; }
 }
 
 public class ExtendedSingleKeyRow<TId> : SingleKeyRow<TId>
 {
 }
-
