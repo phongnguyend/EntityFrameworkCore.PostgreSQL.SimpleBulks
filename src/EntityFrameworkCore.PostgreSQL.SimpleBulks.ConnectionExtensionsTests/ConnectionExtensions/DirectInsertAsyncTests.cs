@@ -25,7 +25,25 @@ public class DirectInsertAsyncTests : BaseTest
             Column2 = "" + 1,
             Column3 = DateTime.Now,
             Season = Season.Spring,
-            SeasonAsString = Season.Spring
+            SeasonAsString = Season.Spring,
+            ComplexShippingAddress = new ComplexTypeAddress
+            {
+                Street = "Street 1",
+                Location = new ComplexTypeLocation
+                {
+                    Lat = 40.7128,
+                    Lng = -74.0060
+                }
+            },
+            OwnedShippingAddress = new OwnedTypeAddress
+            {
+                Street = "Street 1",
+                Location = new OwnedTypeLocation
+                {
+                    Lat = 40.7128,
+                    Lng = -74.0060
+                }
+            }
         };
 
         var compositeKeyRow = new CompositeKeyRow<int, int>
@@ -45,12 +63,25 @@ public class DirectInsertAsyncTests : BaseTest
         };
 
         await connectionContext.DirectInsertAsync(row,
-    row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-    options: options);
+            row => new
+            {
+                row.Column1,
+                row.Column2,
+                row.Column3,
+                row.Season,
+                row.SeasonAsString,
+                row.ComplexShippingAddress.Street,
+                row.ComplexShippingAddress.Location.Lat,
+                row.ComplexShippingAddress.Location.Lng,
+                a = row.OwnedShippingAddress.Street,
+                b = row.OwnedShippingAddress.Location.Lat,
+                c = row.OwnedShippingAddress.Location.Lng
+            },
+            options: options);
 
         await connectionContext.DirectInsertAsync(compositeKeyRow,
-          row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-        options: options);
+            row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+            options: options);
 
 
         // Assert
@@ -66,6 +97,12 @@ public class DirectInsertAsyncTests : BaseTest
         Assert.Equal(row.Column3.TruncateToMicroseconds(), dbRows[0].Column3);
         Assert.Equal(row.Season, dbRows[0].Season);
         Assert.Equal(row.SeasonAsString, dbRows[0].SeasonAsString);
+        Assert.Equal(row.ComplexShippingAddress?.Street, dbRows[0].ComplexShippingAddress?.Street);
+        Assert.Equal(row.ComplexShippingAddress?.Location?.Lat, dbRows[0].ComplexShippingAddress?.Location?.Lat);
+        Assert.Equal(row.ComplexShippingAddress?.Location?.Lng, dbRows[0].ComplexShippingAddress?.Location?.Lng);
+        Assert.Equal(row.OwnedShippingAddress?.Street, dbRows[0].OwnedShippingAddress?.Street);
+        Assert.Equal(row.OwnedShippingAddress?.Location?.Lat, dbRows[0].OwnedShippingAddress?.Location?.Lat);
+        Assert.Equal(row.OwnedShippingAddress?.Location?.Lng, dbRows[0].OwnedShippingAddress?.Location?.Lng);
 
         Assert.Equal(compositeKeyRow.Id1, dbCompositeKeyRows[0].Id1);
         Assert.Equal(compositeKeyRow.Id2, dbCompositeKeyRows[0].Id2);
@@ -91,7 +128,25 @@ public class DirectInsertAsyncTests : BaseTest
             Column2 = "" + 1,
             Column3 = DateTime.Now,
             Season = Season.Autumn,
-            SeasonAsString = Season.Autumn
+            SeasonAsString = Season.Autumn,
+            ComplexShippingAddress = new ComplexTypeAddress
+            {
+                Street = "Street 1",
+                Location = new ComplexTypeLocation
+                {
+                    Lat = 40.7128,
+                    Lng = -74.0060
+                }
+            },
+            OwnedShippingAddress = new OwnedTypeAddress
+            {
+                Street = "Street 1",
+                Location = new OwnedTypeLocation
+                {
+                    Lat = 40.7128,
+                    Lng = -74.0060
+                }
+            }
         };
 
         var compositeKeyRow = new CompositeKeyRow<int, int>
@@ -106,18 +161,31 @@ public class DirectInsertAsyncTests : BaseTest
         };
 
         await connectionContext.DirectInsertAsync(row,
-       row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-        options: new BulkInsertOptions
-        {
-            LogTo = LogTo
-        });
+            row => new
+            {
+                row.Column1,
+                row.Column2,
+                row.Column3,
+                row.Season,
+                row.SeasonAsString,
+                row.ComplexShippingAddress.Street,
+                row.ComplexShippingAddress.Location.Lat,
+                row.ComplexShippingAddress.Location.Lng,
+                a = row.OwnedShippingAddress.Street,
+                b = row.OwnedShippingAddress.Location.Lat,
+                c = row.OwnedShippingAddress.Location.Lng
+            },
+            options: new BulkInsertOptions
+            {
+                LogTo = LogTo
+            });
 
         await connectionContext.DirectInsertAsync(compositeKeyRow,
-row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-  options: new BulkInsertOptions
-  {
-      LogTo = LogTo
-  });
+            row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+            options: new BulkInsertOptions
+            {
+                LogTo = LogTo
+            });
 
         tran.Commit();
 
@@ -134,6 +202,12 @@ row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season
         Assert.Equal(row.Column3.TruncateToMicroseconds(), dbRows[0].Column3);
         Assert.Equal(row.Season, dbRows[0].Season);
         Assert.Equal(row.SeasonAsString, dbRows[0].SeasonAsString);
+        Assert.Equal(row.ComplexShippingAddress?.Street, dbRows[0].ComplexShippingAddress?.Street);
+        Assert.Equal(row.ComplexShippingAddress?.Location?.Lat, dbRows[0].ComplexShippingAddress?.Location?.Lat);
+        Assert.Equal(row.ComplexShippingAddress?.Location?.Lng, dbRows[0].ComplexShippingAddress?.Location?.Lng);
+        Assert.Equal(row.OwnedShippingAddress?.Street, dbRows[0].OwnedShippingAddress?.Street);
+        Assert.Equal(row.OwnedShippingAddress?.Location?.Lat, dbRows[0].OwnedShippingAddress?.Location?.Lat);
+        Assert.Equal(row.OwnedShippingAddress?.Location?.Lng, dbRows[0].OwnedShippingAddress?.Location?.Lng);
 
         Assert.Equal(compositeKeyRow.Id1, dbCompositeKeyRows[0].Id1);
         Assert.Equal(compositeKeyRow.Id2, dbCompositeKeyRows[0].Id2);
@@ -159,7 +233,25 @@ row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season
             Column2 = "" + 1,
             Column3 = DateTime.Now,
             Season = Season.Summer,
-            SeasonAsString = Season.Summer
+            SeasonAsString = Season.Summer,
+            ComplexShippingAddress = new ComplexTypeAddress
+            {
+                Street = "Street 1",
+                Location = new ComplexTypeLocation
+                {
+                    Lat = 40.7128,
+                    Lng = -74.0060
+                }
+            },
+            OwnedShippingAddress = new OwnedTypeAddress
+            {
+                Street = "Street 1",
+                Location = new OwnedTypeLocation
+                {
+                    Lat = 40.7128,
+                    Lng = -74.0060
+                }
+            }
         };
 
         var compositeKeyRow = new CompositeKeyRow<int, int>
@@ -174,18 +266,31 @@ row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season
         };
 
         await connectionContext.DirectInsertAsync(row,
-     row => new { row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-        options: new BulkInsertOptions
-        {
-            LogTo = LogTo
-        });
+            row => new
+            {
+                row.Column1,
+                row.Column2,
+                row.Column3,
+                row.Season,
+                row.SeasonAsString,
+                row.ComplexShippingAddress.Street,
+                row.ComplexShippingAddress.Location.Lat,
+                row.ComplexShippingAddress.Location.Lng,
+                a = row.OwnedShippingAddress.Street,
+                b = row.OwnedShippingAddress.Location.Lat,
+                c = row.OwnedShippingAddress.Location.Lng
+            },
+            options: new BulkInsertOptions
+            {
+                LogTo = LogTo
+            });
 
         await connectionContext.DirectInsertAsync(compositeKeyRow,
-      row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
-        options: new BulkInsertOptions
-        {
-            LogTo = LogTo
-        });
+            row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season, row.SeasonAsString },
+            options: new BulkInsertOptions
+            {
+                LogTo = LogTo
+            });
 
         tran.Rollback();
 
@@ -269,7 +374,25 @@ row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season
             Column2 = "" + 1,
             Column3 = DateTime.Now,
             Season = Season.Spring,
-            SeasonAsString = Season.Spring
+            SeasonAsString = Season.Spring,
+            ComplexShippingAddress = new ComplexTypeAddress
+            {
+                Street = "Street 1",
+                Location = new ComplexTypeLocation
+                {
+                    Lat = 40.7128,
+                    Lng = -74.0060
+                }
+            },
+            OwnedShippingAddress = new OwnedTypeAddress
+            {
+                Street = "Street 1",
+                Location = new OwnedTypeLocation
+                {
+                    Lat = 40.7128,
+                    Lng = -74.0060
+                }
+            }
         };
 
         var compositeKeyRow = new CompositeKeyRow<int, int>
@@ -290,23 +413,29 @@ row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season
 
         await connectionContext.DirectInsertAsync(row,
             [
-            "Column1",
-            "Column2",
-            "Column3",
-            "Season",
-            "SeasonAsString"
+                "Column1",
+                "Column2",
+                "Column3",
+                "Season",
+                "SeasonAsString",
+                "ComplexShippingAddress.Street",
+                "ComplexShippingAddress.Location.Lat",
+                "ComplexShippingAddress.Location.Lng",
+                "OwnedShippingAddress.Street",
+                "OwnedShippingAddress.Location.Lat",
+                "OwnedShippingAddress.Location.Lng"
             ],
             options: options);
 
         await connectionContext.DirectInsertAsync(compositeKeyRow,
             [
-            "Id1",
-            "Id2",
-            "Column1",
-            "Column2",
-            "Column3",
-            "Season",
-            "SeasonAsString"
+                "Id1",
+                "Id2",
+                "Column1",
+                "Column2",
+                "Column3",
+                "Season",
+                "SeasonAsString"
             ],
             options: options);
 
@@ -323,6 +452,12 @@ row => new { row.Id1, row.Id2, row.Column1, row.Column2, row.Column3, row.Season
         Assert.Equal(row.Column3.TruncateToMicroseconds(), dbRows[0].Column3);
         Assert.Equal(row.Season, dbRows[0].Season);
         Assert.Equal(row.SeasonAsString, dbRows[0].SeasonAsString);
+        Assert.Equal(row.ComplexShippingAddress?.Street, dbRows[0].ComplexShippingAddress?.Street);
+        Assert.Equal(row.ComplexShippingAddress?.Location?.Lat, dbRows[0].ComplexShippingAddress?.Location?.Lat);
+        Assert.Equal(row.ComplexShippingAddress?.Location?.Lng, dbRows[0].ComplexShippingAddress?.Location?.Lng);
+        Assert.Equal(row.OwnedShippingAddress?.Street, dbRows[0].OwnedShippingAddress?.Street);
+        Assert.Equal(row.OwnedShippingAddress?.Location?.Lat, dbRows[0].OwnedShippingAddress?.Location?.Lat);
+        Assert.Equal(row.OwnedShippingAddress?.Location?.Lng, dbRows[0].OwnedShippingAddress?.Location?.Lng);
 
         Assert.Equal(compositeKeyRow.Id1, dbCompositeKeyRows[0].Id1);
         Assert.Equal(compositeKeyRow.Id2, dbCompositeKeyRows[0].Id2);
