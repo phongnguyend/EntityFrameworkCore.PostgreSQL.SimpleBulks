@@ -22,4 +22,6 @@ public class ColumnInfor
     public bool IsRowVersion { get; init; }
 
     public ValueConverter? ValueConverter { get; set; }
+
+    public bool IsJson { get; set; }
 }

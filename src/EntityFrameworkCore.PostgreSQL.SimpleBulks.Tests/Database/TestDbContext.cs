@@ -21,6 +21,8 @@ public class TestDbContext : DbContext
 
     public DbSet<ComplexOwnedTypeOrder> ComplexOwnedTypeOrders { get; set; }
 
+    public DbSet<JsonComplexTypeOrder> JsonComplexTypeOrders { get; set; }
+
     public DbSet<Blog> Blogs { get; set; }
 
     public DbSet<RssBlog> RssBlogs { get; set; }
@@ -59,6 +61,17 @@ public class TestDbContext : DbContext
         modelBuilder.Entity<Customer>().Property(x => x.Id).HasDefaultValueSql("uuid_generate_v1mc()");
 
         modelBuilder.Entity<Contact>().Property(x => x.Id).HasDefaultValueSql("uuid_generate_v1mc()");
+
+        modelBuilder.Entity<JsonComplexTypeOrder>().ComplexProperty(x => x.ShippingAddress, x =>
+        {
+            x.ToJson();
+            //x.ToJson("xxx").HasColumnType("json");
+            //x.ComplexProperty(y => y.Location, y =>
+            //{
+            //    y.ToJson();
+            //    //y.ToJson("xxx").HasColumnType("json");
+            //});
+        });
 
         base.OnModelCreating(modelBuilder);
     }
