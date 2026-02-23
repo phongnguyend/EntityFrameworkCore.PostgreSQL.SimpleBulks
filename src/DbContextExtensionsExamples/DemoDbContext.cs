@@ -1,5 +1,6 @@
 ﻿using DbContextExtensionsExamples.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using System;
 
 namespace DbContextExtensionsExamples;
@@ -17,6 +18,10 @@ public class DemoDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseNpgsql(_connectionString);
+
+#if NET9_0_OR_GREATER
+        optionsBuilder.ConfigureWarnings(x => x.Log([RelationalEventId.PendingModelChangesWarning]));
+#endif
 
         base.OnConfiguring(optionsBuilder);
     }

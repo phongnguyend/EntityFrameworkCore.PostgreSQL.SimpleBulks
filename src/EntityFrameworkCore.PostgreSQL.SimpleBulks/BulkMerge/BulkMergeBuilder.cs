@@ -115,7 +115,7 @@ public class BulkMergeBuilder<T>
 
         var temptableName = $"\"{Guid.NewGuid()}\"";
 
-        var propertyNames = _updateColumnNames.Select(RemoveOperator).ToList();
+        var propertyNames = _updateColumnNames.ToList();
         propertyNames.AddRange(_mergeKeys);
         propertyNames.AddRange(_insertColumnNames);
         propertyNames = propertyNames.Distinct().ToList();
@@ -134,7 +134,7 @@ public class BulkMergeBuilder<T>
         {
             mergeStatementBuilder.AppendLine($"WHEN MATCHED");
             mergeStatementBuilder.AppendLine($"    THEN UPDATE SET");
-            mergeStatementBuilder.AppendLine(string.Join("," + Environment.NewLine, _updateColumnNames.Select(x => "         " + CreateSetStatement(x, "s"))));
+            mergeStatementBuilder.AppendLine(string.Join("," + Environment.NewLine, _updateColumnNames.Select(x => "         " + CreateSetStatement(x, "t", "s"))));
         }
 
         if (_insertColumnNames.Any())
@@ -229,23 +229,9 @@ public class BulkMergeBuilder<T>
         return result;
     }
 
-    private string CreateSetStatement(string prop, string rightTable)
+    private string CreateSetStatement(string prop, string leftTable, string rightTable)
     {
-        string sqlOperator = "=";
-        string sqlProp = RemoveOperator(prop);
-
-        if (prop.EndsWith("+="))
-        {
-            sqlOperator = "+=";
-        }
-
-        return $"\"{_table.GetDbColumnName(sqlProp)}\" {sqlOperator} {rightTable}.\"{sqlProp}\"";
-    }
-
-    private static string RemoveOperator(string prop)
-    {
-        var rs = prop.Replace("+=", "");
-        return rs;
+        return _table.CreateSetStatement(prop, leftTable, rightTable, _options.ConfigureSetStatement);
     }
 
     private void Log(string message)
@@ -282,7 +268,7 @@ public class BulkMergeBuilder<T>
 
         var temptableName = $"\"{Guid.NewGuid()}\"";
 
-        var propertyNames = _updateColumnNames.Select(RemoveOperator).ToList();
+        var propertyNames = _updateColumnNames.ToList();
         propertyNames.AddRange(_mergeKeys);
         propertyNames.AddRange(_insertColumnNames);
         propertyNames = propertyNames.Distinct().ToList();
@@ -301,7 +287,7 @@ public class BulkMergeBuilder<T>
         {
             mergeStatementBuilder.AppendLine($"WHEN MATCHED");
             mergeStatementBuilder.AppendLine($"    THEN UPDATE SET");
-            mergeStatementBuilder.AppendLine(string.Join("," + Environment.NewLine, _updateColumnNames.Select(x => "         " + CreateSetStatement(x, "s"))));
+            mergeStatementBuilder.AppendLine(string.Join("," + Environment.NewLine, _updateColumnNames.Select(x => "         " + CreateSetStatement(x, "t", "s"))));
         }
 
         if (_insertColumnNames.Any())
@@ -405,7 +391,7 @@ public class BulkMergeBuilder<T>
 
         bool returnDbGeneratedId = _options.ReturnDbGeneratedId && !string.IsNullOrEmpty(_outputIdColumn) && _insertColumnNames.Any();
 
-        var propertyNames = _updateColumnNames.Select(RemoveOperator).ToList();
+        var propertyNames = _updateColumnNames.ToList();
         propertyNames.AddRange(_mergeKeys);
         propertyNames.AddRange(_insertColumnNames);
         propertyNames = propertyNames.Distinct().ToList();
@@ -425,7 +411,7 @@ public class BulkMergeBuilder<T>
         {
             mergeStatementBuilder.AppendLine($"WHEN MATCHED");
             mergeStatementBuilder.AppendLine($"    THEN UPDATE SET");
-            mergeStatementBuilder.AppendLine(string.Join("," + Environment.NewLine, _updateColumnNames.Select(x => "         " + CreateSetStatement(x, "s"))));
+            mergeStatementBuilder.AppendLine(string.Join("," + Environment.NewLine, _updateColumnNames.Select(x => "         " + CreateSetStatement(x, "t", "s"))));
         }
 
         if (_insertColumnNames.Any())
@@ -503,7 +489,7 @@ public class BulkMergeBuilder<T>
 
         bool returnDbGeneratedId = _options.ReturnDbGeneratedId && !string.IsNullOrEmpty(_outputIdColumn) && _insertColumnNames.Any();
 
-        var propertyNames = _updateColumnNames.Select(RemoveOperator).ToList();
+        var propertyNames = _updateColumnNames.ToList();
         propertyNames.AddRange(_mergeKeys);
         propertyNames.AddRange(_insertColumnNames);
         propertyNames = propertyNames.Distinct().ToList();
@@ -523,7 +509,7 @@ public class BulkMergeBuilder<T>
         {
             mergeStatementBuilder.AppendLine($"WHEN MATCHED");
             mergeStatementBuilder.AppendLine($"    THEN UPDATE SET");
-            mergeStatementBuilder.AppendLine(string.Join("," + Environment.NewLine, _updateColumnNames.Select(x => "         " + CreateSetStatement(x, "s"))));
+            mergeStatementBuilder.AppendLine(string.Join("," + Environment.NewLine, _updateColumnNames.Select(x => "         " + CreateSetStatement(x, "t", "s"))));
         }
 
         if (_insertColumnNames.Any())

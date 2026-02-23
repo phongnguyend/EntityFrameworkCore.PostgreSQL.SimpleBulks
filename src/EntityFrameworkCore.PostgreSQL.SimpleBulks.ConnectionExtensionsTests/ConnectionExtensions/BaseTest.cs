@@ -11,8 +11,6 @@ public abstract class BaseTest : IDisposable
     private readonly PostgreSqlFixture _fixture;
     protected readonly TestDbContext _context;
     protected readonly NpgsqlConnection _connection;
-    protected readonly NpgsqlTableInfor<SingleKeyRow<int>> _singleKeyRowTableInfo;
-    protected readonly NpgsqlTableInfor<CompositeKeyRow<int, int>> _compositeKeyRowTableInfo;
     private string _schema = Environment.GetEnvironmentVariable("SCHEMA") ?? "";
     private bool _enableDiscriminator = (Environment.GetEnvironmentVariable("DISCRIMINATOR") ?? "") == "true";
 
@@ -26,64 +24,6 @@ public abstract class BaseTest : IDisposable
         _context = GetDbContext(connectionString);
         _context.Database.EnsureCreated();
         _connection = new NpgsqlConnection(connectionString);
-
-        _singleKeyRowTableInfo = new NpgsqlTableInfor<SingleKeyRow<int>>(_schema, "SingleKeyRows")
-        {
-            PrimaryKeys = ["Id"],
-            OutputId = new OutputId
-            {
-                Name = "Id",
-                Mode = OutputIdMode.ServerGenerated,
-            },
-            ColumnNameMappings = new Dictionary<string, string>
-            {
-                {"ComplexShippingAddress.Street", "ComplexShippingAddress_Street" },
-                {"ComplexShippingAddress.Location.Lat", "ComplexShippingAddress_Location_Lat" },
-                {"ComplexShippingAddress.Location.Lng", "ComplexShippingAddress_Location_Lng" },
-                {"OwnedShippingAddress.Street", "OwnedShippingAddress_Street" },
-                {"OwnedShippingAddress.Location.Lat", "OwnedShippingAddress_Location_Lat" },
-                {"OwnedShippingAddress.Location.Lng", "OwnedShippingAddress_Location_Lng" }
-            },
-            ColumnTypeMappings = new Dictionary<string, string>
-            {
-                {"SeasonAsString", "text" },
-                {"Discriminator", _enableDiscriminator ? _context.GetDiscriminator(typeof(SingleKeyRow<int>)).ColumnType : null }
-            },
-            ValueConverters = new Dictionary<string, ValueConverter>
-            {
-                {"SeasonAsString", new ValueConverter(typeof(string),x => x.ToString(),v => (Season)Enum.Parse(typeof(Season), (string)v))}
-            },
-            Discriminator = _enableDiscriminator ? new Discriminator
-            {
-                PropertyName = "Discriminator",
-                PropertyType = typeof(string),
-                PropertyValue = "SingleKeyRow<int>",
-                ColumnName = "Discriminator",
-                ColumnType = _context.GetDiscriminator(typeof(SingleKeyRow<int>)).ColumnType
-            } : null
-        };
-
-        _compositeKeyRowTableInfo = new NpgsqlTableInfor<CompositeKeyRow<int, int>>(_schema, "CompositeKeyRows")
-        {
-            PrimaryKeys = ["Id1", "Id2"],
-            ColumnTypeMappings = new Dictionary<string, string>
-            {
-                {"SeasonAsString", "text" },
-                {"Discriminator", _enableDiscriminator ? _context.GetDiscriminator(typeof(CompositeKeyRow<int, int>)).ColumnType : null }
-            },
-            ValueConverters = new Dictionary<string, ValueConverter>
-            {
-                {"SeasonAsString", new ValueConverter(typeof(string),x => x.ToString(),v => (Season)Enum.Parse(typeof(Season), (string)v))}
-            },
-            Discriminator = _enableDiscriminator ? new Discriminator
-            {
-                PropertyName = "Discriminator",
-                PropertyType = typeof(string),
-                PropertyValue = "CompositeKeyRow<int, int>",
-                ColumnName = "Discriminator",
-                ColumnType = _context.GetDiscriminator(typeof(CompositeKeyRow<int, int>)).ColumnType
-            } : null
-        };
 
         TableMapper.Configure<SingleKeyRow<int>>(config =>
         {
