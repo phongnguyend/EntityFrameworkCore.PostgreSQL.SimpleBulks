@@ -221,6 +221,7 @@ public class BulkMergeBuilder<T>
         {
             PropertyNames = propertyNames,
             ColumnNameMappings = null,
+            ColumnTypeMappings = _table.ColumnTypeMappings,
             ValueConverters = _table.ValueConverters,
             AddIndexNumberColumn = returnDbGeneratedId,
             Discriminator = _table.Discriminator
@@ -397,6 +398,7 @@ public class BulkMergeBuilder<T>
         {
             PropertyNames = propertyNames,
             ColumnNameMappings = null,
+            ColumnTypeMappings = _table.ColumnTypeMappings,
             ValueConverters = _table.ValueConverters,
             AddIndexNumberColumn = returnDbGeneratedId,
             Discriminator = _table.Discriminator

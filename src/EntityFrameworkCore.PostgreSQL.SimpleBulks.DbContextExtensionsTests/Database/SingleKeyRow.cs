@@ -42,6 +42,10 @@ public class SingleKeyRow<TId>
     public ComplexTypeAddress ComplexShippingAddress { get; set; }
 
     public OwnedTypeAddress OwnedShippingAddress { get; set; }
+
+    public JsonComplexTypeAddress JsonComplexShippingAddress { get; set; }
+
+    public JsonOwnedTypeAddress JsonOwnedShippingAddress { get; set; }
 }
 
 public class ExtendedSingleKeyRow<TId> : SingleKeyRow<TId>
