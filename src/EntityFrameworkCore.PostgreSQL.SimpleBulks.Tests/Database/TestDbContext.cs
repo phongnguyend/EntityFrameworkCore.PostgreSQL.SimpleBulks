@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
 
@@ -59,6 +60,8 @@ public class TestDbContext : DbContext
         modelBuilder.Entity<Customer>().Property(x => x.Id).HasDefaultValueSql("uuid_generate_v1mc()");
 
         modelBuilder.Entity<Contact>().Property(x => x.Id).HasDefaultValueSql("uuid_generate_v1mc()");
+
+        modelBuilder.Entity<ComplexTypeOrder>().ComplexProperty(x => x.ShippingAddress, x => x.ToJson());
 
         base.OnModelCreating(modelBuilder);
     }

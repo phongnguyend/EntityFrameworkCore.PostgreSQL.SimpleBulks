@@ -129,7 +129,15 @@ public static class DbContextExtensions
 
             foreach (var complexProperty in complexProperties)
             {
-                AddComplexProperty(data, complexProperty, tableId, complexProperty.Name + ".");
+                if (complexProperty.ComplexType.IsMappedToJson())
+                {
+                    // For JSON-mapped complex types, add the complex property itself as a single JSON column
+                    AddJsonComplexProperty(data, complexProperty, tableId);
+                }
+                else
+                {
+                    AddComplexProperty(data, complexProperty, tableId, complexProperty.Name + ".");
+                }
             }
 
             var ownedProperties = entityType.GetNavigations().Where(n => n.TargetEntityType.IsOwned());
@@ -169,6 +177,25 @@ public static class DbContextExtensions
             }).ToList();
 
         return data;
+    }
+
+    private static void AddJsonComplexProperty(List<ColumnInfor> columnInfors, IComplexProperty complexProperty, StoreObjectIdentifier storeObjectIdentifier)
+    {
+        var containerColumnName = complexProperty.ComplexType.GetContainerColumnName();
+        var containerColumnType = complexProperty.ComplexType.GetContainerColumnType() ?? "jsonb";
+
+        columnInfors.Add(new ColumnInfor
+        {
+            PropertyName = complexProperty.Name,
+            PropertyType = complexProperty.ClrType,
+            ColumnName = containerColumnName,
+            ColumnType = containerColumnType,
+            ValueGenerated = ValueGenerated.Never,
+            DefaultValueSql = null,
+            IsPrimaryKey = false,
+            IsRowVersion = false,
+            ValueConverter = null,
+        });
     }
 
     private static void AddComplexProperty(List<ColumnInfor> columnInfors, IComplexProperty complexProperty, StoreObjectIdentifier storeObjectIdentifier, string prefix = "")
