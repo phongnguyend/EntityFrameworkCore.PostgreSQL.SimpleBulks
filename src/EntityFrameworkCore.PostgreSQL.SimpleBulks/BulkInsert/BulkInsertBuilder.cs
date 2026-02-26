@@ -83,7 +83,7 @@ public class BulkInsertBuilder<T>
 
         if (_options.KeepIdentity)
         {
-            var columnsToInsert = _columnNames.Select(x => x).ToList();
+            var columnsToInsert = _columnNames.ToList();
             if (!columnsToInsert.Contains(_outputIdColumn))
             {
                 columnsToInsert.Add(_outputIdColumn);
@@ -101,7 +101,7 @@ public class BulkInsertBuilder<T>
 
         if (_outputIdMode == OutputIdMode.ClientGenerated)
         {
-            var columnsToInsert = _columnNames.Select(x => x).ToList();
+            var columnsToInsert = _columnNames.ToList();
             if (!columnsToInsert.Contains(_outputIdColumn))
             {
                 columnsToInsert.Add(_outputIdColumn);
@@ -179,7 +179,7 @@ public class BulkInsertBuilder<T>
     {
         var insertStatementBuilder = new StringBuilder();
 
-        var columnsToInsert = _columnNames.Select(x => x).ToList();
+        var columnsToInsert = _columnNames.ToList();
 
         if (_options.KeepIdentity)
         {
@@ -287,7 +287,7 @@ public class BulkInsertBuilder<T>
 
         if (_options.KeepIdentity)
         {
-            var columnsToInsert = _columnNames.Select(x => x).ToList();
+            var columnsToInsert = _columnNames.ToList();
             if (!columnsToInsert.Contains(_outputIdColumn))
             {
                 columnsToInsert.Add(_outputIdColumn);
@@ -305,7 +305,7 @@ public class BulkInsertBuilder<T>
 
         if (_outputIdMode == OutputIdMode.ClientGenerated)
         {
-            var columnsToInsert = _columnNames.Select(x => x).ToList();
+            var columnsToInsert = _columnNames.ToList();
             if (!columnsToInsert.Contains(_outputIdColumn))
             {
                 columnsToInsert.Add(_outputIdColumn);
@@ -383,7 +383,7 @@ public class BulkInsertBuilder<T>
     {
         var insertStatementBuilder = new StringBuilder();
 
-        var columnsToInsert = _columnNames.Select(x => x).ToList();
+        var columnsToInsert = _columnNames.ToList();
 
         if (_options.KeepIdentity)
         {

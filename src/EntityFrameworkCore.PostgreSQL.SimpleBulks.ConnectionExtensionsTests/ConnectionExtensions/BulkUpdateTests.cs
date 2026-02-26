@@ -66,11 +66,9 @@ public class BulkUpdateTests : BaseTest
     }
 
     [Theory]
-    [InlineData(true, true)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(false, false)]
-    public void BulkUpdate_PrimaryKeys(bool useLinq, bool omitTableName)
+    [InlineData(true)]
+    [InlineData(false)]
+    public void BulkUpdate_PrimaryKeys(bool useLinq)
     {
         var connectionContext = new ConnectionContext(_connection, null);
 
@@ -100,53 +98,23 @@ public class BulkUpdateTests : BaseTest
 
         if (useLinq)
         {
-            if (omitTableName)
-            {
-                connectionContext.BulkUpdate(rows,
-                    row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
-                    options: updateOptions);
+            connectionContext.BulkUpdate(rows,
+                row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
+                options: updateOptions);
 
-                connectionContext.BulkUpdate(compositeKeyRows,
-                    row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
-                    options: updateOptions);
-            }
-            else
-            {
-                connectionContext.BulkUpdate(rows,
-                    row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
-                    _singleKeyRowTableInfo,
-                    options: updateOptions);
-
-                connectionContext.BulkUpdate(compositeKeyRows,
-                    row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
-                    _compositeKeyRowTableInfo,
-                    options: updateOptions);
-            }
+            connectionContext.BulkUpdate(compositeKeyRows,
+                row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
+                options: updateOptions);
         }
         else
         {
-            if (omitTableName)
-            {
-                connectionContext.BulkUpdate(rows,
-                    ["Column3", "Column2", "Season", "SeasonAsString"],
-                    options: updateOptions);
+            connectionContext.BulkUpdate(rows,
+                ["Column3", "Column2", "Season", "SeasonAsString"],
+                options: updateOptions);
 
-                connectionContext.BulkUpdate(compositeKeyRows,
-                    ["Column3", "Column2", "Season", "SeasonAsString"],
-                    options: updateOptions);
-            }
-            else
-            {
-                connectionContext.BulkUpdate(rows,
-                    ["Column3", "Column2", "Season", "SeasonAsString"],
-                    _singleKeyRowTableInfo,
-                    options: updateOptions);
-
-                connectionContext.BulkUpdate(compositeKeyRows,
-                    ["Column3", "Column2", "Season", "SeasonAsString"],
-                    _compositeKeyRowTableInfo,
-                    options: updateOptions);
-            }
+            connectionContext.BulkUpdate(compositeKeyRows,
+                ["Column3", "Column2", "Season", "SeasonAsString"],
+                options: updateOptions);
         }
 
         // Assert
@@ -179,11 +147,9 @@ public class BulkUpdateTests : BaseTest
     }
 
     [Theory]
-    [InlineData(true, true)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(false, false)]
-    public void BulkUpdate_SpecifiedKeys(bool useLinq, bool omitTableName)
+    [InlineData(true)]
+    [InlineData(false)]
+    public void BulkUpdate_SpecifiedKeys(bool useLinq)
     {
         var connectionContext = new ConnectionContext(_connection, null);
 
@@ -213,53 +179,23 @@ public class BulkUpdateTests : BaseTest
 
         if (useLinq)
         {
-            if (omitTableName)
-            {
-                connectionContext.BulkUpdate(rows, x => x.Id,
-                    row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
-                    options: updateOptions);
+            connectionContext.BulkUpdate(rows, x => x.Id,
+                row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
+                options: updateOptions);
 
-                connectionContext.BulkUpdate(compositeKeyRows, x => new { x.Id1, x.Id2 },
-                    row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
-                    options: updateOptions);
-            }
-            else
-            {
-                connectionContext.BulkUpdate(rows, x => x.Id,
-                    row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
-                    _singleKeyRowTableInfo,
-                    options: updateOptions);
-
-                connectionContext.BulkUpdate(compositeKeyRows, x => new { x.Id1, x.Id2 },
-                    row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
-                    _compositeKeyRowTableInfo,
-                    options: updateOptions);
-            }
+            connectionContext.BulkUpdate(compositeKeyRows, x => new { x.Id1, x.Id2 },
+                row => new { row.Column3, row.Column2, row.Season, row.SeasonAsString },
+                options: updateOptions);
         }
         else
         {
-            if (omitTableName)
-            {
-                connectionContext.BulkUpdate(rows, ["Id"],
-                    ["Column3", "Column2", "Season", "SeasonAsString"],
-                    options: updateOptions);
+            connectionContext.BulkUpdate(rows, ["Id"],
+                ["Column3", "Column2", "Season", "SeasonAsString"],
+                options: updateOptions);
 
-                connectionContext.BulkUpdate(compositeKeyRows, ["Id1", "Id2"],
-                    ["Column3", "Column2", "Season", "SeasonAsString"],
-                    options: updateOptions);
-            }
-            else
-            {
-                connectionContext.BulkUpdate(rows, ["Id"],
-                    ["Column3", "Column2", "Season", "SeasonAsString"],
-                    _singleKeyRowTableInfo,
-                    options: updateOptions);
-
-                connectionContext.BulkUpdate(compositeKeyRows, ["Id1", "Id2"],
-                    ["Column3", "Column2", "Season", "SeasonAsString"],
-                    _compositeKeyRowTableInfo,
-                    options: updateOptions);
-            }
+            connectionContext.BulkUpdate(compositeKeyRows, ["Id1", "Id2"],
+                ["Column3", "Column2", "Season", "SeasonAsString"],
+                options: updateOptions);
         }
 
         // Assert
