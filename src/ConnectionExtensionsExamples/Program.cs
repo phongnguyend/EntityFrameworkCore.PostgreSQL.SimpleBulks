@@ -94,7 +94,7 @@ var updateResult = await connection.BulkUpdateAsync(configurationEntries,
     options: new BulkUpdateOptions
     {
         LogTo = Console.WriteLine,
-        ConfigureSetStatement = ctx =>
+        ConfigureSetClause = ctx =>
         {
             if (ctx.PropertyName == "SeasonAsInt")
             {
@@ -123,7 +123,7 @@ var mergeResult = await connection.BulkMergeAsync(configurationEntries,
     options: new BulkMergeOptions
     {
         LogTo = Console.WriteLine,
-        ConfigureSetStatement = ctx =>
+        ConfigureSetClause = ctx =>
         {
             if (ctx.PropertyName == "SeasonAsInt")
             {
@@ -131,6 +131,14 @@ var mergeResult = await connection.BulkMergeAsync(configurationEntries,
             }
 
             return null;
+        },
+        ConfigureWhenNotMatchedBySource = ctx =>
+        {
+            return new WhenNotMatchedBySourceAction
+            {
+                AndCondition = $"{ctx.GetTargetTableColumnWithAlias("Key")} LIKE 'Key%'",
+                ThenAction = $"UPDATE SET {ctx.GetTargetTableColumnWithoutAlias("Key")} = 'xxx'"
+            };
         }
     });
 
@@ -164,7 +172,7 @@ await connection.DirectUpdateAsync(configurationEntry,
     options: new BulkUpdateOptions
     {
         LogTo = Console.WriteLine,
-        ConfigureSetStatement = ctx =>
+        ConfigureSetClause = ctx =>
         {
             if (ctx.PropertyName == "SeasonAsInt")
             {
