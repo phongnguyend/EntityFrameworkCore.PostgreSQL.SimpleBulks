@@ -27,7 +27,7 @@ public class NpgsqlTableInforBuilder<T>
 
     private OutputId _outputId;
 
-    private Func<T, string, NpgsqlParameter> _parameterConverter;
+    private Func<T, string, string, NpgsqlParameter> _parameterConverter;
 
     private Discriminator _discriminator;
 
@@ -78,7 +78,7 @@ public class NpgsqlTableInforBuilder<T>
         return OutputId(propertyName, outputIdMode);
     }
 
-    public NpgsqlTableInforBuilder<T> ParameterConverter(Func<T, string, NpgsqlParameter> converter)
+    public NpgsqlTableInforBuilder<T> ParameterConverter(Func<T, string, string, NpgsqlParameter> converter)
     {
         _parameterConverter = converter;
         return this;

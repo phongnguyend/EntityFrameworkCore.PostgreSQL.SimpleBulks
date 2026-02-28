@@ -46,10 +46,10 @@ public abstract class TableInfor
     {
         if (propertyName.Contains('.'))
         {
-            return $"@{propertyName.Replace(".", "_")}";
+            return $"@__{propertyName.Replace(".", "_")}";
         }
 
-        return $"@{propertyName}";
+        return $"@__{propertyName}";
     }
 
     public string CreateSetClause(string prop, string leftTable, string rightTable, Func<SetClauseContext, string> configureSetStatement)
@@ -253,7 +253,7 @@ public class DbContextTableInfor<T> : TableInfor<T>
 
 public class NpgsqlTableInfor<T> : TableInfor<T>
 {
-    public Func<T, string, NpgsqlParameter> ParameterConverter { get; init; }
+    public Func<T, string, string, NpgsqlParameter> ParameterConverter { get; init; }
 
     public NpgsqlTableInfor(string schema, string tableName) : base(schema, tableName)
     {
@@ -269,7 +269,7 @@ public class NpgsqlTableInfor<T> : TableInfor<T>
 
         foreach (var propName in propertyNames)
         {
-            var para = ParameterConverter?.Invoke(data, propName);
+            var para = ParameterConverter?.Invoke(data, propName, CreateParameterName(propName));
 
             if (para == null)
             {
