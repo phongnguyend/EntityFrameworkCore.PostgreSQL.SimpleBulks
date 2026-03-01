@@ -182,7 +182,7 @@ public static class DbContextExtensions
     private static void AddJsonComplexProperty(List<ColumnInfor> columnInfors, IComplexProperty complexProperty, StoreObjectIdentifier storeObjectIdentifier)
     {
         var containerColumnName = complexProperty.ComplexType.GetContainerColumnName();
-        var containerColumnType = complexProperty.ComplexType.GetContainerColumnType() ?? "jsonb";
+        var containerColumnType = complexProperty.ComplexType.GetContainerColumnType() ?? "text";
 
         columnInfors.Add(new ColumnInfor
         {
@@ -195,6 +195,7 @@ public static class DbContextExtensions
             IsPrimaryKey = false,
             IsRowVersion = false,
             ValueConverter = null,
+            IsJson = true
         });
     }
 
@@ -208,7 +209,15 @@ public static class DbContextExtensions
 
         foreach (var nestedComplexProperty in nestedComplexProperties)
         {
-            AddComplexProperty(columnInfors, nestedComplexProperty, storeObjectIdentifier, prefix + nestedComplexProperty.Name + ".");
+            if (complexProperty.ComplexType.IsMappedToJson())
+            {
+                // For JSON-mapped complex types, add the complex property itself as a single JSON column
+                AddJsonComplexProperty(columnInfors, nestedComplexProperty, storeObjectIdentifier);
+            }
+            else
+            {
+                AddComplexProperty(columnInfors, nestedComplexProperty, storeObjectIdentifier, prefix + nestedComplexProperty.Name + ".");
+            }
         }
     }
 

@@ -251,4 +251,36 @@ public class GetPropertiesTests
         Assert.False(property.IsPrimaryKey);
         Assert.False(property.IsRowVersion);
     }
+
+    [Fact]
+    public void GetProperties_JsonComplexType_ReturnsCorrectColumnInformation()
+    {
+        // Arrange
+        var dbContext = new TestDbContext("", "");
+
+        // Act
+        var properties = dbContext.GetProperties(typeof(JsonComplexTypeOrder));
+
+        // Assert
+        Assert.Equal(2, properties.Count);
+
+        var property = properties.First(p => p.PropertyName == "Id");
+        Assert.Equal(typeof(int), property.PropertyType);
+        Assert.Equal("Id", property.ColumnName);
+        Assert.Equal("integer", property.ColumnType);
+        Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        Assert.Null(property.DefaultValueSql);
+        Assert.True(property.IsPrimaryKey);
+        Assert.False(property.IsRowVersion);
+
+        property = properties.First(p => p.PropertyName == "ShippingAddress");
+        Assert.Equal(typeof(ComplexTypeAddress), property.PropertyType);
+        Assert.Equal("ShippingAddress", property.ColumnName);
+        Assert.Equal("text", property.ColumnType);
+        Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
+        Assert.Null(property.DefaultValueSql);
+        Assert.False(property.IsPrimaryKey);
+        Assert.False(property.IsRowVersion);
+        Assert.True(property.IsJson);
+    }
 }
