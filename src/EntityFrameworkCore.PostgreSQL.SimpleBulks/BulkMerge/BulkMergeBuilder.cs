@@ -99,11 +99,11 @@ public class BulkMergeBuilder<T>
         }));
     }
 
-    private string CreateWhenNotMatchedBySourceClause()
+    private (string Clause, WhenNotMatchedBySourceAction? Action) CreateWhenNotMatchedBySourceClause()
     {
         if (_options.ConfigureWhenNotMatchedBySource == null)
         {
-            return null;
+            return (null, null);
         }
 
         var context = new MergeContext
@@ -117,7 +117,7 @@ public class BulkMergeBuilder<T>
 
         if (string.IsNullOrEmpty(action.ThenAction))
         {
-            return null;
+            return (null, null);
         }
 
         var clause = new StringBuilder();
@@ -131,7 +131,7 @@ public class BulkMergeBuilder<T>
         clause.AppendLine();
         clause.AppendLine($"    THEN {action.ThenAction}");
 
-        return clause.ToString();
+        return (clause.ToString(), action);
     }
 
     public BulkMergeResult Execute(IReadOnlyCollection<T> data)
@@ -141,7 +141,7 @@ public class BulkMergeBuilder<T>
             return SingleMerge(data.First());
         }
 
-        var whenNotMatchedBySourceClause = CreateWhenNotMatchedBySourceClause();
+        var (whenNotMatchedBySourceClause, whenNotMatchedBySourceAction) = CreateWhenNotMatchedBySourceClause();
 
         if (!_updateColumnNames.Any() && !_insertColumnNames.Any() && string.IsNullOrEmpty(whenNotMatchedBySourceClause))
         {
@@ -226,6 +226,15 @@ public class BulkMergeBuilder<T>
 
         using (var updateCommand = _connectionContext.CreateTextCommand(sqlMergeStatement, _options))
         {
+            var actionParameters = whenNotMatchedBySourceAction?.Parameters.ToNpgsqlParameterInfors() ?? [];
+
+            foreach (var param in actionParameters)
+            {
+                updateCommand.Parameters.Add(param.Parameter);
+            }
+
+            LogParameters(actionParameters);
+
             using var reader = updateCommand.ExecuteReader();
 
             while (reader.Read())
@@ -301,7 +310,7 @@ public class BulkMergeBuilder<T>
             return await SingleMergeAsync(data.First(), cancellationToken);
         }
 
-        var whenNotMatchedBySourceClause = CreateWhenNotMatchedBySourceClause();
+        var (whenNotMatchedBySourceClause, whenNotMatchedBySourceAction) = CreateWhenNotMatchedBySourceClause();
 
         if (!_updateColumnNames.Any() && !_insertColumnNames.Any() && string.IsNullOrEmpty(whenNotMatchedBySourceClause))
         {
@@ -386,6 +395,15 @@ public class BulkMergeBuilder<T>
 
         using (var updateCommand = _connectionContext.CreateTextCommand(sqlMergeStatement, _options))
         {
+            var actionParameters = whenNotMatchedBySourceAction?.Parameters.ToNpgsqlParameterInfors() ?? [];
+
+            foreach (var param in actionParameters)
+            {
+                updateCommand.Parameters.Add(param.Parameter);
+            }
+
+            LogParameters(actionParameters);
+
             using var reader = await updateCommand.ExecuteReaderAsync(cancellationToken);
 
             while (await reader.ReadAsync(cancellationToken))
@@ -433,7 +451,7 @@ public class BulkMergeBuilder<T>
 
     public BulkMergeResult SingleMerge(T data)
     {
-        var whenNotMatchedBySourceClause = CreateWhenNotMatchedBySourceClause();
+        var (whenNotMatchedBySourceClause, whenNotMatchedBySourceAction) = CreateWhenNotMatchedBySourceClause();
 
         if (!_updateColumnNames.Any() && !_insertColumnNames.Any() && string.IsNullOrEmpty(whenNotMatchedBySourceClause))
         {
@@ -506,6 +524,15 @@ public class BulkMergeBuilder<T>
         {
             LogParameters(_table.CreateNpgsqlParameters(updateCommand, data, propertyNames, includeDiscriminator: true, autoAdd: true));
 
+            var actionParameters = whenNotMatchedBySourceAction?.Parameters.ToNpgsqlParameterInfors() ?? [];
+
+            foreach (var param in actionParameters)
+            {
+                updateCommand.Parameters.Add(param.Parameter);
+            }
+
+            LogParameters(actionParameters);
+
             using var reader = updateCommand.ExecuteReader();
 
             while (reader.Read())
@@ -538,7 +565,7 @@ public class BulkMergeBuilder<T>
 
     public async Task<BulkMergeResult> SingleMergeAsync(T data, CancellationToken cancellationToken = default)
     {
-        var whenNotMatchedBySourceClause = CreateWhenNotMatchedBySourceClause();
+        var (whenNotMatchedBySourceClause, whenNotMatchedBySourceAction) = CreateWhenNotMatchedBySourceClause();
 
         if (!_updateColumnNames.Any() && !_insertColumnNames.Any() && string.IsNullOrEmpty(whenNotMatchedBySourceClause))
         {
@@ -610,6 +637,15 @@ public class BulkMergeBuilder<T>
         using (var updateCommand = _connectionContext.CreateTextCommand(sqlMergeStatement, _options))
         {
             LogParameters(_table.CreateNpgsqlParameters(updateCommand, data, propertyNames, includeDiscriminator: true, autoAdd: true));
+
+            var actionParameters = whenNotMatchedBySourceAction?.Parameters.ToNpgsqlParameterInfors() ?? [];
+
+            foreach (var param in actionParameters)
+            {
+                updateCommand.Parameters.Add(param.Parameter);
+            }
+
+            LogParameters(actionParameters);
 
             using var reader = await updateCommand.ExecuteReaderAsync(cancellationToken);
 
