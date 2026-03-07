@@ -119,7 +119,14 @@ public class BulkMatchBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        _connectionContext.SqlBulkCopy(machedValues, temptableName, _matchKeys, null, false, _options, valueConverters: _table.ValueConverters, discriminator: _table.Discriminator);
+        _connectionContext.SqlBulkCopy(machedValues, temptableName, new DataTableOptions
+        {
+            PropertyNames = _matchKeys,
+            ColumnNameMappings = null,
+            ValueConverters = _table.ValueConverters,
+            AddIndexNumberColumn = false,
+            Discriminator = _table.Discriminator
+        }, _options);
 
         Log("End executing SqlBulkCopy.");
 
@@ -177,7 +184,14 @@ public class BulkMatchBuilder<T>
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
 
-        await _connectionContext.SqlBulkCopyAsync(machedValues, temptableName, _matchKeys, null, false, _options, valueConverters: _table.ValueConverters, discriminator: _table.Discriminator, cancellationToken: cancellationToken);
+        await _connectionContext.SqlBulkCopyAsync(machedValues, temptableName, new DataTableOptions
+        {
+            PropertyNames = _matchKeys,
+            ColumnNameMappings = null,
+            ValueConverters = _table.ValueConverters,
+            AddIndexNumberColumn = false,
+            Discriminator = _table.Discriminator
+        }, _options, cancellationToken: cancellationToken);
 
         Log("End executing SqlBulkCopy.");
 

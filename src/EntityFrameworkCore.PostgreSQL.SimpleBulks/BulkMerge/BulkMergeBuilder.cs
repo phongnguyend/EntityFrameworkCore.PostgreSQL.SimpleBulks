@@ -217,7 +217,14 @@ public class BulkMergeBuilder<T>
         Log("End creating temp table.");
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
-        _connectionContext.SqlBulkCopy(data, temptableName, propertyNames, null, returnDbGeneratedId, _options, valueConverters: _table.ValueConverters, discriminator: _table.Discriminator);
+        _connectionContext.SqlBulkCopy(data, temptableName, new DataTableOptions
+        {
+            PropertyNames = propertyNames,
+            ColumnNameMappings = null,
+            ValueConverters = _table.ValueConverters,
+            AddIndexNumberColumn = returnDbGeneratedId,
+            Discriminator = _table.Discriminator
+        }, _options);
         Log("End executing SqlBulkCopy.");
 
         var sqlMergeStatement = mergeStatementBuilder.ToString();
@@ -386,7 +393,14 @@ public class BulkMergeBuilder<T>
         Log("End creating temp table.");
 
         Log($"Begin executing SqlBulkCopy. TableName: {temptableName}");
-        await _connectionContext.SqlBulkCopyAsync(data, temptableName, propertyNames, null, returnDbGeneratedId, _options, valueConverters: _table.ValueConverters, discriminator: _table.Discriminator, cancellationToken: cancellationToken);
+        await _connectionContext.SqlBulkCopyAsync(data, temptableName, new DataTableOptions
+        {
+            PropertyNames = propertyNames,
+            ColumnNameMappings = null,
+            ValueConverters = _table.ValueConverters,
+            AddIndexNumberColumn = returnDbGeneratedId,
+            Discriminator = _table.Discriminator
+        }, _options, cancellationToken: cancellationToken);
         Log("End executing SqlBulkCopy.");
 
         var sqlMergeStatement = mergeStatementBuilder.ToString();
