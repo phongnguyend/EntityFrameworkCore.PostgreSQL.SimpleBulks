@@ -123,6 +123,7 @@ public class BulkMatchBuilder<T>
         {
             PropertyNames = _matchKeys,
             ColumnNameMappings = null,
+            ColumnTypeMappings = _table.ColumnTypeMappings,
             ValueConverters = _table.ValueConverters,
             AddIndexNumberColumn = false,
             Discriminator = _table.Discriminator
@@ -188,6 +189,7 @@ public class BulkMatchBuilder<T>
         {
             PropertyNames = _matchKeys,
             ColumnNameMappings = null,
+            ColumnTypeMappings = _table.ColumnTypeMappings,
             ValueConverters = _table.ValueConverters,
             AddIndexNumberColumn = false,
             Discriminator = _table.Discriminator

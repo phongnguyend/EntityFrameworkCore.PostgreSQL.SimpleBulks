@@ -83,6 +83,7 @@ public class BulkInsertBuilder<T>
             {
                 PropertyNames = _columnNames,
                 ColumnNameMappings = _table.ColumnNameMappings,
+                ColumnTypeMappings = _table.ColumnTypeMappings,
                 ValueConverters = _table.ValueConverters,
                 AddIndexNumberColumn = false,
                 Discriminator = _table.Discriminator
@@ -106,6 +107,7 @@ public class BulkInsertBuilder<T>
             {
                 PropertyNames = columnsToInsert,
                 ColumnNameMappings = _table.ColumnNameMappings,
+                ColumnTypeMappings = _table.ColumnTypeMappings,
                 ValueConverters = _table.ValueConverters,
                 AddIndexNumberColumn = false,
                 Discriminator = _table.Discriminator
@@ -138,6 +140,7 @@ public class BulkInsertBuilder<T>
             {
                 PropertyNames = columnsToInsert,
                 ColumnNameMappings = _table.ColumnNameMappings,
+                ColumnTypeMappings = _table.ColumnTypeMappings,
                 ValueConverters = _table.ValueConverters,
                 AddIndexNumberColumn = false,
                 Discriminator = _table.Discriminator
@@ -176,6 +179,7 @@ public class BulkInsertBuilder<T>
         {
             PropertyNames = _columnNames,
             ColumnNameMappings = null,
+            ColumnTypeMappings = _table.ColumnTypeMappings,
             ValueConverters = _table.ValueConverters,
             AddIndexNumberColumn = true,
             Discriminator = _table.Discriminator
@@ -315,6 +319,7 @@ public class BulkInsertBuilder<T>
             {
                 PropertyNames = _columnNames,
                 ColumnNameMappings = _table.ColumnNameMappings,
+                ColumnTypeMappings = _table.ColumnTypeMappings,
                 ValueConverters = _table.ValueConverters,
                 AddIndexNumberColumn = false,
                 Discriminator = _table.Discriminator
@@ -338,6 +343,7 @@ public class BulkInsertBuilder<T>
             {
                 PropertyNames = columnsToInsert,
                 ColumnNameMappings = _table.ColumnNameMappings,
+                ColumnTypeMappings = _table.ColumnTypeMappings,
                 ValueConverters = _table.ValueConverters,
                 AddIndexNumberColumn = false,
                 Discriminator = _table.Discriminator
@@ -370,6 +376,7 @@ public class BulkInsertBuilder<T>
             {
                 PropertyNames = columnsToInsert,
                 ColumnNameMappings = _table.ColumnNameMappings,
+                ColumnTypeMappings = _table.ColumnTypeMappings,
                 ValueConverters = _table.ValueConverters,
                 AddIndexNumberColumn = false,
                 Discriminator = _table.Discriminator
@@ -408,6 +415,7 @@ public class BulkInsertBuilder<T>
         {
             PropertyNames = _columnNames,
             ColumnNameMappings = null,
+            ColumnTypeMappings = _table.ColumnTypeMappings,
             ValueConverters = _table.ValueConverters,
             AddIndexNumberColumn = true,
             Discriminator = _table.Discriminator

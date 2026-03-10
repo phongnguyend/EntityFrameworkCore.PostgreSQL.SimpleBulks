@@ -20,11 +20,13 @@ public readonly struct DataTableOptions
 
     public IReadOnlyDictionary<string, string> ColumnNameMappings { get; init; }
 
+    public IReadOnlyDictionary<string, string> ColumnTypeMappings { get; init; }
+
     public IReadOnlyDictionary<string, ValueConverter> ValueConverters { get; init; }
 
     public bool AddIndexNumberColumn { get; init; }
 
-    public Discriminator Discriminator { get; init; }    
+    public Discriminator Discriminator { get; init; }
 }
 
 public static class ConnectionContextExtensions
@@ -111,7 +113,17 @@ public static class ConnectionContextExtensions
             {
                 var value = PropertiesCache<T>.GetPropertyValue(name, item, dataTableOptions.ValueConverters);
 
-                writer.Write(value);
+                var columnType = GetDbColumnType(name, PropertiesCache<T>.GetPropertyUnderlyingType(name, dataTableOptions.ValueConverters), dataTableOptions.ColumnTypeMappings);
+
+                if (columnType == "jsonb")
+                {
+                    writer.Write(value, NpgsqlTypes.NpgsqlDbType.Jsonb);
+                }
+                else
+                {
+
+                    writer.Write(value);
+                }
             }
 
             if (dataTableOptions.AddIndexNumberColumn)
@@ -170,7 +182,17 @@ public static class ConnectionContextExtensions
 
                 var value = PropertiesCache<T>.GetPropertyValue(name, item, dataTableOptions.ValueConverters);
 
-                await writer.WriteAsync(value, cancellationToken);
+                var columnType = GetDbColumnType(name, PropertiesCache<T>.GetPropertyUnderlyingType(name, dataTableOptions.ValueConverters), dataTableOptions.ColumnTypeMappings);
+
+                if (columnType == "jsonb")
+                {
+                    await writer.WriteAsync(value, NpgsqlTypes.NpgsqlDbType.Jsonb, cancellationToken);
+                }
+                else
+                {
+
+                    await writer.WriteAsync(value, cancellationToken);
+                }
             }
 
             if (dataTableOptions.AddIndexNumberColumn)
@@ -197,6 +219,16 @@ public static class ConnectionContextExtensions
         }
 
         return columnNameMappings.TryGetValue(columName, out string value) ? value : columName;
+    }
+
+    private static string GetDbColumnType(string name, Type type, IReadOnlyDictionary<string, string> columnTypeMappings)
+    {
+        if (columnTypeMappings == null)
+        {
+            return type.ToPostgreSQLType();
+        }
+
+        return columnTypeMappings.TryGetValue(name, out var value) ? value : type.ToPostgreSQLType();
     }
 
     public static void ExecuteReader(this ConnectionContext connectionContext, string commandText, Action<IDataReader> action, BulkOptions options = null)

@@ -107,6 +107,7 @@ public class BulkDeleteBuilder<T>
         {
             PropertyNames = _deleteKeys,
             ColumnNameMappings = null,
+            ColumnTypeMappings = _table.ColumnTypeMappings,
             ValueConverters = _table.ValueConverters,
             AddIndexNumberColumn = false,
             Discriminator = _table.Discriminator
@@ -201,6 +202,7 @@ public class BulkDeleteBuilder<T>
         {
             PropertyNames = _deleteKeys,
             ColumnNameMappings = null,
+            ColumnTypeMappings = _table.ColumnTypeMappings,
             ValueConverters = _table.ValueConverters,
             AddIndexNumberColumn = false,
             Discriminator = _table.Discriminator

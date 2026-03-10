@@ -1,11 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
-namespace EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.Database;
+namespace DbContextExtensionsExamples.Entities;
 
 public class OwnedTypeOrder
 {
     public int Id { get; set; }
 
+    [Required]
     public OwnedTypeAddress ShippingAddress { get; set; }
 }
 
@@ -29,5 +31,6 @@ public class JsonOwnedTypeOrder
 {
     public int Id { get; set; }
 
+    [Required]
     public OwnedTypeAddress ShippingAddress { get; set; }
 }

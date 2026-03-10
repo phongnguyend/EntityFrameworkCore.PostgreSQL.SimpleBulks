@@ -79,6 +79,7 @@ public class TempTableBuilder<T>
         {
             PropertyNames = _columnNames,
             ColumnNameMappings = _mappingContext.ColumnNameMappings,
+            ColumnTypeMappings = _mappingContext.ColumnTypeMappings,
             ValueConverters = _mappingContext.ValueConverters,
             AddIndexNumberColumn = false,
             Discriminator = null
@@ -115,6 +116,7 @@ public class TempTableBuilder<T>
         {
             PropertyNames = _columnNames,
             ColumnNameMappings = _mappingContext.ColumnNameMappings,
+            ColumnTypeMappings = _mappingContext.ColumnTypeMappings,
             ValueConverters = _mappingContext.ValueConverters,
             AddIndexNumberColumn = false,
             Discriminator = null
