@@ -22,9 +22,9 @@ jobs:
     - uses: actions/checkout@v2
   
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v6
       with:
-        dotnet-version: 10.0.100
+        global-json-file: src/global.json
 
     - name: Tests
       run: dotnet test EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests/EntityFrameworkCore.PostgreSQL.SimpleBulks.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
@@ -43,3 +43,11 @@ jobs:
       with:
         name: EntityFrameworkCore.PostgreSQL.SimpleBulks
         path: src/EntityFrameworkCore.PostgreSQL.SimpleBulks/bin/Release/*.nupkg
+
+    - name: Publish EntityFrameworkCore.PostgreSQL.SimpleBulks to NuGet
+      if: startsWith(github.ref, 'refs/tags/releases/v')
+      run: |
+        dotnet nuget push "EntityFrameworkCore.PostgreSQL.SimpleBulks/bin/Release/*.nupkg" \
+          --api-key ${{ secrets.NUGET_API_KEY }} \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate
