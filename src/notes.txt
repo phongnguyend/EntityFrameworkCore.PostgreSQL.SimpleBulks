@@ -10,4 +10,4 @@ git push origin --tags
 
 git checkout main
 git pull
-git branch -D devs/xxx
+git branch -D devs/xxxx
