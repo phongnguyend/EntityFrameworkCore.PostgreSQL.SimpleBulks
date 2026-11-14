@@ -43,3 +43,11 @@ jobs:
       with:
         name: EntityFrameworkCore.PostgreSQL.SimpleBulks
         path: src/EntityFrameworkCore.PostgreSQL.SimpleBulks/bin/Release/*.nupkg
+
+    - name: Publish EntityFrameworkCore.PostgreSQL.SimpleBulks to NuGet
+      if: startsWith(github.ref, 'refs/tags/releases/v')
+      run: |
+        dotnet nuget push "EntityFrameworkCore.PostgreSQL.SimpleBulks/bin/Release/*.nupkg" \
+          --api-key ${{ secrets.NUGET_API_KEY }} \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate
