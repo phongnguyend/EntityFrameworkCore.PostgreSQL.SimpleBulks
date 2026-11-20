@@ -2,11 +2,11 @@ release vx.x.x-preview.x
 releases/vx.x.x-preview.x
 
 git add -A
-git commit -m "release v11.0.0-preview.1"
+git commit -m "release v11.0.0"
 git push
 
-git tag releases/v11.0.0-preview.1
-git push origin --tags
+git tag releases/v11.0.0
+git push origin releases/v11.0.0
 
 git checkout main
 git pull
