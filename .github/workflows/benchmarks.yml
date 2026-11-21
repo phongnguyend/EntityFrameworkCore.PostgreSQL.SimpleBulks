@@ -1,0 +1,66 @@
+name: Benchmarks
+
+on:
+  workflow_dispatch:
+    inputs:
+      filter:
+        description: 'Benchmark filter (e.g. *BulkInsertSingleTableBenchmarks* or * for all)'
+        required: true
+        default: '*'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  benchmarks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PROJECT: src/EntityFrameworkCore.PostgreSQL.SimpleBulks.Benchmarks/EntityFrameworkCore.PostgreSQL.SimpleBulks.Benchmarks.csproj
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_NOLOGO: '1'
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: src/global.json
+
+      - name: Restore
+        run: dotnet restore "$PROJECT"
+
+      - name: Build
+        run: dotnet build "$PROJECT" --configuration Release --no-restore
+
+      - name: Run selected benchmarks
+        env:
+          BENCHMARK_FILTER: ${{ inputs.filter }}
+        run: >-
+          dotnet run --project "$PROJECT" --configuration Release --no-build --
+          --filter "$BENCHMARK_FILTER" --exporters json
+          --artifacts "${{ github.workspace }}/BenchmarkDotNet.Artifacts"
+
+      - name: Upload benchmark reports and logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: benchmarks-net11-${{ github.run_id }}-${{ github.run_attempt }}
+          path: BenchmarkDotNet.Artifacts/
+          if-no-files-found: warn
+          retention-days: 30
